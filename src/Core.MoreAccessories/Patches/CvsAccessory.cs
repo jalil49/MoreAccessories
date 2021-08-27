@@ -1,4 +1,5 @@
 ﻿using ChaCustom;
+using Cysharp.Threading.Tasks;
 using HarmonyLib;
 using Illusion.Extensions;
 using MessagePack;
@@ -6,6 +7,7 @@ using MoreAccessoriesKOI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using TMPro;
 using UniRx;
 using UniRx.Triggers;
@@ -291,7 +293,7 @@ namespace MoreAccessoriesKOI
 
         }
 
-        [HarmonyPatch(typeof(CvsAccessory), "SetDefaultColor")]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.SetDefaultColor))]
         private static class CvsAccessory_SetDefaultColor_Patches
         {
             private static bool Prefix(CvsAccessory __instance)
@@ -356,16 +358,16 @@ namespace MoreAccessoriesKOI
                 if (0 <= num)
                 {
                     if (__instance.tglAcsParent.isOn)
-                        ((CanvasGroup)__instance.cgAcsParent).Enable(true, false);
+                        __instance.cgAcsParent.Enable(true, false);
                     if (null != __instance.cusAcsParentWin)
                     {
-                        int num2 = ((CustomAcsParentWindow)__instance.cusAcsParentWin).UpdateCustomUI();
+                        int num2 = __instance.cusAcsParentWin.UpdateCustomUI();
                         if (__instance.textAcsParent != null)
                         {
                             string empty = string.Empty;
                             if (!ChaAccessoryDefine.dictAccessoryParent.TryGetValue(num2 + 1, out empty))
                                 empty = string.Empty;
-                            ((TextMeshProUGUI)__instance.textAcsParent).text = empty;
+                            __instance.textAcsParent.text = empty;
                         }
                     }
                 }
@@ -406,7 +408,7 @@ namespace MoreAccessoriesKOI
         //    return false;
         //}
 
-        [HarmonyPatch(typeof(CvsAccessory), "FuncUpdateAcsParent", new[] { typeof(bool) })]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.FuncUpdateAcsParent))]
         private static class CvsAccessory_FuncUpdateAcsParent_Patches
         {
             private static bool Prefix(CvsAccessory __instance, bool history, ref bool __result)
@@ -426,7 +428,7 @@ namespace MoreAccessoriesKOI
 
         }
 
-        [HarmonyPatch(typeof(CvsAccessory), "UpdateAcsColor01", new[] { typeof(Color) })]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsColor01))]
         private static class CvsAccessory_UpdateAcsColor01_Patches
         {
             private static bool Prefix(CvsAccessory __instance, Color color)
@@ -441,7 +443,7 @@ namespace MoreAccessoriesKOI
             }
         }
 
-        [HarmonyPatch(typeof(CvsAccessory), "UpdateAcsColor02", new[] { typeof(Color) })]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsColor02))]
         private static class CvsAccessory_UpdateAcsColor02_Patches
         {
             private static bool Prefix(CvsAccessory __instance, Color color)
@@ -457,7 +459,7 @@ namespace MoreAccessoriesKOI
 
         }
 
-        [HarmonyPatch(typeof(CvsAccessory), "UpdateAcsColor03", new[] { typeof(Color) })]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsColor03))]
         private static class CvsAccessory_UpdateAcsColor03_Patches
         {
             private static bool Prefix(CvsAccessory __instance, Color color)
@@ -473,7 +475,7 @@ namespace MoreAccessoriesKOI
 
         }
 
-        [HarmonyPatch(typeof(CvsAccessory), "UpdateAcsColor04", new[] { typeof(Color) })]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsColor04))]
         private static class CvsAccessory_UpdateAcsColor04_Patches
         {
             private static bool Prefix(CvsAccessory __instance, Color color)
@@ -489,7 +491,7 @@ namespace MoreAccessoriesKOI
 
         }
 
-        [HarmonyPatch(typeof(CvsAccessory), "FuncUpdateAcsColor", new[] { typeof(bool) })]
+        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.FuncUpdateAcsColor))]
         private static class CvsAccessory_FuncUpdateAcsColor_Patches
         {
             private static bool Prefix(CvsAccessory __instance, bool history, ref bool __result)
@@ -511,23 +513,23 @@ namespace MoreAccessoriesKOI
 
         }
 
-#if KOIKATSU
-        [HarmonyPatch(typeof(CvsAccessory), "UpdateAcsColorHistory")]
-        private static class CvsAccessory_UpdateAcsColorHistory_Patches
-        {
-            private static bool Prepare()
-            {
-                return (MoreAccessories._self._hasDarkness == false);
-            }
+        //#if KOIKATSU
+        //        [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsColorHistory))]
+        //        private static class CvsAccessory_UpdateAcsColorHistory_Patches
+        //        {
+        //            private static bool Prepare()
+        //            {
+        //                return (MoreAccessories._self._hasDarkness == false);
+        //            }
 
-            private static bool Prefix(CvsAccessory __instance)
-            {
-                BackwardCompatibility.CustomHistory_Instance_Add2(CustomBase.Instance.chaCtrl, __instance.FuncUpdateAcsColor, true);
-                return false;
-            }
+        //            private static bool Prefix(CvsAccessory __instance)
+        //            {
+        //                BackwardCompatibility.CustomHistory_Instance_Add2(CustomBase.Instance.chaCtrl, __instance.FuncUpdateAcsColor, true);
+        //                return false;
+        //            }
 
-        }
-#endif
+        //        }
+        //#endif
 
         [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.FuncUpdateAcsPosAdd))]
         private static class CvsAccessory_FuncUpdateAcsPosAdd_Patches
@@ -634,23 +636,23 @@ namespace MoreAccessoriesKOI
 
         }
 
-#if KOIKATSU
-        //[HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsMoveHistory))]
-        [HarmonyPatch(typeof(CvsAccessory), "updateacsmovehistory")] //extension nameof(CvsAccessory.UpdateAcsMoveHistory)
-        private static class CvsAccessory_UpdateAcsMoveHistory_Patches
-        {
-            private static bool Prepare()
-            {
-                return (MoreAccessories._self._hasDarkness == false);
-            }
+        //#if KOIKATSU
+        //        //[HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateAcsMoveHistory))]
+        //        [HarmonyPatch(typeof(CvsAccessory), "updateacsmovehistory")] //extension nameof(CvsAccessory.UpdateAcsMoveHistory)
+        //        private static class CvsAccessory_UpdateAcsMoveHistory_Patches
+        //        {
+        //            private static bool Prepare()
+        //            {
+        //                return (MoreAccessories._self._hasDarkness == false);
+        //            }
 
-            private static bool Prefix(CvsAccessory __instance)
-            {
-                BackwardCompatibility.CustomHistory_Instance_Add1(CustomBase.Instance.chaCtrl, CustomBase.Instance.chaCtrl.UpdateAccessoryMoveAllFromInfo);
-                return false;
-            }
-        }
-#endif
+        //            private static bool Prefix(CvsAccessory __instance)
+        //            {
+        //                BackwardCompatibility.CustomHistory_Instance_Add1(CustomBase.Instance.chaCtrl, CustomBase.Instance.chaCtrl.UpdateAccessoryMoveAllFromInfo);
+        //                return false;
+        //            }
+        //        }
+        //#endif
 
         [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.ChangeSettingVisible))]
         private static class CvsAccessory_ChangeSettingVisible_Patches
@@ -762,7 +764,7 @@ namespace MoreAccessoriesKOI
         {
             private static bool Prefix(CvsAccessory __instance, int no)
             {
-                (__instance.cvsColor).Setup($"スロット{no + 1:00} カラー①", (CvsColor.ConnectColorKind)(no * 4 + 124), MoreAccessories._self.GetPart(no).color[0], __instance.UpdateAcsColor01, __instance.UpdateAcsColorHistory(), false);
+                __instance.cvsColor.Setup($"スロット{no + 1:00} カラー①", (CvsColor.ConnectColorKind)(no * 4 + 124), MoreAccessories._self.GetPart(no).color[0], __instance.UpdateAcsColor01, __instance.UpdateAcsColorHistory(), false);
                 return false;
             }
 
@@ -878,8 +880,8 @@ namespace MoreAccessoriesKOI
                     guidNo != 0 ? (__instance.tglControllerType02)[0] : (__instance.tglControllerType01)[0],
                     guidNo != 0 ? (__instance.tglControllerType02)[1] : (__instance.tglControllerType01)[1]
                 };
-                Slider slider = guidNo != 0 ? __instance.sldControllerSpeed02 : (Slider)__instance.sldControllerSpeed01;
-                Slider slider2 = guidNo != 0 ? __instance.sldControllerScale02 : (Slider)__instance.sldControllerScale01;
+                Slider slider = guidNo != 0 ? __instance.sldControllerSpeed02 : __instance.sldControllerSpeed01;
+                Slider slider2 = guidNo != 0 ? __instance.sldControllerScale02 : __instance.sldControllerScale01;
                 toggle.isOn = Singleton<CustomBase>.Instance.customSettingSave.drawController[guidNo];
                 if (Singleton<CustomBase>.Instance.customSettingSave.controllerType[guidNo] == 0)
                 {
@@ -907,7 +909,6 @@ namespace MoreAccessoriesKOI
                 slider2.value = Singleton<CustomBase>.Instance.customSettingSave.controllerScale[guidNo];
                 return false;
             }
-
         }
 
         [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.Start))]
@@ -915,15 +916,36 @@ namespace MoreAccessoriesKOI
         {
             private static bool Prefix(CvsAccessory __instance)
             {
+                _ = Test(__instance);
+                return false;
+            }
+
+            private static async UniTask Test(CvsAccessory __instance)
+            {
+                __instance.enabled = false;
+
+                await UniTask.WaitUntil(() => CustomBase.instance.chaCtrl != null, PlayerLoopTiming.Update, default);
+
+                if (MoreAccessories._self._accessoriesByChar.TryGetValue(CustomBase.Instance.chaCtrl.chaFile, out MoreAccessories._self._charaMakerData) == false)
+                {
+                    MoreAccessories._self._charaMakerData = new MoreAccessories.CharAdditionalData();
+                    MoreAccessories._self._accessoriesByChar.Add(CustomBase.Instance.chaCtrl.chaFile, MoreAccessories._self._charaMakerData);
+                }
+                if (MoreAccessories._self._charaMakerData.nowAccessories == null)
+                {
+                    MoreAccessories._self._charaMakerData.nowAccessories = new List<ChaFileAccessory.PartsInfo>();
+                    MoreAccessories._self._charaMakerData.rawAccessoriesInfos.Add(CustomBase.Instance.chaCtrl.fileStatus.GetCoordinateType(), MoreAccessories._self._charaMakerData.nowAccessories);
+                }
+
                 int nSlotNo = (int)__instance.slotNo;
                 if (nSlotNo < 20)
                 {
                     Singleton<CustomBase>.Instance.actUpdateCvsAccessory[nSlotNo] = (Action)Delegate.Combine(Singleton<CustomBase>.Instance.actUpdateCvsAccessory[nSlotNo], new Action(__instance.UpdateCustomUI));
                     Singleton<CustomBase>.Instance.actUpdateAcsSlotName[nSlotNo] = (Action)Delegate.Combine(Singleton<CustomBase>.Instance.actUpdateAcsSlotName[nSlotNo], new Action(__instance.UpdateSlotName));
                 }
-                (__instance.tglTakeOverParent).OnValueChangedAsObservable().Subscribe(delegate (bool isOn) { Singleton<CustomBase>.Instance.customSettingSave.acsTakeOverParent = isOn; });
-                (__instance.tglTakeOverColor).OnValueChangedAsObservable().Subscribe(delegate (bool isOn) { Singleton<CustomBase>.Instance.customSettingSave.acsTakeOverColor = isOn; });
-                (__instance.ddAcsType).onValueChanged.AddListener(delegate (int idx)
+                __instance.tglTakeOverParent.OnValueChangedAsObservable().Subscribe(delegate (bool isOn) { Singleton<CustomBase>.Instance.customSettingSave.acsTakeOverParent = isOn; });
+                __instance.tglTakeOverColor.OnValueChangedAsObservable().Subscribe(delegate (bool isOn) { Singleton<CustomBase>.Instance.customSettingSave.acsTakeOverColor = isOn; });
+                __instance.ddAcsType.onValueChanged.AddListener(delegate (int idx)
                 {
                     __instance.UpdateSelectAccessoryType(idx);
                     bool visible = idx != 0;
@@ -934,23 +956,19 @@ namespace MoreAccessoriesKOI
                     int num = (__instance.ddAcsType).value - 1;
                     if (0 <= num)
                     {
-                        if (__instance.cgAccessoryWin[num])
+                        if (__instance.cgAccessoryWin[num] && 0f != __instance.cgAccessoryWin[num].alpha != isOn)
                         {
-                            bool flag = __instance.cgAccessoryWin[num].alpha != 0f;
-                            if (flag != isOn)
+                            __instance.cgAccessoryWin[num].Enable(isOn, false);
+                            if (isOn)
                             {
-                                __instance.cgAccessoryWin[num].Enable(isOn, false);
-                                if (isOn)
+                                __instance.tglAcsParent.isOn = false;
+                                __instance.tglAcsMove01.isOn = false;
+                                __instance.tglAcsMove02.isOn = false;
+                                for (int i = 0; i < __instance.cgAccessoryWin.Length; i++)
                                 {
-                                    __instance.tglAcsParent.isOn = false;
-                                    (__instance.tglAcsMove01).isOn = false;
-                                    (__instance.tglAcsMove02).isOn = false;
-                                    for (int i = 0; i < __instance.cgAccessoryWin.Length; i++)
+                                    if (i != num)
                                     {
-                                        if (i != num)
-                                        {
-                                            __instance.cgAccessoryWin[i].Enable(false, false);
-                                        }
+                                        __instance.cgAccessoryWin[i].Enable(false, false);
                                     }
                                 }
                             }
@@ -966,22 +984,21 @@ namespace MoreAccessoriesKOI
                 });
                 __instance.tglAcsParent.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
                 {
-                    if ((CanvasGroup)__instance.cgAcsParent)
+                    if (__instance.cgAcsParent)
                     {
-                        bool flag = ((CanvasGroup)__instance.cgAcsParent).alpha != 0f;
-                        if (flag != isOn)
+                        if (__instance.cgAcsParent && 0f != __instance.cgAcsParent.alpha != isOn)
                         {
-                            ((CanvasGroup)__instance.cgAcsParent).Enable(isOn, false);
+                            __instance.cgAcsParent.Enable(isOn, false);
                             if (isOn)
                             {
                                 __instance.tglAcsKind.isOn = false;
-                                (__instance.tglAcsMove01).isOn = false;
-                                (__instance.tglAcsMove02).isOn = false;
+                                __instance.tglAcsMove01.isOn = false;
+                                __instance.tglAcsMove02.isOn = false;
                             }
                         }
                     }
                 });
-                (__instance.btnInitParent).onClick.AsObservable().Subscribe(delegate
+                __instance.btnInitParent.onClick.AsObservable().Subscribe(delegate
                 {
                     string accessoryDefaultParentStr = CustomBase.Instance.chaCtrl.GetAccessoryDefaultParentStr((int)__instance.slotNo);
                     MoreAccessories._self.GetPart((int)__instance.slotNo).parentKey = accessoryDefaultParentStr;
@@ -995,7 +1012,7 @@ namespace MoreAccessoriesKOI
 #endif
                     __instance.UpdateCustomUI();
                 });
-                (__instance.btnReverseParent).onClick.AsObservable().Subscribe(delegate
+                __instance.btnReverseParent.onClick.AsObservable().Subscribe(delegate
                 {
                     ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart((int)__instance.slotNo);
                     string reverseParent = ChaAccessoryDefine.GetReverseParent(part.parentKey);
@@ -1013,51 +1030,51 @@ namespace MoreAccessoriesKOI
                         __instance.UpdateCustomUI();
                     }
                 });
-                (__instance.btnAcsColor01).OnClickAsObservable().Subscribe(delegate
+                __instance.btnAcsColor01.OnClickAsObservable().Subscribe(delegate
                 {
-                    if ((__instance.cvsColor).isOpen && (int)(__instance.cvsColor).connectColorKind == ((int)__instance.slotNo * 4 + 124))
+                    if (__instance.cvsColor.isOpen && (int)__instance.cvsColor.connectColorKind == ((int)__instance.slotNo * 4 + 124))
                     {
-                        (__instance.cvsColor).Close();
+                        __instance.cvsColor.Close();
                     }
                     else
                     {
-                        (__instance.cvsColor).Setup($"スロット{(int)__instance.slotNo + 1:00} カラー①", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124), MoreAccessories._self.GetPart((int)__instance.slotNo).color[0], __instance.UpdateAcsColor01, __instance.UpdateAcsColorHistory(), false);
+                        __instance.cvsColor.Setup($"スロット{(int)__instance.slotNo + 1:00} カラー①", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124), MoreAccessories._self.GetPart((int)__instance.slotNo).color[0], __instance.UpdateAcsColor01, __instance.UpdateAcsColorHistory(), false);
                     }
                 });
-                (__instance.btnAcsColor02).OnClickAsObservable().Subscribe(delegate
+                __instance.btnAcsColor02.OnClickAsObservable().Subscribe(delegate
                 {
-                    if ((__instance.cvsColor).isOpen && (int)(__instance.cvsColor).connectColorKind == ((int)__instance.slotNo * 4 + 124 + 1))
+                    if (__instance.cvsColor.isOpen && (int)__instance.cvsColor.connectColorKind == ((int)__instance.slotNo * 4 + 124 + 1))
                     {
-                        (__instance.cvsColor).Close();
+                        __instance.cvsColor.Close();
                     }
                     else
                     {
-                        (__instance.cvsColor).Setup($"スロット{(int)__instance.slotNo + 1:00} カラー②", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124 + 1), MoreAccessories._self.GetPart((int)__instance.slotNo).color[1], __instance.UpdateAcsColor02, __instance.UpdateAcsColorHistory(), false);
+                        __instance.cvsColor.Setup($"スロット{(int)__instance.slotNo + 1:00} カラー②", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124 + 1), MoreAccessories._self.GetPart((int)__instance.slotNo).color[1], __instance.UpdateAcsColor02, __instance.UpdateAcsColorHistory(), false);
                     }
                 });
-                (__instance.btnAcsColor03).OnClickAsObservable().Subscribe(delegate
+                __instance.btnAcsColor03.OnClickAsObservable().Subscribe(delegate
                 {
-                    if ((__instance.cvsColor).isOpen && (int)(__instance.cvsColor).connectColorKind == ((int)__instance.slotNo * 4 + 124 + 2))
+                    if (__instance.cvsColor.isOpen && (int)__instance.cvsColor.connectColorKind == ((int)__instance.slotNo * 4 + 124 + 2))
                     {
-                        (__instance.cvsColor).Close();
+                        __instance.cvsColor.Close();
                     }
                     else
                     {
-                        (__instance.cvsColor).Setup($"スロット{(int)__instance.slotNo + 1:00} カラー③", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124 + 2), MoreAccessories._self.GetPart((int)__instance.slotNo).color[2], __instance.UpdateAcsColor03, __instance.UpdateAcsColorHistory(), false);
+                        __instance.cvsColor.Setup($"スロット{(int)__instance.slotNo + 1:00} カラー③", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124 + 2), MoreAccessories._self.GetPart((int)__instance.slotNo).color[2], __instance.UpdateAcsColor03, __instance.UpdateAcsColorHistory(), false);
                     }
                 });
-                (__instance.btnAcsColor04).OnClickAsObservable().Subscribe(delegate
+                __instance.btnAcsColor04.OnClickAsObservable().Subscribe(delegate
                 {
-                    if ((__instance.cvsColor).isOpen && (int)(__instance.cvsColor).connectColorKind == ((int)__instance.slotNo * 4 + 124 + 3))
+                    if (__instance.cvsColor.isOpen && (int)__instance.cvsColor.connectColorKind == ((int)__instance.slotNo * 4 + 124 + 3))
                     {
-                        (__instance.cvsColor).Close();
+                        __instance.cvsColor.Close();
                     }
                     else
                     {
-                        (__instance.cvsColor).Setup($"スロット{(int)__instance.slotNo + 1:00} カラー④", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124 + 3), MoreAccessories._self.GetPart((int)__instance.slotNo).color[3], __instance.UpdateAcsColor04, __instance.UpdateAcsColorHistory(), true);
+                        __instance.cvsColor.Setup($"スロット{(int)__instance.slotNo + 1:00} カラー④", (CvsColor.ConnectColorKind)((int)__instance.slotNo * 4 + 124 + 3), MoreAccessories._self.GetPart((int)__instance.slotNo).color[3], __instance.UpdateAcsColor04, __instance.UpdateAcsColorHistory(), true);
                     }
                 });
-                (__instance.btnInitColor).onClick.AsObservable().Subscribe(delegate
+                __instance.btnInitColor.onClick.AsObservable().Subscribe(delegate
                 {
                     __instance.SetDefaultColor();
 #if KOIKATSU
@@ -1066,14 +1083,14 @@ namespace MoreAccessoriesKOI
 #endif
                     __instance.UpdateCustomUI();
                 });
-                (__instance.tglAcsMove01).OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
+                __instance.tglAcsMove01.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
                 {
-                    if ((CanvasGroup)__instance.cgAcsMove01)
+                    if (__instance.cgAcsMove01)
                     {
-                        bool flag = ((CanvasGroup)__instance.cgAcsMove01).alpha != 0f;
+                        bool flag = __instance.cgAcsMove01.alpha != 0f;
                         if (flag != isOn)
                         {
-                            ((CanvasGroup)__instance.cgAcsMove01).Enable(isOn, false);
+                            __instance.cgAcsMove01.Enable(isOn, false);
                             if (isOn)
                             {
                                 __instance.tglAcsKind.isOn = false;
@@ -1083,14 +1100,14 @@ namespace MoreAccessoriesKOI
                         }
                     }
                 });
-                (__instance.tglAcsMove02).OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
+                __instance.tglAcsMove02.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
                 {
-                    if ((CanvasGroup)__instance.cgAcsMove02)
+                    if (__instance.cgAcsMove02)
                     {
-                        bool flag = ((CanvasGroup)__instance.cgAcsMove02).alpha != 0f;
+                        bool flag = __instance.cgAcsMove02.alpha != 0f;
                         if (flag != isOn)
                         {
-                            ((CanvasGroup)__instance.cgAcsMove02).Enable(isOn, false);
+                            __instance.cgAcsMove02.Enable(isOn, false);
                             if (isOn)
                             {
                                 __instance.tglAcsKind.isOn = false;
@@ -1107,42 +1124,42 @@ namespace MoreAccessoriesKOI
                 })
                  where item.tgl != null
                  select item).ToList().ForEach(item =>
-                {
-                    (from isOn in item.tgl.OnValueChangedAsObservable()
-                     where isOn
-                     select isOn).Subscribe(delegate
-                    {
-                        ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart((int)__instance.slotNo);
-                        if (((int)__instance.slotNo >= 20 || !Singleton<CustomBase>.Instance.GetUpdateCvsAccessory((int)__instance.slotNo)) && item.idx != part.hideCategory)
-                        {
-                            part.hideCategory = item.idx;
-                            if ((int)__instance.slotNo < 20)
-                                CustomBase.Instance.chaCtrl.chaFile.GetCoordinate(CustomBase.Instance.chaCtrl.chaFile.status.GetCoordinateType()).accessory.parts[(int)__instance.slotNo].hideCategory = item.idx;
+                 {
+                     (from isOn in item.tgl.OnValueChangedAsObservable()
+                      where isOn
+                      select isOn).Subscribe(delegate
+                      {
+                          ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart((int)__instance.slotNo);
+                          if (((int)__instance.slotNo >= 20 || !Singleton<CustomBase>.Instance.GetUpdateCvsAccessory((int)__instance.slotNo)) && item.idx != part.hideCategory)
+                          {
+                              part.hideCategory = item.idx;
+                              if ((int)__instance.slotNo < 20)
+                                  CustomBase.Instance.chaCtrl.chaFile.GetCoordinate(CustomBase.Instance.chaCtrl.chaFile.status.GetCoordinateType()).accessory.parts[(int)__instance.slotNo].hideCategory = item.idx;
 
 #if KOIKATSU
-                            ((CvsDrawCtrl)__instance.cmpDrawCtrl).UpdateAccessoryDraw();
-                            if (MoreAccessories._self._hasDarkness == false)
-                                BackwardCompatibility.CustomHistory_Instance_Add1(CustomBase.Instance.chaCtrl, null);
+                              __instance.cmpDrawCtrl.UpdateAccessoryDraw();
+                              if (MoreAccessories._self._hasDarkness == false)
+                                  BackwardCompatibility.CustomHistory_Instance_Add1(CustomBase.Instance.chaCtrl, null);
 #endif
-                        }
-                    });
-                });
-#if EMOTIONCREATORS
-                (from item in (__instance.tglHideTiming).Select((Toggle tgl, int idx) => new { tgl, idx })
-                 where item.tgl != null
-                 select item).ToList().ForEach(item =>
-                 {
-                     item.tgl.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
-                     {
-                         ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart((int)__instance.slotNo);
-                         if ((int)__instance.slotNo >= 20 || !Singleton<CustomBase>.Instance.updateCustomUI && isOn && !Singleton<CustomBase>.Instance.GetUpdateCvsAccessory((int)__instance.slotNo) && item.idx != part.hideTiming)
-                         {
-                             part.hideTiming = item.idx;
-                             if ((int)__instance.slotNo < 20)
-                                 CustomBase.Instance.chaCtrl.chaFile.GetCoordinate(CustomBase.Instance.chaCtrl.chaFile.status.GetCoordinateType()).accessory.parts[(int)__instance.slotNo].hideTiming = item.idx;
-                         }
-                     });
+                          }
+                      });
                  });
+#if EMOTIONCREATORS
+                        (from item in (__instance.tglHideTiming).Select((Toggle tgl, int idx) => new { tgl, idx })
+                         where item.tgl != null
+                         select item).ToList().ForEach(item =>
+                         {
+                             item.tgl.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
+                             {
+                                 ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart((int)__instance.slotNo);
+                                 if ((int)__instance.slotNo >= 20 || !Singleton<CustomBase>.Instance.updateCustomUI && isOn && !Singleton<CustomBase>.Instance.GetUpdateCvsAccessory((int)__instance.slotNo) && item.idx != part.hideTiming)
+                                 {
+                                     part.hideTiming = item.idx;
+                                     if ((int)__instance.slotNo < 20)
+                                         CustomBase.Instance.chaCtrl.chaFile.GetCoordinate(CustomBase.Instance.chaCtrl.chaFile.status.GetCoordinateType()).accessory.parts[(int)__instance.slotNo].hideTiming = item.idx;
+                                 }
+                             });
+                         });
 #endif
                 if (__instance.tglDrawController01)
                 {
@@ -1172,24 +1189,24 @@ namespace MoreAccessoriesKOI
                         });
                     });
                 }
-                if ((Slider)__instance.sldControllerSpeed01)
+                if (__instance.sldControllerSpeed01)
                 {
-                    ((Slider)__instance.sldControllerSpeed01).onValueChanged.AsObservable().Subscribe(delegate (float val)
+                    __instance.sldControllerSpeed01.onValueChanged.AsObservable().Subscribe(delegate (float val)
                     {
                         Singleton<CustomBase>.Instance.customSettingSave.controllerSpeed[0] = val;
                         Singleton<CustomBase>.Instance.customCtrl.cmpGuid[0].speedMove = val;
                     });
-                    ((Slider)__instance.sldControllerSpeed01).OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { ((Slider)__instance.sldControllerSpeed01).value = Mathf.Clamp(((Slider)__instance.sldControllerSpeed01).value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.01f, 1f); });
+                    __instance.sldControllerSpeed01.OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { __instance.sldControllerSpeed01.value = Mathf.Clamp(__instance.sldControllerSpeed01.value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.01f, 1f); });
                 }
-                if ((Slider)__instance.sldControllerScale01)
+                if (__instance.sldControllerScale01)
                 {
-                    ((Slider)__instance.sldControllerScale01).onValueChanged.AsObservable().Subscribe(delegate (float val)
+                    __instance.sldControllerScale01.onValueChanged.AsObservable().Subscribe(delegate (float val)
                     {
                         Singleton<CustomBase>.Instance.customSettingSave.controllerScale[0] = val;
                         Singleton<CustomBase>.Instance.customCtrl.cmpGuid[0].scaleAxis = val;
                         Singleton<CustomBase>.Instance.customCtrl.cmpGuid[0].UpdateScale();
                     });
-                    ((Slider)__instance.sldControllerScale01).OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { ((Slider)__instance.sldControllerScale01).value = Mathf.Clamp(((Slider)__instance.sldControllerScale01).value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.3f, 3f); });
+                    __instance.sldControllerScale01.OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { __instance.sldControllerScale01.value = Mathf.Clamp(__instance.sldControllerScale01.value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.3f, 3f); });
                 }
                 if (__instance.tglDrawController02)
                 {
@@ -1219,27 +1236,27 @@ namespace MoreAccessoriesKOI
                         });
                     });
                 }
-                if ((Slider)__instance.sldControllerSpeed02)
+                if (__instance.sldControllerSpeed02)
                 {
-                    ((Slider)__instance.sldControllerSpeed02).onValueChanged.AsObservable().Subscribe(delegate (float val)
+                    __instance.sldControllerSpeed02.onValueChanged.AsObservable().Subscribe(delegate (float val)
                     {
                         Singleton<CustomBase>.Instance.customSettingSave.controllerSpeed[1] = val;
                         Singleton<CustomBase>.Instance.customCtrl.cmpGuid[1].speedMove = val;
                     });
-                    ((Slider)__instance.sldControllerSpeed02).OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { ((Slider)__instance.sldControllerSpeed02).value = Mathf.Clamp(((Slider)__instance.sldControllerSpeed02).value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.01f, 1f); });
+                    __instance.sldControllerSpeed02.OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { __instance.sldControllerSpeed02.value = Mathf.Clamp(__instance.sldControllerSpeed02.value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.01f, 1f); });
                 }
-                if ((Slider)__instance.sldControllerScale02)
+                if (__instance.sldControllerScale02)
                 {
-                    ((Slider)__instance.sldControllerScale02).onValueChanged.AsObservable().Subscribe(delegate (float val)
+                    __instance.sldControllerScale02.onValueChanged.AsObservable().Subscribe(delegate (float val)
                     {
                         Singleton<CustomBase>.Instance.customSettingSave.controllerScale[1] = val;
                         Singleton<CustomBase>.Instance.customCtrl.cmpGuid[1].scaleAxis = val;
                         Singleton<CustomBase>.Instance.customCtrl.cmpGuid[1].UpdateScale();
                     });
-                    ((Slider)__instance.sldControllerScale02).OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { ((Slider)__instance.sldControllerScale02).value = Mathf.Clamp(((Slider)__instance.sldControllerScale02).value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.3f, 3f); });
+                    __instance.sldControllerScale02.OnScrollAsObservable().Subscribe(delegate (PointerEventData scl) { __instance.sldControllerScale02.value = Mathf.Clamp(__instance.sldControllerScale02.value + scl.scrollDelta.y * Singleton<CustomBase>.Instance.sliderWheelSensitive, 0.3f, 3f); });
                 }
                 if (MoreAccessories._self._hasDarkness)
-                    (__instance.tglNoShake).OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
+                    __instance.tglNoShake.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
                     {
                         ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart((int)__instance.slotNo);
                         if (!Singleton<CustomBase>.Instance.updateCustomUI && part.noShake != isOn)
@@ -1250,7 +1267,7 @@ namespace MoreAccessoriesKOI
                             CustomBase.Instance.chaCtrl.ChangeShakeAccessory((int)__instance.slotNo);
                         }
                     });
-                return false;
+                __instance.enabled = true;
             }
         }
 
@@ -1259,7 +1276,7 @@ namespace MoreAccessoriesKOI
         {
             private static bool Prefix(CvsAccessory __instance)
             {
-                if (((CanvasGroup)__instance.cgSlot).alpha != 1f)
+                if (__instance.cgSlot.alpha != 1f)
                 {
                     return false;
                 }
@@ -1279,7 +1296,7 @@ namespace MoreAccessoriesKOI
                         {
                             __instance.SetControllerTransform(i);
                         }
-                        (__instance.isDrag)[i] = Singleton<CustomBase>.Instance.customCtrl.cmpGuid[i].isDrag;
+                        __instance.isDrag[i] = Singleton<CustomBase>.Instance.customCtrl.cmpGuid[i].isDrag;
                     }
                 }
                 return false;

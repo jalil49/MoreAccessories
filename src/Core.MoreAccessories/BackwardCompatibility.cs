@@ -1,8 +1,8 @@
-﻿using System;
-using System.Reflection;
-using ChaCustom;
+﻿using ChaCustom;
 using HarmonyLib;
 using MoreAccessoriesKOI.Extensions;
+using System;
+using System.Reflection;
 using UnityEngine;
 
 namespace MoreAccessoriesKOI

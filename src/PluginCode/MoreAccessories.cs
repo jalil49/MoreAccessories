@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx.Logging;
 using System.Reflection;
 using System.Xml;
 using BepInEx;
@@ -21,7 +22,6 @@ using MessagePack;
 using Sideloader.AutoResolver;
 #if KOIKATSU
 using Studio;
-using KKAPI;
 #endif
 using TMPro;
 using MoreAccessoriesKOI.Extensions;
@@ -33,15 +33,14 @@ using MoreAccessories.Extensions;
 
 namespace MoreAccessoriesKOI
 {
-    [BepInPlugin(GUID: "com.joan6694.illusionplugins.moreaccessories", Name: "MoreAccessories", Version: versionNum)]
-    [BepInDependency("com.bepis.bepinex.extendedsave")]
-    [BepInDependency("com.bepis.bepinex.sideloader", BepInDependency.DependencyFlags.HardDependency)]
-    [BepInDependency(KoikatuAPI.GUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInPlugin(GUID: GUID, Name: "MoreAccessories", Version: versionNum)]
+    [BepInDependency(ExtendedSave.GUID)]
+    [BepInDependency(Sideloader.Sideloader.GUID)]
     [BepInProcess("KoikatsuSunshine")]
-    [BepInProcess("Koikatsu Sunshine")]
     public class MoreAccessories : BaseUnityPlugin
     {
         public const string versionNum = "1.1.0";
+        public const string GUID = "com.joan6694.illusionplugins.moreaccessories";
 
         #region Events
         /// <summary>
@@ -177,9 +176,9 @@ namespace MoreAccessoriesKOI
         internal CustomAcsMoveWindow[] _customAcsMoveWin;
         internal CustomAcsSelectKind[] _customAcsSelectKind;
         internal CvsAccessory[] _cvsAccessory;
-        internal List<CharaMakerSlotData> _additionalCharaMakerSlots;
-        internal WeakKeyDictionary<ChaFile, CharAdditionalData> _accessoriesByChar = new WeakKeyDictionary<ChaFile, CharAdditionalData>();
-        internal WeakKeyDictionary<ChaFileCoordinate, WeakReference> _charByCoordinate = new WeakKeyDictionary<ChaFileCoordinate, WeakReference>();
+        internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
+        public readonly WeakKeyDictionary<ChaFile, CharAdditionalData> _accessoriesByChar = new WeakKeyDictionary<ChaFile, CharAdditionalData>(); //Sorry Prefer this to be public 
+        public readonly WeakKeyDictionary<ChaFileCoordinate, WeakReference> _charByCoordinate = new WeakKeyDictionary<ChaFileCoordinate, WeakReference>();
         public CharAdditionalData _charaMakerData = null;
         private float _slotUIPositionY;
         internal bool _hasDarkness;
@@ -198,6 +197,7 @@ namespace MoreAccessoriesKOI
         private ChaFile _overrideCharaLoadingFilePost;
         private bool _loadAdditionalAccessories = true;
         private CustomFileWindow _loadCoordinatesWindow;
+        internal static ManualLogSource Logger;
 
 #if KOIKATSU
         private bool _inH;
@@ -234,10 +234,10 @@ namespace MoreAccessoriesKOI
             ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
             SceneManager.sceneLoaded += this.LevelLoaded;
 
-            this._hasDarkness = typeof(ChaControl).GetMethod("ChangeShakeAccessory", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance) != null;
+            this._hasDarkness = true;
             this._isParty = Application.productName == "Koikatsu Party";
 
-            Harmony harmony = new Harmony("com.joan6694.kkplugins.moreaccessories");
+            Harmony harmony = new Harmony(GUID);
             harmony.PatchAll();
             Type uarHooks = typeof(UniversalAutoResolver).GetNestedType("Hooks", BindingFlags.NonPublic | BindingFlags.Static);
             ChaControl_ChangeAccessory_Patches.ManualPatch(harmony);
@@ -385,7 +385,7 @@ namespace MoreAccessoriesKOI
                     if (pair.Value.Count == 0)
                         continue;
                     xmlWriter.WriteStartElement("accessorySet");
-                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString((int)pair.Key));
+                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString(pair.Key));
                     if (maxCount < pair.Value.Count)
                         maxCount = pair.Value.Count;
 
@@ -454,10 +454,12 @@ namespace MoreAccessoriesKOI
 
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {
+            bool instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
-                    if (GameMode.MainGame == KoikatuAPI.GetCurrentGameMode())
+                    Logger.LogWarning(scene.buildIndex);
+                    if (!instudio)
                     {
                         this._inCharaMaker = false;
 #if KOIKATSU
@@ -468,11 +470,7 @@ namespace MoreAccessoriesKOI
                         switch (scene.buildIndex)
                         {
                             //Chara maker
-#if KOIKATSU
-                            case 2:
-#elif EMOTIONCREATORS
-                            case 3:
-#endif
+                            case 3: //sunshine uses 3
                                 CustomBase.Instance.selectSlot = 0;
                                 this._additionalCharaMakerSlots = new List<CharaMakerSlotData>();
                                 this._raycastCtrls = new List<UI_RaycastCtrl>();
@@ -502,7 +500,7 @@ namespace MoreAccessoriesKOI
                     this._charByCoordinate.Purge();
                     break;
                 case LoadSceneMode.Additive:
-                    if (GameMode.Maker == KoikatuAPI.GetCurrentGameMode() && scene.buildIndex == 2) //Class chara maker
+                    if (Game.initialized && scene.buildIndex == 2) //Class chara maker
                     {
                         CustomBase.Instance.selectSlot = 0;
                         this._additionalCharaMakerSlots = new List<CharaMakerSlotData>();
@@ -637,6 +635,7 @@ namespace MoreAccessoriesKOI
                 Destroy(this._charaMakerScrollView.verticalScrollbar.gameObject);
             Destroy(this._charaMakerScrollView.GetComponent<Image>());
             this._charaMakerSlotTemplate = container.GetChild(0).gameObject;
+
             RectTransform rootCanvas = ((RectTransform)this._charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform);
             LayoutElement element = this._charaMakerScrollView.gameObject.AddComponent<LayoutElement>();
             element.minHeight = rootCanvas.rect.height / 1.298076f;
@@ -975,8 +974,9 @@ namespace MoreAccessoriesKOI
 
         private void UpdateMakerUI()
         {
-            if (this._customAcsChangeSlot == null)
+            if (this._customAcsChangeSlot == null || _charaMakerData == null)
                 return;
+
             int count = this._charaMakerData.nowAccessories != null ? this._charaMakerData.nowAccessories.Count : 0;
             int i;
             for (i = 0; i < count; i++)
@@ -1390,7 +1390,7 @@ namespace MoreAccessoriesKOI
                         accessory.UpdateCustomUI();
                     accessory.UpdateSlotName();
                 }
-                if ((int)this._customAcsChangeSlot.backIndex != index)
+                if (_customAcsChangeSlot.backIndex != index)
                     this._customAcsChangeSlot.ChangeColorWindow(index);
                 this._customAcsChangeSlot.SetPrivate("backIndex", index);
             }
@@ -1430,7 +1430,6 @@ namespace MoreAccessoriesKOI
 
         internal int GetSelectedMakerIndex()
         {
-            for (int i = 0; i < 20; i++)
             {
                 UI_ToggleGroupCtrl.ItemInfo info = this._customAcsChangeSlot.items[i];
                 if (info.tglItem.isOn)
@@ -1449,7 +1448,7 @@ namespace MoreAccessoriesKOI
         {
             if (index < 20)
                 return CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts[index];
-            return this._charaMakerData.nowAccessories[index - 20];
+            return _charaMakerData.nowAccessories[index - 20];
         }
 
         internal void SetPart(int index, ChaFileAccessory.PartsInfo value)
@@ -1507,30 +1506,21 @@ namespace MoreAccessoriesKOI
         {
             private static object _sideLoaderChaFileAccessoryPartsInfoProperties;
 #if KOIKATSU
-            private static PropertyInfo _resolveInfoProperty;
-
-            private static bool Prepare()
-            {
-                _resolveInfoProperty = Type.GetType($"Sideloader.AutoResolver.ResolveInfo,Sideloader")
-                                           .GetProperty("Property", BindingFlags.Public | BindingFlags.Instance);
-                return true;
-            }
-
             [HarmonyBefore("com.deathweasel.bepinex.guidmigration")]
-            private static void Prefix(object extInfo)
+            private static void Prefix(ICollection<ResolveInfo> extInfo)
             {
                 if (extInfo != null)
                 {
                     int i = 0;
-                    foreach (object o in (IList)extInfo)
+                    foreach (ResolveInfo o in extInfo)
                     {
-                        string property = (string)_resolveInfoProperty.GetValue(o, null);
+                        string property = o.Property;
                         if (property.StartsWith("outfit.")) //Sorry to whoever reads this, I fucked up
                         {
                             char[] array = property.ToCharArray();
                             array[6] = array[7];
                             array[7] = '.';
-                            _resolveInfoProperty.SetValue(o, new string(array), null);
+                            o.Property = new string(array);
                         }
                         ++i;
                     }
@@ -1633,7 +1623,7 @@ namespace MoreAccessoriesKOI
         }
         #endregion
 
-        [HarmonyPatch(typeof(ChaFileControl), "LoadFileLimited", new[] { typeof(string), typeof(byte), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool) })]
+        [HarmonyPatch(typeof(ChaFileControl), nameof(ChaFileControl.LoadFileLimited), new[] { typeof(string), typeof(byte), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool), typeof(bool) })]
         private static class ChaFileControl_LoadFileLimited_Patches
         {
             private static void Prefix(ChaFileControl __instance, bool coordinate = true)
@@ -1855,7 +1845,7 @@ namespace MoreAccessoriesKOI
                     if (pair.Value.Count == 0)
                         continue;
                     xmlWriter.WriteStartElement("accessorySet");
-                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString((int)pair.Key));
+                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString(pair.Key));
                     if (maxCount < pair.Value.Count)
                         maxCount = pair.Value.Count;
 

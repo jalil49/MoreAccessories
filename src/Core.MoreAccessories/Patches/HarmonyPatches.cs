@@ -238,7 +238,7 @@ namespace MoreAccessoriesKOI
         }
     }
 
-    [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Start))]
+    [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Initialize))]
     internal static class CustomAcsChangeSlot_Start_Patches
     {
         private static void Postfix(CustomAcsChangeSlot __instance)
@@ -275,7 +275,7 @@ namespace MoreAccessoriesKOI
         }
     }
 
-    [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.ChangeColorWindow))]
+    [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.ChangeColorWindow), new[] { typeof(int) })]
     internal static class CustomAcsChangeSlot_ChangeColorWindow_Patches
     {
         private static CvsColor cvsColor;
@@ -307,7 +307,7 @@ namespace MoreAccessoriesKOI
         private static bool Prefix(CustomAcsChangeSlot __instance)
         {
             bool[] array = new bool[2];
-            if (((CanvasGroup)__instance.cgAccessoryTop).alpha == 1f)
+            if (__instance.cgAccessoryTop.alpha == 1f)
             {
                 int selectIndex = MoreAccessories._self.GetSelectedMakerIndex();
                 if (selectIndex != -1)
@@ -332,10 +332,10 @@ namespace MoreAccessoriesKOI
     }
 
 #if KOIKATSU
-    [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType))]
+    [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
     internal static class ChaControl_ChangeCoordinateType_Patches
     {
-        private static void Prefix(ChaControl __instance, ChaFileDefine.CoordinateType type, bool changeBackCoordinateType)
+        private static void Prefix(ChaControl __instance, ChaFileDefine.CoordinateType type)
         {
             MoreAccessories.CharAdditionalData data;
             List<ChaFileAccessory.PartsInfo> accessories;
@@ -624,14 +624,15 @@ namespace MoreAccessoriesKOI
     }
 #endif
 
-    [HarmonyPatch(typeof(CustomAcsParentWindow), nameof(CustomAcsParentWindow.Start))]
+    [HarmonyPatch(typeof(CustomAcsParentWindow), nameof(CustomAcsParentWindow.Initialize))]
     internal static class CustomAcsParentWindow_Start_Patches
     {
         private static bool Prefix(CustomAcsParentWindow __instance)
         {
             MoreAccessories._self._cvsAccessory = __instance.cvsAccessory;
 
-            (__instance._slotNo).TakeUntilDestroy(__instance).Subscribe(delegate
+
+            __instance._slotNo.TakeUntilDestroy(__instance).Subscribe(delegate
             {
                 __instance.UpdateWindow();
             });
@@ -645,7 +646,7 @@ namespace MoreAccessoriesKOI
                     }
                 });
             }
-            (__instance.tglParent).Select((p, idx) => new
+            __instance.tglParent.Select((p, idx) => new
             {
                 toggle = p,
                 index = (byte)idx
@@ -670,6 +671,7 @@ namespace MoreAccessoriesKOI
                 MoreAccessories._self._charaMakerData.nowAccessories = new List<ChaFileAccessory.PartsInfo>();
                 MoreAccessories._self._charaMakerData.rawAccessoriesInfos.Add(CustomBase.Instance.chaCtrl.fileStatus.GetCoordinateType(), MoreAccessories._self._charaMakerData.nowAccessories);
             }
+            __instance.enabled = true;
             return false;
         }
     }
@@ -695,12 +697,12 @@ namespace MoreAccessoriesKOI
     [HarmonyPatch(typeof(CustomAcsParentWindow), nameof(CustomAcsParentWindow.UpdateCustomUI))]
     internal static class CustomAcsParentWindow_UpdateCustomUI_Patches
     {
-        private static bool Prefix(CustomAcsParentWindow __instance, int param, ref int __result)
+        private static bool Prefix(CustomAcsParentWindow __instance, ref int __result)
         {
-            __instance.SetPrivate("updateWin", true);
+            __instance.updateWin = true;
             int index = (int)__instance.slotNo;
             __result = __instance.SelectParent(MoreAccessories._self.GetPart(index).parentKey);
-            __instance.SetPrivate("updateWin", false);
+            __instance.updateWin = false;
             return false;
         }
     }
@@ -713,20 +715,20 @@ namespace MoreAccessoriesKOI
         private static bool Prefix(CustomAcsParentWindow __instance)
         {
             if (textTitle == null)
-                textTitle = (TextMeshProUGUI)__instance.textTitle;
-            __instance.SetPrivate("updateWin", true);
+                textTitle = __instance.textTitle;
+            __instance.updateWin = true;
             if (textTitle)
             {
                 textTitle.text = $"スロット{(int)__instance.slotNo + 1:00}の親を選択";
             }
             int index = (int)__instance.slotNo;
             __instance.SelectParent(MoreAccessories._self.GetPart(index).parentKey);
-            __instance.SetPrivate("updateWin", false);
+            __instance.updateWin = false;
             return false;
         }
     }
 
-    [HarmonyPatch(typeof(CustomAcsMoveWindow), nameof(CustomAcsMoveWindow.Start))]
+    [HarmonyPatch(typeof(CustomAcsMoveWindow), nameof(CustomAcsMoveWindow.Initialize))]
     internal static class CustomAcsMoveWindow_Start_Patches
     {
         private static bool Prefix(CustomAcsMoveWindow __instance)
@@ -811,7 +813,7 @@ namespace MoreAccessoriesKOI
                         {
                             num2 *= -1;
                         }
-                        float val = num2 * ((float[])__instance.movePosValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectPosRate[__instance.correctNo]];
+                        float val = num2 * __instance.movePosValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectPosRate[__instance.correctNo]];
                         MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).FuncUpdateAcsPosAdd(__instance.correctNo, num, true, val);
                         if (MoreAccessories._self._hasDarkness == false)
                             MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).UpdateAcsMoveHistory();
@@ -840,7 +842,7 @@ namespace MoreAccessoriesKOI
                     {
                         num2 *= -1;
                     }
-                    float num3 = num2 * ((float[])__instance.movePosValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectPosRate[__instance.correctNo]];
+                    float num3 = num2 * __instance.movePosValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectPosRate[__instance.correctNo]];
                     float num4 = 0f;
                     downTimeCnt += Time.deltaTime;
                     if (downTimeCnt > 0.3f)
@@ -903,7 +905,7 @@ namespace MoreAccessoriesKOI
                     {
                         int num = p.index / 2;
                         int num2 = (p.index % 2 != 0) ? 1 : -1;
-                        float val = num2 * ((float[])__instance.moveRotValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectRotRate[__instance.correctNo]];
+                        float val = num2 * __instance.moveRotValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectRotRate[__instance.correctNo]];
                         MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).FuncUpdateAcsRotAdd(__instance.correctNo, num, true, val);
                         if (MoreAccessories._self._hasDarkness == false)
                             MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).UpdateAcsMoveHistory();
@@ -928,7 +930,7 @@ namespace MoreAccessoriesKOI
                 {
                     int num = p.index / 2;
                     int num2 = (p.index % 2 != 0) ? 1 : -1;
-                    float num3 = num2 * ((float[])__instance.moveRotValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectRotRate[__instance.correctNo]];
+                    float num3 = num2 * __instance.moveRotValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectRotRate[__instance.correctNo]];
                     float num4 = 0f;
                     downTimeCnt += Time.deltaTime;
                     if (downTimeCnt > 0.3f)
@@ -991,7 +993,7 @@ namespace MoreAccessoriesKOI
                     {
                         int num = p.index / 2;
                         int num2 = (p.index % 2 != 0) ? 1 : -1;
-                        float val = num2 * ((float[])__instance.moveSclValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectSclRate[__instance.correctNo]];
+                        float val = num2 * __instance.moveSclValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectSclRate[__instance.correctNo]];
                         MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).FuncUpdateAcsSclAdd(__instance.correctNo, num, true, val);
                         if (MoreAccessories._self._hasDarkness == false)
                             MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).UpdateAcsMoveHistory();
@@ -1015,7 +1017,7 @@ namespace MoreAccessoriesKOI
                 {
                     int num = p.index / 2;
                     int num2 = (p.index % 2 != 0) ? 1 : -1;
-                    float num3 = num2 * ((float[])__instance.moveSclValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectSclRate[__instance.correctNo]];
+                    float num3 = num2 * __instance.moveSclValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectSclRate[__instance.correctNo]];
                     float num4 = 0f;
                     downTimeCnt += Time.deltaTime;
                     if (downTimeCnt > 0.3f)
@@ -1129,14 +1131,14 @@ namespace MoreAccessoriesKOI
     [HarmonyPatch(typeof(CustomAcsMoveWindow), nameof(CustomAcsMoveWindow.UpdateCustomUI))]
     internal static class CustomAcsMoveWindow_UpdateCustomUI_Patches
     {
-        private static bool Prefix(CustomAcsMoveWindow __instance, int param)
+        private static bool Prefix(CustomAcsMoveWindow __instance)
         {
             ChaFileAccessory.PartsInfo part = MoreAccessories._self.GetPart(__instance.nSlotNo);
             for (int i = 0; i < 3; i++)
             {
-                (__instance.inpPos)[i].text = part.addMove[__instance.correctNo, 0][i].ToString();
-                (__instance.inpRot)[i].text = part.addMove[__instance.correctNo, 1][i].ToString();
-                (__instance.inpScl)[i].text = part.addMove[__instance.correctNo, 2][i].ToString();
+                __instance.inpPos[i].text = part.addMove[__instance.correctNo, 0][i].ToString();
+                __instance.inpRot[i].text = part.addMove[__instance.correctNo, 1][i].ToString();
+                __instance.inpScl[i].text = part.addMove[__instance.correctNo, 2][i].ToString();
             }
             return false;
         }
@@ -1152,21 +1154,21 @@ namespace MoreAccessoriesKOI
             {
                 case 0:
                     {
-                        float val = move * ((float[])__instance.movePosValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectPosRate[__instance.correctNo]];
+                        float val = move * __instance.movePosValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectPosRate[__instance.correctNo]];
                         MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).FuncUpdateAcsPosAdd(__instance.correctNo, xyz, true, val);
                         (__instance.inpPos)[xyz].text = MoreAccessories._self.GetPart(__instance.nSlotNo).addMove[__instance.correctNo, 0][xyz].ToString();
                         break;
                     }
                 case 1:
                     {
-                        float val2 = move * ((float[])__instance.moveRotValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectRotRate[__instance.correctNo]];
+                        float val2 = move * __instance.moveRotValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectRotRate[__instance.correctNo]];
                         MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).FuncUpdateAcsRotAdd(__instance.correctNo, xyz, true, val2);
                         (__instance.inpRot)[xyz].text = MoreAccessories._self.GetPart(__instance.nSlotNo).addMove[__instance.correctNo, 1][xyz].ToString();
                         break;
                     }
                 case 2:
                     {
-                        float val3 = move * ((float[])__instance.moveSclValue)[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectSclRate[__instance.correctNo]];
+                        float val3 = move * __instance.moveSclValue[Singleton<CustomBase>.Instance.customSettingSave.acsCorrectSclRate[__instance.correctNo]];
                         MoreAccessories._self.GetCvsAccessory(__instance.nSlotNo).FuncUpdateAcsSclAdd(__instance.correctNo, xyz, true, val3);
                         (__instance.inpScl)[xyz].text = MoreAccessories._self.GetPart(__instance.nSlotNo).addMove[__instance.correctNo, 2][xyz].ToString();
                         break;
@@ -1198,7 +1200,7 @@ namespace MoreAccessoriesKOI
     {
         private static bool Prefix(CustomAcsSelectKind __instance, int _no, bool open)
         {
-            CustomSelectWindow selWin = (CustomSelectWindow)__instance.selWin;
+            CustomSelectWindow selWin = __instance.selWin;
             __instance.slotNo = _no;
             bool isOn = selWin.tglReference.isOn;
             selWin.tglReference.isOn = false;
@@ -1214,7 +1216,7 @@ namespace MoreAccessoriesKOI
     {
         private static bool Prefix(CustomAcsSelectKind __instance, int param)
         {
-            ((CustomSelectListCtrl)__instance.listCtrl).SelectItem(MoreAccessories._self.GetPart(__instance.slotNo).id);
+            __instance.listCtrl.SelectItem(MoreAccessories._self.GetPart(__instance.slotNo).id);
             return false;
         }
     }
@@ -1375,17 +1377,17 @@ namespace MoreAccessoriesKOI
                 part = MoreAccessories._self._accessoriesByChar[__instance.chaFile].nowAccessories[slotNo - 20];
             if ((flags & 1) != 0)
             {
-                float num = (float)((int)(((!add) ? 0f : part.addMove[correctNo, 1].x) + value));
+                float num = (int)(((!add) ? 0f : part.addMove[correctNo, 1].x) + value);
                 part.addMove[correctNo, 1].x = Mathf.Repeat(num, 360f);
             }
             if ((flags & 2) != 0)
             {
-                float num2 = (float)((int)((!add ? 0f : part.addMove[correctNo, 1].y) + value));
+                float num2 = (int)((!add ? 0f : part.addMove[correctNo, 1].y) + value);
                 part.addMove[correctNo, 1].y = Mathf.Repeat(num2, 360f);
             }
             if ((flags & 4) != 0)
             {
-                float num3 = (float)((int)(((!add) ? 0f : part.addMove[correctNo, 1].z) + value));
+                float num3 = (int)(((!add) ? 0f : part.addMove[correctNo, 1].z) + value);
                 part.addMove[correctNo, 1].z = Mathf.Repeat(num3, 360f);
             }
             Dictionary<int, ListInfoBase> categoryInfo = __instance.lstCtrl.GetCategoryInfo((ChaListDefine.CategoryNo)part.type);
@@ -1643,7 +1645,7 @@ namespace MoreAccessoriesKOI
     {
         private static MethodInfo _loadCharaFbxData;
 #if KOIKATSU
-        private static readonly object[] _params = new object[9];
+        private static readonly object[] _params = new object[10];
 #elif EMOTIONCREATORS
         private static readonly object[] _params = new object[8];
 #endif
@@ -1655,8 +1657,8 @@ namespace MoreAccessoriesKOI
                 switch (info.Name)
                 {
                     case "ChangeAccessory":
-                        if (info.GetParameters().Length == 1)
-                            harmony.Patch(info, new HarmonyMethod(typeof(ChaControl_ChangeAccessory_Patches).GetMethod(nameof(GroupPrefix), BindingFlags.NonPublic | BindingFlags.Static)), null);
+                        if (info.GetParameters().Length < 3)
+                            harmony.Patch(info, new HarmonyMethod(typeof(ChaControl_ChangeAccessory_Patches).GetMethod(nameof(GroupUpdatePrefix), BindingFlags.NonPublic | BindingFlags.Static)), null);
                         else
                             harmony.Patch(info, new HarmonyMethod(typeof(ChaControl_ChangeAccessory_Patches).GetMethod(nameof(IndividualPrefix), BindingFlags.NonPublic | BindingFlags.Static)), null);
                         break;
@@ -1677,7 +1679,24 @@ namespace MoreAccessoriesKOI
             for (i = 0; i < data.nowAccessories.Count; i++)
             {
                 ChaFileAccessory.PartsInfo part = data.nowAccessories[i];
-                ChangeAccessory(__instance, i, part.type, part.id, part.parentKey, forceChange);
+                ChangeAccessory(__instance, i, part.type, part.id, part.parentKey, forceChange, true);
+            }
+            for (; i < data.objAccessory.Count; i++)
+            {
+                CleanRemainingAccessory(__instance, data, i);
+            }
+        }
+
+        private static void GroupUpdatePrefix(ChaControl __instance, bool forceChange, bool update = true)
+        {
+            MoreAccessories.CharAdditionalData data;
+            if (MoreAccessories._self._accessoriesByChar.TryGetValue(__instance.chaFile, out data) == false)
+                return;
+            int i;
+            for (i = 0; i < data.nowAccessories.Count; i++)
+            {
+                ChaFileAccessory.PartsInfo part = data.nowAccessories[i];
+                ChangeAccessory(__instance, i, part.type, part.id, part.parentKey, forceChange, update);
             }
             for (; i < data.objAccessory.Count; i++)
             {
@@ -1689,19 +1708,29 @@ namespace MoreAccessoriesKOI
         {
             if (slotNo >= 20)
             {
-                ChangeAccessory(__instance, slotNo - 20, type, id, parentKey, forceChange);
+                ChangeAccessory(__instance, slotNo - 20, type, id, parentKey, forceChange, false);
                 return false;
             }
             return true;
         }
 
-        private static void ChangeAccessory(ChaControl instance, int slotNo, int type, int id, string parentKey, bool forceChange = false)
+        private static void ChangeAccessory(ChaControl instance, int slotNo, int type, int id, string parentKey, bool forceChange = false, bool update = true)
         {
             ListInfoBase lib = null;
             bool load = true;
             bool release = true;
+            bool typerelease;
+            if (Game.isAddH)
+            {
+                typerelease = (120 == type || !MathfEx.RangeEqualOn<int>(121, type, 130));
+            }
+            else
+            {
+                typerelease = (120 == type || !MathfEx.RangeEqualOn<int>(121, type, 129));
+            }
             MoreAccessories.CharAdditionalData data = MoreAccessories._self._accessoriesByChar[instance.chaFile];
-            if (type == 120 || !MathfEx.RangeEqualOn(121, type, 130))
+
+            if (typerelease)
             {
                 release = true;
                 load = false;
@@ -1720,46 +1749,47 @@ namespace MoreAccessoriesKOI
                     load = false;
                     release = false;
                 }
-                if (id != -1)
+                if (-1 != id)
                 {
-                    Dictionary<int, ListInfoBase> categoryInfo = instance.lstCtrl.GetCategoryInfo((ChaListDefine.CategoryNo)type);
-                    if (categoryInfo == null)
+                    if (!instance.lstCtrl.ContainsCategoryInfo((ChaListDefine.CategoryNo)type))
                     {
                         release = true;
                         load = false;
                     }
-                    else if (!categoryInfo.TryGetValue(id, out lib))
+                    else
                     {
-                        release = true;
-                        load = false;
-                    }
-#if KOIKATSU
-                    else if (!instance.hiPoly)
-                    {
-                        bool flag = true;
-                        if (type == 123 && lib.Kind == 1)
-                        {
-                            flag = false;
-                        }
-                        if (type == 122 && lib.GetInfoInt(ChaListDefine.KeyType.HideHair) == 1)
-                        {
-                            flag = false;
-                        }
-                        if (Manager.Config.EtcData.loadHeadAccessory && type == 122 && lib.Kind == 1)
-                        {
-                            flag = false;
-                        }
-                        if (Manager.Config.EtcData.loadAllAccessory)
-                        {
-                            flag = false;
-                        }
-                        if (flag)
+                        lib = instance.lstCtrl.GetInfo((ChaListDefine.CategoryNo)type, id);
+                        if (lib == null)
                         {
                             release = true;
                             load = false;
                         }
+                        else if (!instance.hiPoly)
+                        {
+                            bool flag4 = true;
+                            if (123 == type && 1 == lib.Kind)
+                            {
+                                flag4 = false;
+                            }
+                            if (122 == type && 1 == lib.GetInfoInt(ChaListDefine.KeyType.HideHair))
+                            {
+                                flag4 = false;
+                            }
+                            if (Manager.Config.EtcData.loadHeadAccessory && 122 == type && 1 == lib.Kind)
+                            {
+                                flag4 = false;
+                            }
+                            if (Manager.Config.EtcData.loadAllAccessory)
+                            {
+                                flag4 = false;
+                            }
+                            if (flag4)
+                            {
+                                release = true;
+                                load = false;
+                            }
+                        }
                     }
-#endif
                 }
             }
             if (release)
@@ -1793,15 +1823,17 @@ namespace MoreAccessoriesKOI
                 if (_loadCharaFbxData == null)
                     _loadCharaFbxData = instance.GetType().GetMethod("LoadCharaFbxData", AccessTools.all);
 #if KOIKATSU
-                _params[0] = true;
-                _params[1] = type;
-                _params[2] = id;
-                _params[3] = "ca_slot" + (slotNo + 20).ToString("00");
-                _params[4] = false;
-                _params[5] = weight;
-                _params[6] = trfParent;
-                _params[7] = -1;
-                _params[8] = false;
+
+                _params[0] = new Action<ListInfoBase>(delegate (ListInfoBase l) { data.infoAccessory[slotNo] = l; });
+                _params[1] = true;
+                _params[2] = type;
+                _params[3] = id;
+                _params[4] = "ca_slot" + (slotNo + 20).ToString("00");
+                _params[5] = false;
+                _params[6] = weight;
+                _params[7] = trfParent;
+                _params[8] = -1;
+                _params[9] = false;
 #elif EMOTIONCREATORS
                 _params[0] = type;
                 _params[1] = id;
@@ -1851,6 +1883,7 @@ namespace MoreAccessoriesKOI
 #endif
                 if (MoreAccessories._self._hasDarkness)
                     instance.CallPrivate("ChangeShakeAccessory", slotNo + 20);
+                    instance.ChangeShakeAccessory(slotNo + 20);
             }
             instance.SetHideHairAccessory();
         }
@@ -1874,6 +1907,7 @@ namespace MoreAccessoriesKOI
                 }
                 if (MoreAccessories._self._hasDarkness)
                     instance.CallPrivate("ChangeShakeAccessory", slotNo);
+                    instance.ChangeShakeAccessory(slotNo);
             }
             instance.SetHideHairAccessory();
         }
