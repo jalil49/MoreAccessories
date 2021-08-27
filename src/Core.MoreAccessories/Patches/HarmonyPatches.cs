@@ -303,7 +303,6 @@ namespace MoreAccessoriesKOI
     [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.LateUpdate))]
     internal static class CustomAcsChangeSlot_LateUpdate_Patches
     {
-        // Token: 0x0600339E RID: 13214 RVA: 0x0010A450 File Offset: 0x00108650
         private static bool Prefix(CustomAcsChangeSlot __instance)
         {
             bool[] array = new bool[2];
@@ -1728,11 +1727,11 @@ namespace MoreAccessoriesKOI
             bool typerelease;
             if (Game.isAddH)
             {
-                typerelease = (120 == type || !MathfEx.RangeEqualOn<int>(121, type, 130));
+                typerelease = (120 == type || !MathfEx.RangeEqualOn(121, type, 130));
             }
             else
             {
-                typerelease = (120 == type || !MathfEx.RangeEqualOn<int>(121, type, 129));
+                typerelease = (120 == type || !MathfEx.RangeEqualOn(121, type, 129));
             }
             MoreAccessories.CharAdditionalData data = MoreAccessories._self._accessoriesByChar[instance.chaFile];
 

@@ -182,6 +182,7 @@ namespace MoreAccessoriesKOI
         public CharAdditionalData _charaMakerData = null;
         private float _slotUIPositionY;
         internal bool _hasDarkness;
+        internal static bool CardImporting;
         internal bool _isParty = false;
 
         private bool _inCharaMaker = false;
@@ -197,7 +198,6 @@ namespace MoreAccessoriesKOI
         private ChaFile _overrideCharaLoadingFilePost;
         private bool _loadAdditionalAccessories = true;
         private CustomFileWindow _loadCoordinatesWindow;
-        internal static ManualLogSource Logger;
 
 #if KOIKATSU
         private bool _inH;
@@ -230,7 +230,6 @@ namespace MoreAccessoriesKOI
         #region Unity Methods
         private void Awake()
         {
-            Logger = base.Logger;
             _self = this;
             ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
             SceneManager.sceneLoaded += this.LevelLoaded;
@@ -250,12 +249,12 @@ namespace MoreAccessoriesKOI
 
         private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
         {
-            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out object xmlData)) return;
+            if (!importedExtendedData.TryGetValue(_extSaveKey, out PluginData pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out object xmlData)) return;
 
-            var data = new CharAdditionalData();
+            CharAdditionalData data = new CharAdditionalData();
             XmlDocument doc = new XmlDocument();
             doc.LoadXml((string)xmlData);
-            var node = doc.FirstChild;
+            XmlNode node = doc.FirstChild;
 
             foreach (XmlNode childNode in node.ChildNodes)
             {
@@ -273,8 +272,10 @@ namespace MoreAccessoriesKOI
 
                         foreach (XmlNode accessoryNode in childNode.ChildNodes)
                         {
-                            ChaFileAccessory.PartsInfo part = new ChaFileAccessory.PartsInfo();
-                            part.type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value);
+                            ChaFileAccessory.PartsInfo part = new ChaFileAccessory.PartsInfo
+                            {
+                                type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value)
+                            };
                             if (part.type != 120)
                             {
                                 part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
@@ -326,14 +327,13 @@ namespace MoreAccessoriesKOI
                 }
             }
 
-            var dict = data.rawAccessoriesInfos;
-            var keylist = data.rawAccessoriesInfos.Keys.ToList();
+            Dictionary<int, List<ChaFileAccessory.PartsInfo>> dict = data.rawAccessoriesInfos;
+            List<int> keylist = data.rawAccessoriesInfos.Keys.ToList();
             keylist.Remove(0);
-            foreach (var item in keylist)
+            foreach (int item in keylist)
             {
                 dict.Remove(item);
             }
-
 #if false
             //moreoutfits complete transfer
             var size = keylist.Count;
@@ -449,7 +449,7 @@ namespace MoreAccessoriesKOI
                 xmlWriter.WriteEndElement();
 
                 pluginData.version = _saveVersion;
-                pluginData.data.Add("additionalAccessories", stringWriter.ToString());
+                pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
         }
 
@@ -459,7 +459,6 @@ namespace MoreAccessoriesKOI
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
-                    Logger.LogWarning(scene.buildIndex);
                     if (!instudio)
                     {
                         this._inCharaMaker = false;
@@ -471,16 +470,22 @@ namespace MoreAccessoriesKOI
                         switch (scene.buildIndex)
                         {
                             //Chara maker
-                            case 3: //sunshine uses 3
+                            case 3: //sunshine uses 3 for chara
                                 CustomBase.Instance.selectSlot = 0;
                                 this._additionalCharaMakerSlots = new List<CharaMakerSlotData>();
                                 this._raycastCtrls = new List<UI_RaycastCtrl>();
                                 this._inCharaMaker = true;
                                 this._loadCoordinatesWindow = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop/cosFileControl/charaFileWindow").GetComponent<CustomFileWindow>();
                                 break;
+
 #if KOIKATSU
                             case 17: //Hscenes
                                 this._inH = true;
+                                break;
+
+                            case 1: //converted
+                            case 4: //menu
+                            default:
                                 break;
 #endif
                         }
@@ -760,6 +765,7 @@ namespace MoreAccessoriesKOI
             if (this._charaMakerCopyScrollView.verticalScrollbar != null)
                 Destroy(this._charaMakerCopyScrollView.verticalScrollbar.gameObject);
             Destroy(this._charaMakerCopyScrollView.GetComponent<Image>());
+
             content = (RectTransform)container.Find("grpClothes");
             this._charaMakerCopyScrollView.transform.SetRect(content);
             content.SetParent(this._charaMakerCopyScrollView.viewport);
@@ -978,7 +984,7 @@ namespace MoreAccessoriesKOI
             if (this._customAcsChangeSlot == null || _charaMakerData == null)
                 return;
 
-            int count = this._charaMakerData.nowAccessories != null ? this._charaMakerData.nowAccessories.Count : 0;
+            int count = _charaMakerData != null ? (_charaMakerData.nowAccessories != null ? _charaMakerData.nowAccessories.Count : 0) : 0;
             int i;
             for (i = 0; i < count; i++)
             {
@@ -1431,7 +1437,7 @@ namespace MoreAccessoriesKOI
 
         internal int GetSelectedMakerIndex()
         {
-            for (int i = 0; i < this._customAcsChangeSlot.items.Length; i++)
+            for (int i = 0; _customAcsChangeSlot != null && i < this._customAcsChangeSlot.items.Length; i++)
             {
                 UI_ToggleGroupCtrl.ItemInfo info = this._customAcsChangeSlot.items[i];
                 if (info.tglItem.isOn)
@@ -1530,18 +1536,19 @@ namespace MoreAccessoriesKOI
             }
 #endif
 
-            private static void Postfix(object action, ChaFileCoordinate coordinate, object extInfo, string prefix)
+            private static void Postfix(object action, ChaFileCoordinate coordinate, ICollection<ResolveInfo> extInfo, string prefix)
             {
+                if (MoreAccessories._self._inCharaMaker && MoreAccessories._self._charaMakerData == null) return;
+
                 if (_sideLoaderChaFileAccessoryPartsInfoProperties == null)
                 {
 #if KOIKATSU
-                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,Sideloader")
+                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,KKS_Sideloader")
 #elif EMOTIONCREATORS
                     _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,EC_Sideloader")
 #endif
                                                                          .GetProperty("ChaFileAccessoryPartsInfoProperties", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static).GetValue(null, null);
                 }
-
                 WeakReference o;
                 ChaFileControl owner = null;
                 if (_self._charByCoordinate.TryGetValue(coordinate, out o) == false || o.IsAlive == false)
@@ -1571,16 +1578,16 @@ namespace MoreAccessoriesKOI
                     }
                 }
                 else
+                {
                     owner = (ChaFileControl)o.Target;
-                DOUBLEBREAK:
+                }
+            DOUBLEBREAK:
 
                 if (owner == null)
                     return;
-
                 CharAdditionalData additionalData;
-                if (_self._accessoriesByChar.TryGetValue(owner, out additionalData) == false)
+                if (_self._accessoriesByChar.TryGetValue(owner, out additionalData) == false || additionalData.nowAccessories == null)
                     return;
-
                 if (string.IsNullOrEmpty(prefix))
                 {
                     for (int j = 0; j < additionalData.nowAccessories.Count; j++)

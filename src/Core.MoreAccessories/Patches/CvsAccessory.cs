@@ -1267,6 +1267,7 @@ namespace MoreAccessoriesKOI
                             CustomBase.Instance.chaCtrl.ChangeShakeAccessory((int)__instance.slotNo);
                         }
                     });
+
                 __instance.enabled = true;
             }
         }
