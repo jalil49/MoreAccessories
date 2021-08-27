@@ -333,6 +333,47 @@ namespace MoreAccessoriesKOI
                 dict.Remove(item);
             }
 
+#if false
+            //moreoutfits complete transfer
+            var size = keylist.Count;
+            keylist.Remove(5);
+            keylist.Remove(3);
+            var transferarray = new List<int[]> { new[] { 0, 5 }, new[] { 1, 3 } };
+            var transferdict = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
+            foreach (var array in transferarray)
+            {
+                if (dict.TryGetValue(array[1], out var list))
+                {
+                    transferdict[array[0]] = list;
+                }
+            }
+
+            for (int i = 2; i < 4; i++)
+            {
+                if (transferdict.TryGetValue(0, out var list))
+                {
+                    transferdict[i] = list.ToList();
+                }
+            }
+
+            int key = 4;
+            foreach (var item in keylist)
+            {
+                if (dict.TryGetValue(item, out var list))
+                {
+                    transferdict[key] = list;
+                    key++;
+                    continue;
+                }
+                transferdict[key] = new List<ChaFileAccessory.PartsInfo>();
+                key++;
+            }
+            data.rawAccessoriesInfos.Clear();
+            foreach (var item in transferdict)
+            {
+                data.rawAccessoriesInfos[item.Key] = item.Value;
+            }
+#endif
             using (StringWriter stringWriter = new StringWriter())
             using (XmlTextWriter xmlWriter = new XmlTextWriter(stringWriter))
             {
