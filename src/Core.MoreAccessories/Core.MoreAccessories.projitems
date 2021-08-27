@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>55827e06-0285-4e96-9ce9-53ce310c382b</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>MoreAccessories</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BackwardCompatibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\UIUtility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\HarmonyExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\IMGUIExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\MonoBehaviourExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\TimelineCompatibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\TransformExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\TranslationDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\VariousExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\WeakKeyDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\XmlExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\CvsAccessory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\HarmonyPatches.cs" />
+  </ItemGroup>
+</Project>
