@@ -230,6 +230,7 @@ namespace MoreAccessoriesKOI
         #region Unity Methods
         private void Awake()
         {
+            Logger = base.Logger;
             _self = this;
             ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
             SceneManager.sceneLoaded += this.LevelLoaded;
@@ -1430,6 +1431,7 @@ namespace MoreAccessoriesKOI
 
         internal int GetSelectedMakerIndex()
         {
+            for (int i = 0; i < this._customAcsChangeSlot.items.Length; i++)
             {
                 UI_ToggleGroupCtrl.ItemInfo info = this._customAcsChangeSlot.items[i];
                 if (info.tglItem.isOn)

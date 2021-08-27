@@ -1882,7 +1882,6 @@ namespace MoreAccessoriesKOI
                 }
 #endif
                 if (MoreAccessories._self._hasDarkness)
-                    instance.CallPrivate("ChangeShakeAccessory", slotNo + 20);
                     instance.ChangeShakeAccessory(slotNo + 20);
             }
             instance.SetHideHairAccessory();
@@ -1906,7 +1905,6 @@ namespace MoreAccessoriesKOI
                     data.objAcsMove[slotNo][i] = null;
                 }
                 if (MoreAccessories._self._hasDarkness)
-                    instance.CallPrivate("ChangeShakeAccessory", slotNo);
                     instance.ChangeShakeAccessory(slotNo);
             }
             instance.SetHideHairAccessory();
@@ -1937,7 +1935,6 @@ namespace MoreAccessoriesKOI
                 data.nowAccessories[slotNo].color[3] = chaAccessoryComponent.defColor04;
             }
         }
-
     }
     #endregion
 }
