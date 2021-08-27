@@ -37,6 +37,8 @@ namespace MoreAccessoriesKOI
     [BepInDependency("com.bepis.bepinex.extendedsave")]
     [BepInDependency("com.bepis.bepinex.sideloader", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(KoikatuAPI.GUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInProcess("KoikatsuSunshine")]
+    [BepInProcess("Koikatsu Sunshine")]
     public class MoreAccessories : BaseUnityPlugin
     {
         public const string versionNum = "1.1.0";
