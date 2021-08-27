@@ -36,6 +36,7 @@ namespace MoreAccessoriesKOI
     [BepInPlugin(GUID: "com.joan6694.illusionplugins.moreaccessories", Name: "MoreAccessories", Version: versionNum)]
     [BepInDependency("com.bepis.bepinex.extendedsave")]
     [BepInDependency("com.bepis.bepinex.sideloader", BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency(KoikatuAPI.GUID, BepInDependency.DependencyFlags.HardDependency)]
     public class MoreAccessories : BaseUnityPlugin
     {
         public const string versionNum = "1.1.0";
