@@ -231,6 +231,7 @@ namespace MoreAccessoriesKOI
         private void Awake()
         {
             _self = this;
+            ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
             SceneManager.sceneLoaded += this.LevelLoaded;
 
             this._hasDarkness = typeof(ChaControl).GetMethod("ChangeShakeAccessory", BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance) != null;
@@ -246,6 +247,169 @@ namespace MoreAccessoriesKOI
             harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateSave", AccessTools.all), postfix: new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordSave_Postfix)));
         }
 
+        private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
+        {
+            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out object xmlData)) return;
+
+            var data = new CharAdditionalData();
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml((string)xmlData);
+            var node = doc.FirstChild;
+
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                switch (childNode.Name)
+                {
+                    case "accessorySet":
+                        int coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
+                        List<ChaFileAccessory.PartsInfo> parts;
+
+                        if (data.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
+                        {
+                            parts = new List<ChaFileAccessory.PartsInfo>();
+                            data.rawAccessoriesInfos.Add(coordinateType, parts);
+                        }
+
+                        foreach (XmlNode accessoryNode in childNode.ChildNodes)
+                        {
+                            ChaFileAccessory.PartsInfo part = new ChaFileAccessory.PartsInfo();
+                            part.type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value);
+                            if (part.type != 120)
+                            {
+                                part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
+                                part.parentKey = accessoryNode.Attributes["parentKey"].Value;
+
+                                for (int i = 0; i < 2; i++)
+                                {
+                                    for (int j = 0; j < 3; j++)
+                                    {
+                                        part.addMove[i, j] = new Vector3
+                                        {
+                                            x = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}x"].Value),
+                                            y = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}y"].Value),
+                                            z = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}z"].Value)
+                                        };
+                                    }
+                                }
+                                for (int i = 0; i < 4; i++)
+                                {
+                                    part.color[i] = new Color
+                                    {
+                                        r = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}r"].Value),
+                                        g = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}g"].Value),
+                                        b = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}b"].Value),
+                                        a = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}a"].Value)
+                                    };
+                                }
+                                part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
+#if EMOTIONCREATORS
+                                    if (accessoryNode.Attributes["hideTiming"] != null)
+                                        part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
+#endif
+                                if (this._hasDarkness)
+                                    part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
+                            }
+                            parts.Add(part);
+                        }
+                        break;
+#if KOIKATSU
+                    case "visibility":
+                        if (this._inStudio)
+                        {
+                            data.showAccessories = new List<bool>();
+                            foreach (XmlNode grandChildNode in childNode.ChildNodes)
+                                data.showAccessories.Add(grandChildNode.Attributes?["value"] == null || XmlConvert.ToBoolean(grandChildNode.Attributes["value"].Value));
+                        }
+                        break;
+#endif
+                }
+            }
+
+            var dict = data.rawAccessoriesInfos;
+            var keylist = data.rawAccessoriesInfos.Keys.ToList();
+            keylist.Remove(0);
+            foreach (var item in keylist)
+            {
+                dict.Remove(item);
+            }
+
+            using (StringWriter stringWriter = new StringWriter())
+            using (XmlTextWriter xmlWriter = new XmlTextWriter(stringWriter))
+            {
+                int maxCount = 0;
+                xmlWriter.WriteStartElement("additionalAccessories");
+                xmlWriter.WriteAttributeString("version", MoreAccessories.versionNum);
+                foreach (KeyValuePair<int, List<ChaFileAccessory.PartsInfo>> pair in data.rawAccessoriesInfos)
+                {
+                    if (pair.Value.Count == 0)
+                        continue;
+                    xmlWriter.WriteStartElement("accessorySet");
+                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString((int)pair.Key));
+                    if (maxCount < pair.Value.Count)
+                        maxCount = pair.Value.Count;
+
+                    for (int index = 0; index < pair.Value.Count; index++)
+                    {
+                        ChaFileAccessory.PartsInfo part = pair.Value[index];
+                        xmlWriter.WriteStartElement("accessory");
+                        xmlWriter.WriteAttributeString("type", XmlConvert.ToString(part.type));
+
+                        if (part.type != 120)
+                        {
+                            xmlWriter.WriteAttributeString("id", XmlConvert.ToString(part.id));
+                            xmlWriter.WriteAttributeString("parentKey", part.parentKey);
+
+                            for (int i = 0; i < 2; i++)
+                            {
+                                for (int j = 0; j < 3; j++)
+                                {
+                                    Vector3 v = part.addMove[i, j];
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}x", XmlConvert.ToString(v.x));
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}y", XmlConvert.ToString(v.y));
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}z", XmlConvert.ToString(v.z));
+                                }
+                            }
+                            for (int i = 0; i < 4; i++)
+                            {
+                                Color c = part.color[i];
+                                xmlWriter.WriteAttributeString($"color{i}r", XmlConvert.ToString(c.r));
+                                xmlWriter.WriteAttributeString($"color{i}g", XmlConvert.ToString(c.g));
+                                xmlWriter.WriteAttributeString($"color{i}b", XmlConvert.ToString(c.b));
+                                xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
+                            }
+                            xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
+#if EMOTIONCREATORS
+                            xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
+#endif
+                            if (this._hasDarkness)
+                                xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString(part.noShake));
+                        }
+                        xmlWriter.WriteEndElement();
+                    }
+                    xmlWriter.WriteEndElement();
+
+                }
+
+#if KOIKATSU
+                if (this._inStudio)
+                {
+                    xmlWriter.WriteStartElement("visibility");
+                    for (int i = 0; i < maxCount && i < data.showAccessories.Count; i++)
+                    {
+                        xmlWriter.WriteStartElement("visible");
+                        xmlWriter.WriteAttributeString("value", XmlConvert.ToString(data.showAccessories[i]));
+                        xmlWriter.WriteEndElement();
+                    }
+                    xmlWriter.WriteEndElement();
+                }
+#endif
+
+                xmlWriter.WriteEndElement();
+
+                pluginData.version = _saveVersion;
+                pluginData.data.Add("additionalAccessories", stringWriter.ToString());
+            }
+        }
 
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {
