@@ -624,14 +624,20 @@ namespace MoreAccessoriesKOI
     }
 #endif
 
-    [HarmonyPatch(typeof(CustomAcsParentWindow), nameof(CustomAcsParentWindow.Initialize))]
+    [HarmonyPatch(typeof(CustomAcsParentWindow), nameof(CustomAcsParentWindow.Start))]
     internal static class CustomAcsParentWindow_Start_Patches
+    {
+        private static void Postfix(CustomAcsParentWindow __instance)
+        {
+            MoreAccessories._self._cvsAccessory = __instance.cvsAccessory;
+        }
+    }
+
+    [HarmonyPatch(typeof(CustomAcsParentWindow), nameof(CustomAcsParentWindow.Initialize))]
+    internal static class CustomAcsParentWindow_Initialize_Patches
     {
         private static bool Prefix(CustomAcsParentWindow __instance)
         {
-            MoreAccessories._self._cvsAccessory = __instance.cvsAccessory;
-
-
             __instance._slotNo.TakeUntilDestroy(__instance).Subscribe(delegate
             {
                 __instance.UpdateWindow();
