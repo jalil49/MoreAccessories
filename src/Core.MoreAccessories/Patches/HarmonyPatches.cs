@@ -59,7 +59,6 @@ namespace MoreAccessoriesKOI
 
                     if (inst.opcode == OpCodes.Stloc_S && inst.operand != null && inst.operand.ToString().Equals("System.Int32 (4)"))//see method assembly local index 4
                     {
-                        _self.Logger.LogWarning(i);
                         var num2Operand = inst.operand;
                         yield return new CodeInstruction(OpCodes.Ldloc_1);//female count
                         yield return new CodeInstruction(OpCodes.Call, typeof(HSprite_Update_Patches).GetMethod(nameof(GetFixedAccessoryCount), BindingFlags.NonPublic | BindingFlags.Static));

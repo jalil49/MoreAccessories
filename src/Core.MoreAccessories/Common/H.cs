@@ -10,11 +10,16 @@ using Illusion.Game;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using MoreAccessoriesKOI.Extensions;
+using Cysharp.Threading.Tasks;
 
 namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
+
+        private readonly List<ScrollRect> scrollRects = new List<ScrollRect>();
+
         internal void SpawnHUI(List<ChaControl> females, HSprite hSprite)
         {
             _hSceneFemales = females;
@@ -24,7 +29,45 @@ namespace MoreAccessoriesKOI
             _hSprite = hSprite;
             _hSceneMultipleFemaleButtons = _hSprite.lstMultipleFemaleDressButton;
             _hSceneSoloFemaleAccessoryButton = _hSprite.categoryAccessory;
-            UpdateHUI();
+            // _ = MakeScrollable();
+            UpdateUI();
+        }
+
+        private async UniTask MakeScrollable()
+        {
+            scrollRects.Clear();
+            await UniTask.WaitUntil(() => _hSceneFemales.Count > 0, PlayerLoopTiming.Update, default);
+            await UniTask.DelayFrame(10);
+            Logger.LogWarning($"makng scroll {_hSceneFemales.Count}");
+            for (var i = 0; i < _hSceneFemales.Count; i++)
+            {
+                var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
+
+                Logger.LogWarning($"Making parent with {buttonsParent.name}");
+                var accscroll = UIUtility.CreateScrollView($"Accessory Scroll {i}");
+
+                accscroll.movementType = ScrollRect.MovementType.Clamped;
+                accscroll.horizontal = false;
+                accscroll.scrollSensitivity = 18f;
+                var element = accscroll.gameObject.AddComponent<LayoutElement>();
+                element.minHeight = Screen.height / 3;
+                var group = accscroll.content.gameObject.AddComponent<VerticalLayoutGroup>();
+                var parentGroup = buttonsParent.GetComponent<VerticalLayoutGroup>();
+                group.childAlignment = parentGroup.childAlignment;
+                group.childControlHeight = parentGroup.childControlHeight;
+                group.childControlWidth = parentGroup.childControlWidth;
+                group.childForceExpandHeight = parentGroup.childForceExpandHeight;
+                group.childForceExpandWidth = parentGroup.childForceExpandWidth;
+                group.spacing = parentGroup.spacing;
+                accscroll.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+                for (int j = 0, n = buttonsParent.childCount; j < n; j++)
+                {
+                    buttonsParent.GetChild(0).SetParent(accscroll.content);
+                }
+                accscroll.transform.SetParent(buttonsParent, true);
+                scrollRects.Add(accscroll);
+            }
         }
 
         private void UpdateHUI()
@@ -36,10 +79,11 @@ namespace MoreAccessoriesKOI
                 var female = _hSceneFemales[i];
 
                 var additionalData = _accessoriesByChar[female.chaFile];
-                int j;
                 var additionalSlots = _additionalHSceneSlots[i];
                 var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
-                for (j = 0; j < additionalData.nowAccessories.Count; j++)
+
+                var j = 0;
+                for (; j < additionalData.nowAccessories.Count; j++)
                 {
                     HSceneSlotData slot;
                     if (j < additionalSlots.Count)

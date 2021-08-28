@@ -282,12 +282,13 @@ namespace MoreAccessoriesKOI
                                 break;
 
 #if KOIKATSU
-                            case 17: //Hscenes
+                            case 7: //Hscenes
                                 _inH = true;
                                 break;
 
                             case 1: //converted
                             case 4: //menu
+                            case 11: //freeh select
                             default:
                                 break;
 #endif
