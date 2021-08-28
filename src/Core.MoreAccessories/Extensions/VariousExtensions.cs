@@ -14,7 +14,7 @@ namespace MoreAccessoriesKOI.Extensions
     {
         public static void Resize<T>(this List<T> self, int newSize)
         {
-            int diff = self.Count - newSize;
+            var diff = self.Count - newSize;
             if (diff < 0)
                 while (self.Count != newSize)
                     self.Add(default(T));
@@ -25,7 +25,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static int IndexOf<T>(this T[] self, T obj)
         {
-            for (int i = 0; i < self.Length; i++)
+            for (var i = 0; i < self.Length; i++)
             {
                 if (self[i].Equals(obj))
                     return i;
@@ -35,7 +35,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void AddRange<T, T2>(this IDictionary<T, T2> self, IDictionary<T, T2> toAdd)
         {
-            foreach (KeyValuePair<T, T2> pair in toAdd)
+            foreach (var pair in toAdd)
                 self.Add(pair.Key, pair.Value);
         }
 
@@ -50,11 +50,11 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static int LastIndexOf(this byte[] self, byte[] needle)
         {
-            int limit = needle.Length - 1;
-            for (int i = self.Length - 1; i > limit; i--)
+            var limit = needle.Length - 1;
+            for (var i = self.Length - 1; i > limit; i--)
             {
                 int j;
-                int i2 = i;
+                var i2 = i;
                 for (j = needle.Length - 1; j >= 0; --j)
                 {
                     if (self[i2] != needle[j])
@@ -69,7 +69,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static Color GetContrastingColor(this Color self)
         {
-            float luminance = 0.299f * self.r + 0.587f * self.g + 0.114f * self.b;
+            var luminance = 0.299f * self.r + 0.587f * self.g + 0.114f * self.b;
             if (luminance > 0.5f)
                 return Color.black;
             return Color.white;
@@ -95,8 +95,8 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static string RemoveInvalidChars(this string self)
         {
-            StringBuilder builder = new StringBuilder(self);
-            foreach (char c in Path.GetInvalidFileNameChars())
+            var builder = new StringBuilder(self);
+            foreach (var c in Path.GetInvalidFileNameChars())
                 builder = builder.Replace(c, '_');
             return builder.ToString();
         }
@@ -105,8 +105,8 @@ namespace MoreAccessoriesKOI.Extensions
         {
             if (from.EndsWith("/") == false && from.EndsWith("\\") == false)
                 from += "\\";
-            Uri toUri = new Uri(to);
-            Uri fromUri = new Uri(from);
+            var toUri = new Uri(to);
+            var fromUri = new Uri(from);
             return Uri.UnescapeDataString(fromUri.MakeRelativeUri(toUri).ToString().Replace('/', '\\'));
         }
 
@@ -128,22 +128,22 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static string ToBase64(this byte[] array)
         {
-            StringBuilder builder = new StringBuilder();
+            var builder = new StringBuilder();
 
-            int i = 0;
+            var i = 0;
             while (i < array.Length)
             {
-                byte b1 = array[i++];
-                int index = b1 >> 2;
+                var b1 = array[i++];
+                var index = b1 >> 2;
                 builder.Append(_b64[index]);
                 if (i < array.Length)
                 {
-                    byte b2 = array[i++];
+                    var b2 = array[i++];
                     index = (b1 & 0b00000011) << 4 | (b2 >> 4);
                     builder.Append(_b64[index]);
                     if (i < array.Length)
                     {
-                        byte b3 = array[i++];
+                        var b3 = array[i++];
                         index = (b2 & 0b00001111) << 2 | (b3 >> 6);
                         builder.Append(_b64[index]);
                         index = b3 & 0b00111111;
@@ -156,22 +156,22 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static byte[] FromBase64(this string s)
         {
-            List<byte> array = new List<byte>((s.Length * 3) / 4 + 4);
-            int i = 0;
+            var array = new List<byte>((s.Length * 3) / 4 + 4);
+            var i = 0;
             while (i < s.Length)
             {
-                byte i1 = _revB64[s[i++]];
-                byte i2 = _revB64[s[i++]];
-                byte b = (byte)((i1 << 2) | (i2 >> 4));
+                var i1 = _revB64[s[i++]];
+                var i2 = _revB64[s[i++]];
+                var b = (byte)((i1 << 2) | (i2 >> 4));
                 array.Add(b);
                 if (i < s.Length)
                 {
-                    byte i3 = _revB64[s[i++]];
+                    var i3 = _revB64[s[i++]];
                     b = (byte)((i2 << 4) | (i3 >> 2));
                     array.Add(b);
                     if (i < s.Length)
                     {
-                        byte i4 = _revB64[s[i++]];
+                        var i4 = _revB64[s[i++]];
                         b = (byte)((i3 << 6) | i4);
                         array.Add(b);
                     }
@@ -212,20 +212,20 @@ namespace MoreAccessoriesKOI.Extensions
 
             unchecked
             {
-                int hash = 17;
-                hash = hash * 31 + (this.key != null ? this.key.GetHashCode() : 0);
-                this._hashCode = hash * 31 + (this.value != null ? this.value.GetHashCode() : 0);
+                var hash = 17;
+                hash = hash * 31 + (key != null ? key.GetHashCode() : 0);
+                _hashCode = hash * 31 + (value != null ? value.GetHashCode() : 0);
             }
         }
 
         public override int GetHashCode()
         {
-            return this._hashCode;
+            return _hashCode;
         }
 
         public override string ToString()
         {
-            return $"key: {this.key}, value: {this.value}";
+            return $"key: {key}, value: {value}";
         }
     }
 
@@ -235,12 +235,12 @@ namespace MoreAccessoriesKOI.Extensions
 
         public LambdaComparer(Func<T, T, bool> compareFunc)
         {
-            this._compareFunc = compareFunc;
+            _compareFunc = compareFunc;
         }
 
         public bool Equals(T x, T y)
         {
-            return this._compareFunc(x, y);
+            return _compareFunc(x, y);
         }
 
         public int GetHashCode(T obj)

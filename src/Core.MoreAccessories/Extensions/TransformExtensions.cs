@@ -10,8 +10,8 @@ namespace MoreAccessoriesKOI.Extensions
         {
             if (self == root)
                 return "";
-            Transform self2 = self;
-            StringBuilder path = new StringBuilder(self2.name);
+            var self2 = self;
+            var path = new StringBuilder(self2.name);
             self2 = self2.parent;
             while (self2 != root)
             {
@@ -42,8 +42,8 @@ namespace MoreAccessoriesKOI.Extensions
         {
             if (self.name.Equals(root))
                 return "";
-            Transform self2 = self;
-            StringBuilder path = new StringBuilder(self2.name);
+            var self2 = self;
+            var path = new StringBuilder(self2.name);
             self2 = self2.parent;
             while (self2 != null && self2.name.Equals(root) == false)
             {
@@ -61,8 +61,8 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static List<int> GetListPathFrom(this Transform self, Transform root)
         {
-            List<int> path = new List<int>();
-            Transform self2 = self;
+            var path = new List<int>();
+            var self2 = self;
             while (self2 != root)
             {
                 path.Add(self2.GetSiblingIndex());
@@ -74,8 +74,8 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static Transform Find(this Transform self, List<int> path)
         {
-            Transform self2 = self;
-            for (int i = 0; i < path.Count; i++)
+            var self2 = self;
+            for (var i = 0; i < path.Count; i++)
                 self2 = self2.GetChild(path[i]);
             return self2;
         }
@@ -86,7 +86,7 @@ namespace MoreAccessoriesKOI.Extensions
                 return self;
             foreach (Transform t in self)
             {
-                Transform res = t.FindDescendant(name);
+                var res = t.FindDescendant(name);
                 if (res != null)
                     return res;
             }
@@ -102,12 +102,12 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static Transform GetDeepestLeaf(this Transform self)
         {
-            int d = -1;
+            var d = -1;
             Transform res = null;
             foreach (Transform transform in self)
             {
                 int resD;
-                Transform resT = GetDeepestLeaf(transform, 0, out resD);
+                var resT = GetDeepestLeaf(transform, 0, out resD);
                 if (resD > d)
                 {
                     d = resD;
@@ -125,11 +125,11 @@ namespace MoreAccessoriesKOI.Extensions
                 return t;
             }
             Transform res = null;
-            int d = 0;
+            var d = 0;
             foreach (Transform child in t)
             {
                 int resD;
-                Transform resT = GetDeepestLeaf(child, depth + 1, out resD);
+                var resT = GetDeepestLeaf(child, depth + 1, out resD);
                 if (resD > d)
                 {
                     d = resD;

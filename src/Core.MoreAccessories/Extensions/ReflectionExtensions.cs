@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 
 namespace MoreAccessoriesKOI.Extensions
@@ -15,14 +14,14 @@ namespace MoreAccessoriesKOI.Extensions
 
             public MemberKey(Type inType, string inName)
             {
-                this.type = inType;
-                this.name = inName;
-                this._hashCode = this.type.GetHashCode() ^ this.name.GetHashCode();
+                type = inType;
+                name = inName;
+                _hashCode = type.GetHashCode() ^ name.GetHashCode();
             }
 
             public override int GetHashCode()
             {
-                return this._hashCode;
+                return _hashCode;
             }
         }
 
@@ -31,7 +30,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void SetPrivateExplicit<T>(this T self, string name, object value)
         {
-            MemberKey key = new MemberKey(typeof(T), name);
+            var key = new MemberKey(typeof(T), name);
             FieldInfo info;
             if (_fieldCache.TryGetValue(key, out info) == false)
             {
@@ -42,7 +41,7 @@ namespace MoreAccessoriesKOI.Extensions
         }
         public static void SetPrivate(this object self, string name, object value)
         {
-            MemberKey key = new MemberKey(self.GetType(), name);
+            var key = new MemberKey(self.GetType(), name);
             FieldInfo info;
             if (_fieldCache.TryGetValue(key, out info) == false)
             {
@@ -53,7 +52,7 @@ namespace MoreAccessoriesKOI.Extensions
         }
         public static object GetPrivateExplicit<T>(this T self, string name)
         {
-            MemberKey key = new MemberKey(typeof(T), name);
+            var key = new MemberKey(typeof(T), name);
             FieldInfo info;
             if (_fieldCache.TryGetValue(key, out info) == false)
             {
@@ -64,7 +63,7 @@ namespace MoreAccessoriesKOI.Extensions
         }
         public static object GetPrivate(this object self, string name)
         {
-            MemberKey key = new MemberKey(self.GetType(), name);
+            var key = new MemberKey(self.GetType(), name);
             FieldInfo info;
             if (_fieldCache.TryGetValue(key, out info) == false)
             {
@@ -76,7 +75,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void SetPrivateProperty(this object self, string name, object value)
         {
-            MemberKey key = new MemberKey(self.GetType(), name);
+            var key = new MemberKey(self.GetType(), name);
             PropertyInfo info;
             if (_propertyCache.TryGetValue(key, out info) == false)
             {
@@ -88,7 +87,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static object GetPrivateProperty(this object self, string name)
         {
-            MemberKey key = new MemberKey(self.GetType(), name);
+            var key = new MemberKey(self.GetType(), name);
             PropertyInfo info;
             if (_propertyCache.TryGetValue(key, out info) == false)
             {
@@ -101,7 +100,7 @@ namespace MoreAccessoriesKOI.Extensions
         //Static versions
         public static void SetPrivate(this Type self, string name, object value)
         {
-            MemberKey key = new MemberKey(self, name);
+            var key = new MemberKey(self, name);
             FieldInfo info;
             if (_fieldCache.TryGetValue(key, out info) == false)
             {
@@ -113,7 +112,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static object GetPrivate(this Type self, string name)
         {
-            MemberKey key = new MemberKey(self, name);
+            var key = new MemberKey(self, name);
             FieldInfo info;
             if (_fieldCache.TryGetValue(key, out info) == false)
             {
@@ -125,7 +124,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void SetPrivateProperty(this Type self, string name, object value)
         {
-            MemberKey key = new MemberKey(self, name);
+            var key = new MemberKey(self, name);
             PropertyInfo info;
             if (_propertyCache.TryGetValue(key, out info) == false)
             {
@@ -137,7 +136,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static object GetPrivateProperty(this Type self, string name)
         {
-            MemberKey key = new MemberKey(self, name);
+            var key = new MemberKey(self, name);
             PropertyInfo info;
             if (_propertyCache.TryGetValue(key, out info) == false)
             {
@@ -159,14 +158,14 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void LoadWith<T>(this T to, T from)
         {
-            FieldInfo[] fields = typeof(T).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-            foreach (FieldInfo fi in fields)
+            var fields = typeof(T).GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
+            foreach (var fi in fields)
             {
                 if (fi.FieldType.IsArray)
                 {
-                    Array arr = (Array)fi.GetValue(from);
-                    Array arr2 = Array.CreateInstance(fi.FieldType.GetElementType(), arr.Length);
-                    for (int i = 0; i < arr.Length; i++)
+                    var arr = (Array)fi.GetValue(from);
+                    var arr2 = Array.CreateInstance(fi.FieldType.GetElementType(), arr.Length);
+                    for (var i = 0; i < arr.Length; i++)
                         arr2.SetValue(arr.GetValue(i), i);
                 }
                 else
@@ -178,7 +177,7 @@ namespace MoreAccessoriesKOI.Extensions
         {
             Type t = null;
             name = "+<" + name + ">";
-            foreach (Type type in objectType.GetNestedTypes(BindingFlags.NonPublic))
+            foreach (var type in objectType.GetNestedTypes(BindingFlags.NonPublic))
             {
                 if (type.FullName.Contains(name))
                 {
@@ -194,9 +193,9 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static byte[] GetResource(this Assembly a, string resourceName)
         {
-            using (Stream stream = a.GetManifestResourceStream(resourceName))
+            using (var stream = a.GetManifestResourceStream(resourceName))
             {
-                byte[] arr = new byte[stream.Length];
+                var arr = new byte[stream.Length];
                 stream.Read(arr, 0, arr.Length);
                 return arr;
             }

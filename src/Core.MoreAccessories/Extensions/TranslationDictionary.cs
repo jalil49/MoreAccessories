@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml;
 
 namespace MoreAccessoriesKOI
@@ -15,11 +12,11 @@ namespace MoreAccessoriesKOI
         {
             if (typeof(T).IsEnum == false)
                 throw new ArgumentException("T must be an enumerated type");
-            using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceDictionary))
+            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceDictionary))
             {
-                XmlDocument doc = new XmlDocument();
+                var doc = new XmlDocument();
                 doc.Load(stream);
-                Type enumType = typeof(T);
+                var enumType = typeof(T);
                 foreach (XmlNode node in doc.FirstChild)
                 {
                     try
@@ -28,10 +25,10 @@ namespace MoreAccessoriesKOI
                         {
                             // Might have different types of nodes in the future
                             case "string":
-                                string key = node.Attributes["key"].Value;
-                                string value = node.Attributes["value"].Value;
-                                T e = (T)Enum.Parse(enumType, key);
-                                this._strings.Add(e, value);
+                                var key = node.Attributes["key"].Value;
+                                var value = node.Attributes["value"].Value;
+                                var e = (T)Enum.Parse(enumType, key);
+                                _strings.Add(e, value);
                                 break;
                         }
                     }
@@ -45,7 +42,7 @@ namespace MoreAccessoriesKOI
 
         public string GetString(T key)
         {
-            if (this._strings.TryGetValue(key, out string res) == false)
+            if (_strings.TryGetValue(key, out var res) == false)
             {
                 res = "";
                 Debug.LogError("Could not find string " + key + " in translation dictionary.");

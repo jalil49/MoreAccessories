@@ -30,7 +30,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void DrawBackground(Rect rect)
         {
-            Color c = GUI.backgroundColor;
+            var c = GUI.backgroundColor;
             GUI.backgroundColor = _backgroundColor;
             GUI.Box(rect, "", _customBoxStyle);
             GUI.backgroundColor = c;
@@ -44,42 +44,42 @@ namespace MoreAccessoriesKOI.Extensions
 
             public void OnPointerDown(PointerEventData eventData)
             {
-                this.SetCameraControlEnabled(false);
+                SetCameraControlEnabled(false);
             }
 
             public void OnPointerUp(PointerEventData eventData)
             {
-                this.SetCameraControlEnabled(true);
+                SetCameraControlEnabled(true);
             }
 
             public void OnEndDrag(PointerEventData eventData)
             {
-                this.SetCameraControlEnabled(true);
+                SetCameraControlEnabled(true);
             }
 
             private void SetCameraControlEnabled(bool e)
             {
                 if (Camera.main != null)
                 {
-                    CameraControl control = Camera.main.GetComponent<CameraControl>();
+                    var control = Camera.main.GetComponent<CameraControl>();
                     if (control != null)
                     {
-                        this._cameraControlEnabled = e;
-                        control.NoCtrlCondition = this.NoCtrlCondition;
+                        _cameraControlEnabled = e;
+                        control.NoCtrlCondition = NoCtrlCondition;
                     }
                 }
             }
 
             private bool NoCtrlCondition()
             {
-                return !this._cameraControlEnabled;
+                return !_cameraControlEnabled;
             }
 
             public override void OnDisable()
             {
                 base.OnDisable();
-                if (this._cameraControlEnabled == false && Camera.main?.GetComponent<CameraControl>()?.NoCtrlCondition == this.NoCtrlCondition)
-                    this.SetCameraControlEnabled(true);
+                if (_cameraControlEnabled == false && Camera.main?.GetComponent<CameraControl>()?.NoCtrlCondition == NoCtrlCondition)
+                    SetCameraControlEnabled(true);
             }
         }
         private static Canvas _canvas = null;
@@ -87,38 +87,38 @@ namespace MoreAccessoriesKOI.Extensions
         {
             if (_canvas == null)
             {
-                GameObject g = GameObject.Find("IMGUIBackgrounds");
+                var g = GameObject.Find("IMGUIBackgrounds");
                 if (g != null)
                     _canvas = g.GetComponent<Canvas>();
                 if (_canvas == null)
                 {
-                    GameObject go = new GameObject("IMGUIBackgrounds", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+                    var go = new GameObject("IMGUIBackgrounds", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
                     go.hideFlags |= HideFlags.HideInHierarchy;
                     _canvas = go.GetComponent<Canvas>();
                     _canvas.renderMode = RenderMode.ScreenSpaceOverlay;
                     _canvas.pixelPerfect = true;
                     _canvas.sortingOrder = 999;
 
-                    CanvasScaler cs = go.GetComponent<CanvasScaler>();
+                    var cs = go.GetComponent<CanvasScaler>();
                     cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
                     cs.referencePixelsPerUnit = 100;
                     cs.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 
-                    GraphicRaycaster gr = go.GetComponent<GraphicRaycaster>();
+                    var gr = go.GetComponent<GraphicRaycaster>();
                     gr.ignoreReversedGraphics = true;
                     gr.blockingObjects = GraphicRaycaster.BlockingObjects.None;
                     GameObject.DontDestroyOnLoad(go);
                 }
             }
-            GameObject background = new GameObject("Background", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
+            var background = new GameObject("Background", typeof(RectTransform), typeof(CanvasRenderer), typeof(RawImage));
             background.transform.SetParent(_canvas.transform, false);
             background.transform.localPosition = Vector3.zero;
             background.transform.localRotation = Quaternion.identity;
             background.transform.localScale = Vector3.one;
-            RawImage image = background.GetComponent<RawImage>();
+            var image = background.GetComponent<RawImage>();
             image.color = new Color32(127, 127, 127, 2);
             image.raycastTarget = true;
-            RectTransform rt = (RectTransform)background.transform;
+            var rt = (RectTransform)background.transform;
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0f, 1f);
@@ -132,7 +132,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void FitRectTransformToRect(RectTransform transform, Rect rect)
         {
-            if (RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)_canvas.transform, new Vector2(rect.xMin, rect.yMax), _canvas.worldCamera, out Vector2 min) && RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)_canvas.transform, new Vector2(rect.xMax, rect.yMin), _canvas.worldCamera, out Vector2 max))
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)_canvas.transform, new Vector2(rect.xMin, rect.yMax), _canvas.worldCamera, out var min) && RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)_canvas.transform, new Vector2(rect.xMax, rect.yMin), _canvas.worldCamera, out var max))
             {
                 transform.offsetMin = new Vector2(min.x, -min.y);
                 transform.offsetMax = new Vector2(max.x, -max.y);
@@ -144,9 +144,9 @@ namespace MoreAccessoriesKOI.Extensions
             GUILayout.BeginHorizontal();
             if (label != null)
                 GUILayout.Label(label, GUILayout.ExpandWidth(false));
-            float newValue = GUILayout.HorizontalSlider(value, left, right);
-            string valueString = newValue.ToString(valueFormat);
-            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(50f));
+            var newValue = GUILayout.HorizontalSlider(value, left, right);
+            var valueString = newValue.ToString(valueFormat);
+            var newValueString = GUILayout.TextField(valueString, GUILayout.Width(50f));
 
             if (newValueString != valueString)
             {
@@ -165,8 +165,8 @@ namespace MoreAccessoriesKOI.Extensions
             GUILayout.BeginHorizontal();
             if (label != null)
                 GUILayout.Label(label, GUILayout.ExpandWidth(false));
-            string valueString = value.ToString(valueFormat);
-            string newValueString = GUILayout.TextField(valueString, GUILayout.ExpandWidth(true));
+            var valueString = value.ToString(valueFormat);
+            var newValueString = GUILayout.TextField(valueString, GUILayout.ExpandWidth(true));
 
             if (newValueString != valueString)
             {
@@ -186,9 +186,9 @@ namespace MoreAccessoriesKOI.Extensions
             GUILayout.BeginHorizontal();
             if (label != null)
                 GUILayout.Label(label, GUILayout.ExpandWidth(false));
-            int newValue = Mathf.RoundToInt(GUILayout.HorizontalSlider(value, left, right));
-            string valueString = newValue.ToString(valueFormat);
-            string newValueString = GUILayout.TextField(valueString, GUILayout.Width(50f));
+            var newValue = Mathf.RoundToInt(GUILayout.HorizontalSlider(value, left, right));
+            var valueString = newValue.ToString(valueFormat);
+            var newValueString = GUILayout.TextField(valueString, GUILayout.Width(50f));
 
             if (newValueString != valueString)
             {
@@ -207,8 +207,8 @@ namespace MoreAccessoriesKOI.Extensions
             GUILayout.BeginHorizontal();
             if (label != null)
                 GUILayout.Label(label, GUILayout.ExpandWidth(false));
-            string valueString = value.ToString(valueFormat);
-            string newValueString = GUILayout.TextField(valueString, GUILayout.ExpandWidth(true));
+            var valueString = value.ToString(valueFormat);
+            var newValueString = GUILayout.TextField(valueString, GUILayout.ExpandWidth(true));
 
             if (newValueString != valueString)
             {
@@ -276,7 +276,7 @@ namespace MoreAccessoriesKOI.Extensions
                         Studio.Studio.Instance.colorPalette.Setup(label, color, onChanged, true);
 #endif
                 }
-                Rect layoutRectangle = GUILayoutUtility.GetLastRect();
+                var layoutRectangle = GUILayoutUtility.GetLastRect();
                 layoutRectangle.xMin += 6;
                 layoutRectangle.xMax -= 6;
                 layoutRectangle.yMin += 6;
@@ -301,19 +301,19 @@ namespace MoreAccessoriesKOI.Extensions
                 if (label != null)
                     GUILayout.Label(new GUIContent(label, tooltip), GUILayout.ExpandWidth(false));
                 GUILayout.FlexibleSpace();
-                bool shouldReset = GUILayout.Button("Reset", GUILayout.ExpandWidth(false));
+                var shouldReset = GUILayout.Button("Reset", GUILayout.ExpandWidth(false));
                 GUILayout.EndHorizontal();
 
-                Color newColor = color;
+                var newColor = color;
                 if (simplePickerHSV)
                 {
-                    Color.RGBToHSV(color, out float h, out float s, out float v);
+                    Color.RGBToHSV(color, out var h, out var s, out var v);
                     h *= 360;
 
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("H", GUILayout.ExpandWidth(false));
                     h = GUILayout.HorizontalSlider(h, 0f, 359.99f);
-                    if (float.TryParse(GUILayout.TextField(h.ToString("0.0"), GUILayout.Width(50)), out float newValue))
+                    if (float.TryParse(GUILayout.TextField(h.ToString("0.0"), GUILayout.Width(50)), out var newValue))
                         h = newValue;
                     GUILayout.EndHorizontal();
 
@@ -339,7 +339,7 @@ namespace MoreAccessoriesKOI.Extensions
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("R", GUILayout.ExpandWidth(false));
                     newColor.r = GUILayout.HorizontalSlider(newColor.r, 0f, 1f);
-                    if (float.TryParse(GUILayout.TextField(newColor.r.ToString("0.000"), GUILayout.Width(50)), out float newValue))
+                    if (float.TryParse(GUILayout.TextField(newColor.r.ToString("0.000"), GUILayout.Width(50)), out var newValue))
                         newColor.r = newValue;
                     GUILayout.EndHorizontal();
 
@@ -363,7 +363,7 @@ namespace MoreAccessoriesKOI.Extensions
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("A", GUILayout.ExpandWidth(false));
                     newColor.a = GUILayout.HorizontalSlider(newColor.a, 0f, 1f);
-                    if (float.TryParse(GUILayout.TextField(newColor.a.ToString("0.000"), GUILayout.Width(50)), out float newValue))
+                    if (float.TryParse(GUILayout.TextField(newColor.a.ToString("0.000"), GUILayout.Width(50)), out var newValue))
                         newColor.a = newValue;
                     GUILayout.EndHorizontal();
                 }
@@ -416,7 +416,7 @@ namespace MoreAccessoriesKOI.Extensions
                         Studio.Studio.Instance.colorPalette.Setup(label, color, onChanged, true);
 #endif
                 }
-                Rect layoutRectangle = GUILayoutUtility.GetLastRect();
+                var layoutRectangle = GUILayoutUtility.GetLastRect();
                 layoutRectangle.xMin += 6;
                 layoutRectangle.xMax -= 6;
                 layoutRectangle.yMin += 6;
@@ -432,16 +432,16 @@ namespace MoreAccessoriesKOI.Extensions
                 if (label != null)
                     GUILayout.Label(label, GUILayout.ExpandWidth(false));
 
-                Color newColor = color;
+                var newColor = color;
                 if (simplePickerHSV)
                 {
-                    Color.RGBToHSV(newColor, out float h, out float s, out float v);
+                    Color.RGBToHSV(newColor, out var h, out var s, out var v);
                     h *= 360;
 
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("H", GUILayout.ExpandWidth(false));
                     h = GUILayout.HorizontalSlider(h, 0f, 359.99f);
-                    if (float.TryParse(GUILayout.TextField(h.ToString("0.0"), GUILayout.Width(50)), out float newValue))
+                    if (float.TryParse(GUILayout.TextField(h.ToString("0.0"), GUILayout.Width(50)), out var newValue))
                         h = newValue;
                     GUILayout.EndHorizontal();
 
@@ -467,7 +467,7 @@ namespace MoreAccessoriesKOI.Extensions
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("R", GUILayout.ExpandWidth(false));
                     newColor.r = GUILayout.HorizontalSlider(newColor.r, 0f, 1f);
-                    if (float.TryParse(GUILayout.TextField(newColor.r.ToString("0.000"), GUILayout.Width(50)), out float newValue))
+                    if (float.TryParse(GUILayout.TextField(newColor.r.ToString("0.000"), GUILayout.Width(50)), out var newValue))
                         newColor.r = newValue;
                     GUILayout.EndHorizontal();
 
@@ -491,7 +491,7 @@ namespace MoreAccessoriesKOI.Extensions
                     GUILayout.BeginHorizontal();
                     GUILayout.Label("A", GUILayout.ExpandWidth(false));
                     newColor.a = GUILayout.HorizontalSlider(newColor.a, 0f, 1f);
-                    if (float.TryParse(GUILayout.TextField(newColor.a.ToString("0.000"), GUILayout.Width(50)), out float newValue))
+                    if (float.TryParse(GUILayout.TextField(newColor.a.ToString("0.000"), GUILayout.Width(50)), out var newValue))
                         newColor.a = newValue;
                     GUILayout.EndHorizontal();
                 }
@@ -513,9 +513,9 @@ namespace MoreAccessoriesKOI.Extensions
             if (_layerNames == null)
             {
                 _layerNames = new SortedList<int, string>(32);
-                for (int i = 0; i < 32; i++)
+                for (var i = 0; i < 32; i++)
                 {
-                    string name = LayerMask.LayerToName(i);
+                    var name = LayerMask.LayerToName(i);
                     if (string.IsNullOrEmpty(name) == false)
                         _layerNames.Add(i, name);
                 }
@@ -528,12 +528,12 @@ namespace MoreAccessoriesKOI.Extensions
             GUILayout.BeginVertical();
             if (label != null)
                 GUILayout.Label(label);
-            int newValue = value;
+            var newValue = value;
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
-            int columnSize = Mathf.CeilToInt((float)layerNames.Count / columns);
-            int shown = 0;
-            foreach (KeyValuePair<int, string> kvp in layerNames)
+            var columnSize = Mathf.CeilToInt((float)layerNames.Count / columns);
+            var shown = 0;
+            foreach (var kvp in layerNames)
             {
                 if (shown != 0 && shown % columnSize == 0)
                 {

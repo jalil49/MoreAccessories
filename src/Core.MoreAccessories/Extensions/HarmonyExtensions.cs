@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Reflection.Emit;
 #if IPA
 using Harmony;
@@ -61,20 +59,20 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static IEnumerable<CodeInstruction> ReplaceCodePattern(IEnumerable<CodeInstruction> instructions, IList<Replacement> replacements)
         {
-            List<CodeInstruction> codeInstructions = instructions.ToList();
-            foreach (Replacement replacement in replacements)
+            var codeInstructions = instructions.ToList();
+            foreach (var replacement in replacements)
             {
-                for (int i = 0; i < codeInstructions.Count; i++)
+                for (var i = 0; i < codeInstructions.Count; i++)
                 {
-                    int j = 0;
+                    var j = 0;
                     while (j < replacement.pattern.Length && i + j < codeInstructions.Count &&
                            CompareCodeInstructions(codeInstructions[i + j], replacement.pattern[j]))
                         ++j;
                     if (j == replacement.pattern.Length)
                     {
-                        for (int k = 0; k < replacement.replacer.Length; k++)
+                        for (var k = 0; k < replacement.replacer.Length; k++)
                         {
-                            int finalIndex = i + k;
+                            var finalIndex = i + k;
                             codeInstructions[finalIndex] = new CodeInstruction(replacement.replacer[k]) { labels = new List<Label>(codeInstructions[finalIndex].labels) };
                         }
                         i += replacement.replacer.Length;

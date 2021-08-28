@@ -84,7 +84,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         private static IEnumerator ExecuteDelayed_Routine(Action action, int frameCount = 1)
         {
-            for (int i = 0; i < frameCount; i++)
+            for (var i = 0; i < frameCount; i++)
                 yield return null;
             action();
         }
@@ -110,7 +110,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         private static IEnumerator ExecuteDelayedFixed_Routine(Action action, int waitCount)
         {
-            for (int i = 0; i < waitCount; i++)
+            for (var i = 0; i < waitCount; i++)
                 yield return new WaitForFixedUpdate();
             action();
         }

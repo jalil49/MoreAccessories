@@ -1,12 +1,7 @@
-﻿using MoreAccessoriesKOI.Extensions;
-using Studio;
+﻿using Studio;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Xml;
-using UnityEngine;
 
 namespace MoreAccessoriesKOI
 {
@@ -25,7 +20,7 @@ namespace MoreAccessoriesKOI
         {
             try
             {
-                Type timelineType = Type.GetType("Timeline.Timeline,Timeline");
+                var timelineType = Type.GetType("Timeline.Timeline,Timeline");
                 if (timelineType != null)
                 {
                     _getPlaybackTime = (Func<float>)Delegate.CreateDelegate(typeof(Func<float>), timelineType.GetProperty("playbackTime", BindingFlags.Public | BindingFlags.Static).GetGetMethod());

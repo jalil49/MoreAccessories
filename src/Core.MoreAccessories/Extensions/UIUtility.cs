@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Object = System.Object;
 
-namespace MoreAccessories.Extensions
+namespace MoreAccessoriesKOI.Extensions
 {
     public static class UIUtility
     {
@@ -36,7 +32,7 @@ namespace MoreAccessories.Extensions
             {
                 Component confirmationDialogComponent = null;
                 GameObject dialog = null;
-                foreach (Canvas c in Resources.FindObjectsOfTypeAll<Canvas>())
+                foreach (var c in Resources.FindObjectsOfTypeAll<Canvas>())
                 {
                     if (c.gameObject.name.Equals("ConfirmationDialog"))
                     {
@@ -46,24 +42,24 @@ namespace MoreAccessories.Extensions
                 }
                 if (dialog == null)
                 {
-                    Canvas c = UIUtility.CreateNewUISystem("ConfirmationDialog");
+                    var c = UIUtility.CreateNewUISystem("ConfirmationDialog");
                     c.sortingOrder = 40;
                     c.transform.localPosition = Vector3.zero;
                     c.transform.localScale = Vector3.one;
                     c.transform.SetRect();
                     c.transform.SetAsLastSibling();
 
-                    Image bg = UIUtility.CreateImage("Background", c.transform);
+                    var bg = UIUtility.CreateImage("Background", c.transform);
                     bg.rectTransform.SetRect();
                     bg.sprite = null;
                     bg.color = new Color(0f, 0f, 0f, 0.5f);
                     bg.raycastTarget = true;
 
-                    Image panel = UIUtility.CreatePanel("Panel", bg.transform);
+                    var panel = UIUtility.CreatePanel("Panel", bg.transform);
                     panel.rectTransform.SetRect(new Vector2(0.4f, 0.4f), new Vector2(0.6f, 0.6f));
                     panel.color = Color.gray;
 
-                    Text text = UIUtility.CreateText("Text", panel.transform, "");
+                    var text = UIUtility.CreateText("Text", panel.transform, "");
                     text.rectTransform.SetRect(new Vector2(0f, 0.333333f), Vector2.one, new Vector2(10f, 10f), new Vector2(-10f, -10f));
                     text.color = Color.white;
                     text.resizeTextForBestFit = true;
@@ -71,7 +67,7 @@ namespace MoreAccessories.Extensions
                     text.alignByGeometry = true;
                     text.alignment = TextAnchor.MiddleCenter;
 
-                    Button yes = UIUtility.CreateButton("YesButton", panel.transform, "Yes");
+                    var yes = UIUtility.CreateButton("YesButton", panel.transform, "Yes");
                     (yes.transform as RectTransform).SetRect(Vector2.zero, new Vector2(0.5f, 0.333333f), new Vector2(10f, 10f), new Vector2(-5f, -10f));
                     text = yes.GetComponentInChildren<Text>();
                     text.resizeTextForBestFit = true;
@@ -79,7 +75,7 @@ namespace MoreAccessories.Extensions
                     text.alignByGeometry = true;
                     text.alignment = TextAnchor.MiddleCenter;
 
-                    Button no = UIUtility.CreateButton("NoButton", panel.transform, "No");
+                    var no = UIUtility.CreateButton("NoButton", panel.transform, "No");
                     (no.transform as RectTransform).SetRect(new Vector2(0.5f, 0f), new Vector2(1f, 0.333333f), new Vector2(5f, 10f), new Vector2(-10f, -10f));
                     text = no.GetComponentInChildren<Text>();
                     text.resizeTextForBestFit = true;
@@ -92,8 +88,8 @@ namespace MoreAccessories.Extensions
                 }
                 else
                 {
-                    Component[] components = dialog.GetComponents<Component>();
-                    foreach (Component c in components)
+                    var components = dialog.GetComponents<Component>();
+                    foreach (var c in components)
                     {
                         if (c.GetType().Name == nameof(ConfirmationDialog))
                         {
@@ -109,36 +105,36 @@ namespace MoreAccessories.Extensions
             #region Unity Methods
             private void Awake()
             {
-                this.transform.Find("Background/Panel/YesButton").GetComponent<Button>().onClick.AddListener(this.YesPressed);
-                this.transform.Find("Background/Panel/NoButton").GetComponent<Button>().onClick.AddListener(this.NoPressed);
-                this._text = this.transform.Find("Background/Panel/Text").GetComponent<Text>();
+                transform.Find("Background/Panel/YesButton").GetComponent<Button>().onClick.AddListener(YesPressed);
+                transform.Find("Background/Panel/NoButton").GetComponent<Button>().onClick.AddListener(NoPressed);
+                _text = transform.Find("Background/Panel/Text").GetComponent<Text>();
             }
             #endregion
 
             #region Public Methods
             public void DisplayDialog(Action<bool> callback, string message = "Are you sure?")
             {
-                this._currentCallback = callback;
-                this._text.text = message;
-                this.gameObject.SetActive(true);
+                _currentCallback = callback;
+                _text.text = message;
+                gameObject.SetActive(true);
             }
             #endregion
 
             #region Private Methods
             private void NoPressed()
             {
-                if (this._currentCallback != null)
-                    this._currentCallback(false);
-                this.gameObject.SetActive(false);
-                this._currentCallback = null;
+                if (_currentCallback != null)
+                    _currentCallback(false);
+                gameObject.SetActive(false);
+                _currentCallback = null;
             }
 
             private void YesPressed()
             {
-                if (this._currentCallback != null)
-                    this._currentCallback(true);
-                this.gameObject.SetActive(false);
-                this._currentCallback = null;
+                if (_currentCallback != null)
+                    _currentCallback(true);
+                gameObject.SetActive(false);
+                _currentCallback = null;
             }
             #endregion
         }
@@ -158,47 +154,47 @@ namespace MoreAccessories.Extensions
             public override void Awake()
             {
                 base.Awake();
-                this._rectTransform = this.GetComponent<RectTransform>();
+                _rectTransform = GetComponent<RectTransform>();
             }
 
             public void OnPointerDown(PointerEventData eventData)
             {
-                this._pointerDownCalled = true;
-                this._cachedDragPosition = this.toDrag.position;
-                this._cachedMousePosition = eventData.position;
+                _pointerDownCalled = true;
+                _cachedDragPosition = toDrag.position;
+                _cachedMousePosition = eventData.position;
             }
 
             public void OnDrag(PointerEventData eventData)
             {
-                if (this._pointerDownCalled == false)
+                if (_pointerDownCalled == false)
                     return;
-                this.toDrag.position = this._cachedDragPosition + (eventData.position - this._cachedMousePosition);
-                this.Limit();
+                toDrag.position = _cachedDragPosition + (eventData.position - _cachedMousePosition);
+                Limit();
             }
 
             public void OnPointerUp(PointerEventData eventData)
             {
-                if (this._pointerDownCalled == false)
+                if (_pointerDownCalled == false)
                     return;
-                this.toDrag.position = this._cachedDragPosition + (eventData.position - this._cachedMousePosition);
-                this.Limit();
-                this._pointerDownCalled = false;
+                toDrag.position = _cachedDragPosition + (eventData.position - _cachedMousePosition);
+                Limit();
+                _pointerDownCalled = false;
             }
 
             private void Limit()
             {
-                if (this.limit != null)
+                if (limit != null)
                 {
-                    this._rectTransform.GetWorldCorners(this._draggableZoneCorners);
-                    this.limit.GetWorldCorners(this._limitCorners);
-                    if (this._draggableZoneCorners[0].x < this._limitCorners[0].x)
-                        this.toDrag.position += new Vector3(this._limitCorners[0].x - this._draggableZoneCorners[0].x, 0f, 0f);
-                    if (this._draggableZoneCorners[0].y < this._limitCorners[0].y)
-                        this.toDrag.position += new Vector3(0f, this._limitCorners[0].y - this._draggableZoneCorners[0].y, 0f);
-                    if (this._draggableZoneCorners[2].x > this._limitCorners[2].x)
-                        this.toDrag.position += new Vector3(this._limitCorners[2].x - this._draggableZoneCorners[2].x, 0f, 0f);
-                    if (this._draggableZoneCorners[2].y > this._limitCorners[2].y)
-                        this.toDrag.position += new Vector3(0f, this._limitCorners[2].y - this._draggableZoneCorners[2].y, 0f);
+                    _rectTransform.GetWorldCorners(_draggableZoneCorners);
+                    limit.GetWorldCorners(_limitCorners);
+                    if (_draggableZoneCorners[0].x < _limitCorners[0].x)
+                        toDrag.position += new Vector3(_limitCorners[0].x - _draggableZoneCorners[0].x, 0f, 0f);
+                    if (_draggableZoneCorners[0].y < _limitCorners[0].y)
+                        toDrag.position += new Vector3(0f, _limitCorners[0].y - _draggableZoneCorners[0].y, 0f);
+                    if (_draggableZoneCorners[2].x > _limitCorners[2].x)
+                        toDrag.position += new Vector3(_limitCorners[2].x - _draggableZoneCorners[2].x, 0f, 0f);
+                    if (_draggableZoneCorners[2].y > _limitCorners[2].y)
+                        toDrag.position += new Vector3(0f, _limitCorners[2].y - _draggableZoneCorners[2].y, 0f);
                 }
             }
         }
@@ -263,18 +259,18 @@ namespace MoreAccessories.Extensions
 #if HONEYSELECT || PLAYHOME
                 using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResources.unity3d"))
 #elif KOIKATSU
-                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesKOI.unity3d"))
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesKOI.unity3d"))
 #elif AISHOUJO
                 using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesAI.unity3d"))
 #elif HONEYSELECT2
                 using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesHS2.unity3d"))
 #endif
                 {
-                    byte[] arr = new byte[stream.Length];
+                    var arr = new byte[stream.Length];
                     stream.Read(arr, 0, arr.Length);
                     bundle = AssetBundle.LoadFromMemory(arr);
                 }
-                foreach (Sprite sprite in bundle.LoadAllAssets<Sprite>())
+                foreach (var sprite in bundle.LoadAllAssets<Sprite>())
                 {
                     switch (sprite.name)
                     {
@@ -329,17 +325,17 @@ namespace MoreAccessories.Extensions
 
         public static Canvas CreateNewUISystem(string name = "NewUISystem")
         {
-            GameObject go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            Canvas c = go.GetComponent<Canvas>();
+            var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var c = go.GetComponent<Canvas>();
             c.renderMode = canvasRenderMode;
             //c.pixelPerfect = canvasPixelPerfect;
 
-            CanvasScaler cs = go.GetComponent<CanvasScaler>();
+            var cs = go.GetComponent<CanvasScaler>();
             cs.uiScaleMode = canvasScalerUiScaleMode;
             cs.referencePixelsPerUnit = canvasScalerReferencePixelsPerUnit;
             cs.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
 
-            GraphicRaycaster gr = go.GetComponent<GraphicRaycaster>();
+            var gr = go.GetComponent<GraphicRaycaster>();
             gr.ignoreReversedGraphics = graphicRaycasterIgnoreReversedGraphics;
             gr.blockingObjects = graphicRaycasterBlockingObjects;
 
@@ -348,7 +344,7 @@ namespace MoreAccessories.Extensions
 
         public static void SetCustomFont(string customFontName)
         {
-            foreach (Font font in Resources.FindObjectsOfTypeAll<Font>())
+            foreach (var font in Resources.FindObjectsOfTypeAll<Font>())
             {
                 if (font.name.Equals(customFontName))
                 {
@@ -360,7 +356,7 @@ namespace MoreAccessories.Extensions
 
         public static RectTransform CreateNewUIObject(string objectName = "UIObject", Transform parent = null)
         {
-            RectTransform t = new GameObject(objectName, typeof(RectTransform)).GetComponent<RectTransform>();
+            var t = new GameObject(objectName, typeof(RectTransform)).GetComponent<RectTransform>();
             if (parent != null)
             {
                 t.SetParent(parent, false);
@@ -374,9 +370,9 @@ namespace MoreAccessories.Extensions
 
         public static InputField CreateInputField(string objectName = "New Input Field", Transform parent = null, string placeholder = "Placeholder...")
         {
-            GameObject go = DefaultControls.CreateInputField(resources);
+            var go = DefaultControls.CreateInputField(resources);
             go.name = objectName;
-            foreach (Text text in go.GetComponentsInChildren<Text>(true))
+            foreach (var text in go.GetComponentsInChildren<Text>(true))
             {
                 text.font = defaultFont;
                 text.resizeTextForBestFit = true;
@@ -388,7 +384,7 @@ namespace MoreAccessories.Extensions
             }
             go.transform.SetParent(parent, false);
 
-            InputField f = go.GetComponent<InputField>();
+            var f = go.GetComponent<InputField>();
             f.placeholder.GetComponent<Text>().text = placeholder;
 
             return f;
@@ -396,10 +392,10 @@ namespace MoreAccessories.Extensions
 
         public static Button CreateButton(string objectName = "New Button", Transform parent = null, string buttonText = "Button")
         {
-            GameObject go = DefaultControls.CreateButton(resources);
+            var go = DefaultControls.CreateButton(resources);
             go.name = objectName;
 
-            Text text = go.GetComponentInChildren<Text>(true);
+            var text = go.GetComponentInChildren<Text>(true);
             text.font = defaultFont;
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 2;
@@ -414,20 +410,20 @@ namespace MoreAccessories.Extensions
 
         public static Image CreateImage(string objectName = "New Image", Transform parent = null, Sprite sprite = null)
         {
-            GameObject go = DefaultControls.CreateImage(resources);
+            var go = DefaultControls.CreateImage(resources);
             go.name = objectName;
             go.transform.SetParent(parent, false);
-            Image i = go.GetComponent<Image>();
+            var i = go.GetComponent<Image>();
             i.sprite = sprite;
             return i;
         }
 
         public static Text CreateText(string objectName = "New Text", Transform parent = null, string textText = "Text")
         {
-            GameObject go = DefaultControls.CreateText(resources);
+            var go = DefaultControls.CreateText(resources);
             go.name = objectName;
 
-            Text text = go.GetComponentInChildren<Text>(true);
+            var text = go.GetComponentInChildren<Text>(true);
             text.font = defaultFont;
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 2;
@@ -442,10 +438,10 @@ namespace MoreAccessories.Extensions
 
         public static Toggle CreateToggle(string objectName = "New Toggle", Transform parent = null, string label = "Label")
         {
-            GameObject go = DefaultControls.CreateToggle(resources);
+            var go = DefaultControls.CreateToggle(resources);
             go.name = objectName;
 
-            Text text = go.GetComponentInChildren<Text>(true);
+            var text = go.GetComponentInChildren<Text>(true);
             text.font = defaultFont;
             text.resizeTextForBestFit = true;
             text.resizeTextMinSize = 2;
@@ -460,10 +456,10 @@ namespace MoreAccessories.Extensions
 
         public static Dropdown CreateDropdown(string objectName = "New Dropdown", Transform parent = null, string label = "Label")
         {
-            GameObject go = DefaultControls.CreateDropdown(resources);
+            var go = DefaultControls.CreateDropdown(resources);
             go.name = objectName;
 
-            foreach (Text text in go.GetComponentsInChildren<Text>(true))
+            foreach (var text in go.GetComponentsInChildren<Text>(true))
             {
                 text.font = defaultFont;
                 text.resizeTextForBestFit = true;
@@ -481,17 +477,17 @@ namespace MoreAccessories.Extensions
 
         public static RawImage CreateRawImage(string objectName = "New Raw Image", Transform parent = null, Texture texture = null)
         {
-            GameObject go = DefaultControls.CreateRawImage(resources);
+            var go = DefaultControls.CreateRawImage(resources);
             go.name = objectName;
             go.transform.SetParent(parent, false);
-            RawImage i = go.GetComponent<RawImage>();
+            var i = go.GetComponent<RawImage>();
             i.texture = texture;
             return i;
         }
 
         public static Scrollbar CreateScrollbar(string objectName = "New Scrollbar", Transform parent = null)
         {
-            GameObject go = DefaultControls.CreateScrollbar(resources);
+            var go = DefaultControls.CreateScrollbar(resources);
             go.name = objectName;
             go.transform.SetParent(parent, false);
             return go.GetComponent<Scrollbar>();
@@ -499,13 +495,13 @@ namespace MoreAccessories.Extensions
 
         public static ScrollRect CreateScrollView(string objectName = "New ScrollView", Transform parent = null)
         {
-            GameObject go = DefaultControls.CreateScrollView(resources);
+            var go = DefaultControls.CreateScrollView(resources);
             go.name = objectName;
             go.transform.SetParent(parent, false);
             // I swear this is useful.
             // It prevents the new mask from "combining" with existing masks.
             // Yes, I know, it's weird issue, but I guess that's the price of creating UIs at runtime.
-            foreach (Mask m in go.GetComponentsInChildren<Mask>(true))
+            foreach (var m in go.GetComponentsInChildren<Mask>(true))
             {
                 m.enabled = false;
                 m.enabled = true;
@@ -515,14 +511,14 @@ namespace MoreAccessories.Extensions
 
         public static Slider CreateSlider(string objectName = "New Slider", Transform parent = null)
         {
-            GameObject go = DefaultControls.CreateSlider(resources);
+            var go = DefaultControls.CreateSlider(resources);
             go.name = objectName;
             go.transform.SetParent(parent, false);
             return go.GetComponent<Slider>();
         }
         public static Image CreatePanel(string objectName = "New Panel", Transform parent = null)
         {
-            GameObject go = DefaultControls.CreatePanel(resources);
+            var go = DefaultControls.CreatePanel(resources);
             go.name = objectName;
             go.transform.SetParent(parent, false);
             return go.GetComponent<Image>();
@@ -550,7 +546,7 @@ namespace MoreAccessories.Extensions
 
         public static Outline AddOutlineToObject(Transform t, Color color, Vector2 effectDistance)
         {
-            Outline o = t.gameObject.AddComponent<Outline>();
+            var o = t.gameObject.AddComponent<Outline>();
             o.effectColor = color;
             o.effectDistance = effectDistance;
             return o;
@@ -558,13 +554,13 @@ namespace MoreAccessories.Extensions
 
         public static Toggle AddCheckboxToObject(Transform tr)
         {
-            Toggle t = tr.gameObject.AddComponent<Toggle>();
+            var t = tr.gameObject.AddComponent<Toggle>();
 
-            RectTransform bg = CreateNewUIObject("Background", tr.transform);
+            var bg = CreateNewUIObject("Background", tr.transform);
             t.targetGraphic = AddImageToObject(bg, standardSprite);
 
-            RectTransform check = CreateNewUIObject("CheckMark", bg);
-            Image checkM = AddImageToObject(check, checkMark);
+            var check = CreateNewUIObject("CheckMark", bg);
+            var checkM = AddImageToObject(check, checkMark);
             checkM.color = Color.black;
             t.graphic = checkM;
 
@@ -575,7 +571,7 @@ namespace MoreAccessories.Extensions
 
         public static Image AddImageToObject(Transform t, Sprite sprite = null)
         {
-            Image i = t.gameObject.AddComponent<Image>();
+            var i = t.gameObject.AddComponent<Image>();
             i.type = Image.Type.Sliced;
             i.fillCenter = true;
             i.color = whiteColor;
@@ -585,7 +581,7 @@ namespace MoreAccessories.Extensions
 
         public static MovableWindow MakeObjectDraggable(RectTransform clickableDragZone, RectTransform draggableObject, RectTransform limit = null)
         {
-            MovableWindow mv = clickableDragZone.gameObject.AddComponent<MovableWindow>();
+            var mv = clickableDragZone.gameObject.AddComponent<MovableWindow>();
             mv.toDrag = draggableObject;
             mv.limit = limit;
             return mv;
@@ -596,7 +592,7 @@ namespace MoreAccessories.Extensions
             if (_contextMenuRoot == null)
             {
                 _contextMenuRoot = CreateContextMenuGroup("ContextMenu");
-                Canvas subCanvas = _contextMenuRoot.gameObject.AddComponent<Canvas>();
+                var subCanvas = _contextMenuRoot.gameObject.AddComponent<Canvas>();
                 subCanvas.overrideSorting = true;
                 subCanvas.sortingOrder = 20;
                 subCanvas.gameObject.AddComponent<GraphicRaycaster>();
@@ -610,9 +606,9 @@ namespace MoreAccessories.Extensions
             _contextMenuRoot.sizeDelta = new Vector2(width, _contextMenuRoot.sizeDelta.y);
             _contextMenuRoot.gameObject.SetActive(true);
 
-            int elementIndex = 0;
-            int groupIndex = 0;
-            foreach (AContextMenuElement element in elements)
+            var elementIndex = 0;
+            var groupIndex = 0;
+            foreach (var element in elements)
             {
                 RectTransform rt = null;
                 if (element is LeafElement)
@@ -650,8 +646,8 @@ namespace MoreAccessories.Extensions
 
         private static RectTransform CreateContextMenuGroup(string name = "Group")
         {
-            GameObject obj = new GameObject(name, typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
-            RectTransform rt = (RectTransform)obj.transform;
+            var obj = new GameObject(name, typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            var rt = (RectTransform)obj.transform;
             rt.pivot = Vector2.zero;
             obj.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             return rt;
@@ -661,7 +657,7 @@ namespace MoreAccessories.Extensions
         {
             if (index < _displayedContextMenuElements.Count)
                 return _displayedContextMenuElements[index];
-            ContextMenuUIElement uiElement = new ContextMenuUIElement();
+            var uiElement = new ContextMenuUIElement();
             uiElement.rectTransform = ConstuctContextMenuElement();
             uiElement.button = uiElement.rectTransform.Find("Button").GetComponent<Button>();
             uiElement.icon = uiElement.button.transform.Find("Icon").GetComponent<Image>();
@@ -673,24 +669,24 @@ namespace MoreAccessories.Extensions
 
         private static RectTransform ConstuctContextMenuElement()
         {
-            RectTransform root = CreateNewUIObject("ContextMenuElement");
+            var root = CreateNewUIObject("ContextMenuElement");
             root.gameObject.AddComponent<LayoutElement>().preferredHeight = 25;
-            Button b = CreateButton("Button", root);
+            var b = CreateButton("Button", root);
             b.transform.SetRect();
             UnityEngine.Object.Destroy(b.GetComponent<Image>());
             UnityEngine.Object.Destroy(b.GetComponent<CanvasRenderer>());
             b.targetGraphic = CreateImage("Background", b.transform, standardSprite);
             b.targetGraphic.rectTransform.SetRect();
             ((Image)b.targetGraphic).type = Image.Type.Sliced;
-            Image icon = CreateImage("Icon", b.transform);
+            var icon = CreateImage("Icon", b.transform);
             icon.rectTransform.pivot = new Vector2(0f, 0.5f);
             icon.rectTransform.SetRect(new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(2f, 2f), new Vector2(23f, -2f));
-            Text t = b.GetComponentInChildren<Text>();
+            var t = b.GetComponentInChildren<Text>();
             t.rectTransform.SetRect(new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(25f, 0f), new Vector2(-25f, 0f));
             t.rectTransform.SetAsLastSibling();
             t.alignment = TextAnchor.MiddleLeft;
             t.alignByGeometry = true;
-            RawImage childIcon = CreateRawImage("ChildIcon", b.transform, dropdownArrow.texture);
+            var childIcon = CreateRawImage("ChildIcon", b.transform, dropdownArrow.texture);
             childIcon.rectTransform.localRotation = Quaternion.AngleAxis(90, Vector3.forward);
             childIcon.rectTransform.SetRect(new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(-26.5f, -2f), new Vector2(2.5f, 2f));
             return root;
@@ -700,14 +696,14 @@ namespace MoreAccessories.Extensions
         {
             if (index < _displayedContextMenuGroups.Count)
                 return _displayedContextMenuGroups[index];
-            RectTransform rt = CreateContextMenuGroup();
+            var rt = CreateContextMenuGroup();
             _displayedContextMenuGroups.Add(rt);
             return rt;
         }
 
         private static RectTransform HandleLeafElement(LeafElement element, ref int index)
         {
-            ContextMenuUIElement uiElement = GetContextMenuUIElement(index);
+            var uiElement = GetContextMenuUIElement(index);
             uiElement.rectTransform.SetParent(null);
             uiElement.rectTransform.gameObject.SetActive(true);
 
@@ -731,7 +727,7 @@ namespace MoreAccessories.Extensions
 
         private static RectTransform HandleGroupElement(GroupElement element, ref int groupIndex, ref int elementIndex, float width = 120f)
         {
-            ContextMenuUIElement uiElement = GetContextMenuUIElement(elementIndex);
+            var uiElement = GetContextMenuUIElement(elementIndex);
             uiElement.rectTransform.SetParent(null);
             uiElement.rectTransform.gameObject.SetActive(true);
 
@@ -743,7 +739,7 @@ namespace MoreAccessories.Extensions
             ++elementIndex;
 
 
-            RectTransform group = GetContextMenuGroup(groupIndex);
+            var group = GetContextMenuGroup(groupIndex);
             group.SetParent(uiElement.rectTransform);
             group.localPosition = Vector3.zero;
             group.localRotation = Quaternion.identity;
@@ -757,7 +753,7 @@ namespace MoreAccessories.Extensions
             uiElement.button.onClick.AddListener(() => group.gameObject.SetActive(!group.gameObject.activeSelf));
             ++groupIndex;
 
-            foreach (AContextMenuElement e in element.elements)
+            foreach (var e in element.elements)
             {
                 RectTransform rt = null;
                 if (e is LeafElement)
@@ -783,8 +779,8 @@ namespace MoreAccessories.Extensions
         {
             if (self.name.Equals(root))
                 return "";
-            Transform self2 = self;
-            StringBuilder path = new StringBuilder(self2.name);
+            var self2 = self;
+            var path = new StringBuilder(self2.name);
             self2 = self2.parent;
             while (self2 != null && self2.name.Equals(root) == false)
             {
@@ -859,7 +855,7 @@ namespace MoreAccessories.Extensions
         }
         public static void SetRect(this Transform self, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax)
         {
-            RectTransform rt = (RectTransform)self;
+            var rt = (RectTransform)self;
             rt.anchorMin = anchorMin;
             rt.anchorMax = anchorMax;
             rt.offsetMin = offsetMin;
@@ -868,7 +864,7 @@ namespace MoreAccessories.Extensions
 
         public static void SetRect(this Transform self, float anchorLeft = 0f, float anchorBottom = 0f, float anchorRight = 1f, float anchorTop = 1f, float offsetLeft = 0f, float offsetBottom = 0f, float offsetRight = 0f, float offsetTop = 0f)
         {
-            RectTransform rt = (RectTransform)self;
+            var rt = (RectTransform)self;
             rt.anchorMin = new Vector2(anchorLeft, anchorBottom);
             rt.anchorMax = new Vector2(anchorRight, anchorTop);
             rt.offsetMin = new Vector2(offsetLeft, offsetBottom);
@@ -877,7 +873,7 @@ namespace MoreAccessories.Extensions
 
         public static Button LinkButtonTo(this Transform root, string path, UnityAction onClick)
         {
-            Button b = root.Find(path).GetComponent<Button>();
+            var b = root.Find(path).GetComponent<Button>();
             if (onClick != null)
                 b.onClick.AddListener(onClick);
             return b;
@@ -885,7 +881,7 @@ namespace MoreAccessories.Extensions
 
         public static Dropdown LinkDropdownTo(this Transform root, string path, UnityAction<int> onValueChanged)
         {
-            Dropdown b = root.Find(path).GetComponent<Dropdown>();
+            var b = root.Find(path).GetComponent<Dropdown>();
             if (onValueChanged != null)
                 b.onValueChanged.AddListener(onValueChanged);
             return b;
@@ -894,7 +890,7 @@ namespace MoreAccessories.Extensions
 
         public static InputField LinkInputFieldTo(this Transform root, string path, UnityAction<string> onValueChanged, UnityAction<string> onEndEdit)
         {
-            InputField b = root.Find(path).GetComponent<InputField>();
+            var b = root.Find(path).GetComponent<InputField>();
             if (onValueChanged != null)
                 b.onValueChanged.AddListener(onValueChanged);
             if (onEndEdit != null)
@@ -905,7 +901,7 @@ namespace MoreAccessories.Extensions
 
         public static ScrollRect LinkScrollViewTo(this Transform root, string path, UnityAction<Vector2> onValueChanged)
         {
-            ScrollRect b = root.Find(path).GetComponent<ScrollRect>();
+            var b = root.Find(path).GetComponent<ScrollRect>();
             if (onValueChanged != null)
                 b.onValueChanged.AddListener(onValueChanged);
             return b;
@@ -914,7 +910,7 @@ namespace MoreAccessories.Extensions
 
         public static Scrollbar LinkScrollbarTo(this Transform root, string path, UnityAction<float> onValueChanged)
         {
-            Scrollbar b = root.Find(path).GetComponent<Scrollbar>();
+            var b = root.Find(path).GetComponent<Scrollbar>();
             if (onValueChanged != null)
                 b.onValueChanged.AddListener(onValueChanged);
             return b;
@@ -923,7 +919,7 @@ namespace MoreAccessories.Extensions
 
         public static Slider LinkSliderTo(this Transform root, string path, UnityAction<float> onValueChanged)
         {
-            Slider b = root.Find(path).GetComponent<Slider>();
+            var b = root.Find(path).GetComponent<Slider>();
             if (onValueChanged != null)
                 b.onValueChanged.AddListener(onValueChanged);
             return b;
@@ -932,7 +928,7 @@ namespace MoreAccessories.Extensions
 
         public static Toggle LinkToggleTo(this Transform root, string path, UnityAction<bool> onValueChanged)
         {
-            Toggle b = root.Find(path).GetComponent<Toggle>();
+            var b = root.Find(path).GetComponent<Toggle>();
             if (onValueChanged != null)
                 b.onValueChanged.AddListener(onValueChanged);
             return b;
@@ -942,7 +938,7 @@ namespace MoreAccessories.Extensions
         private static readonly Slider.SliderEvent _emptySliderEvent = new Slider.SliderEvent();
         public static void SetValueNoCallback(this Slider self, float value)
         {
-            Slider.SliderEvent cachedEvent = self.onValueChanged;
+            var cachedEvent = self.onValueChanged;
             self.onValueChanged = _emptySliderEvent;
             self.value = value;
             self.onValueChanged = cachedEvent;
@@ -952,7 +948,7 @@ namespace MoreAccessories.Extensions
 
         public static void SetIsOnNoCallback(this Toggle self, bool value)
         {
-            Toggle.ToggleEvent cachedEvent = self.onValueChanged;
+            var cachedEvent = self.onValueChanged;
             self.onValueChanged = _emptyToggleEvent;
             self.isOn = value;
             self.onValueChanged = cachedEvent;

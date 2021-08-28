@@ -6,10 +6,17 @@
     <SharedGUID>55827e06-0285-4e96-9ce9-53ce310c382b</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>MoreAccessories</Import_RootNamespace>
+    <Import_RootNamespace>MoreAccessoriesKOI</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BackwardCompatibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Classes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Plugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Data.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\H.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Maker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Studio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\UIUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\HarmonyExtensions.cs" />
@@ -22,7 +29,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\VariousExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\WeakKeyDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\XmlExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\CustomAcs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\CustomAcsParentWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Blank.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ChaControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ChaFile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\CvsAccessory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\HarmonyPatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\SideLoader.cs" />
   </ItemGroup>
 </Project>

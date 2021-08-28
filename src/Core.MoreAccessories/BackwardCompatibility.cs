@@ -13,13 +13,13 @@ namespace MoreAccessoriesKOI
         private static Action<ChaControl, Func<bool>> _customHistory_Add1 = null;
         private static Action<ChaControl, Func<bool, bool>, bool> _customHistory_Add2 = null;
         private static Action<ChaControl, Func<bool, bool, bool>, bool, bool> _customHistory_Add3 = null;
-        private static MoreAccessoriesKOI.Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool> _customHistory_Add5 = null;
+        private static Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool> _customHistory_Add5 = null;
 
         private static void CheckInstance()
         {
             if (_customHistory_Instance == null)
             {
-                Type t = Type.GetType("ChaCustom.CustomHistory,Assembly-CSharp.dll");
+                var t = Type.GetType("ChaCustom.CustomHistory,Assembly-CSharp.dll");
                 _customHistory_Instance = t.GetPrivateProperty("Instance");
                 _customHistory_Add1 = (Action<ChaControl, Func<bool>>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool>>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add1", AccessTools.all));
                 _customHistory_Add2 = (Action<ChaControl, Func<bool, bool>, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool>, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add2", AccessTools.all));
@@ -68,7 +68,7 @@ namespace MoreAccessoriesKOI
         {
             if (MoreAccessories._self._hasDarkness)
                 return null;
-            MethodInfo methodInfo = __instance.GetType().GetMethod("UpdateAcsColorHistory", AccessTools.all);
+            var methodInfo = __instance.GetType().GetMethod("UpdateAcsColorHistory", AccessTools.all);
             if (methodInfo != null)
                 return (Action)Delegate.CreateDelegate(typeof(Action), __instance, methodInfo);
             return null;
