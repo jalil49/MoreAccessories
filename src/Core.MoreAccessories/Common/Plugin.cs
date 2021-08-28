@@ -132,11 +132,11 @@ namespace MoreAccessoriesKOI
 
             var dict = data.rawAccessoriesInfos;
             var keylist = data.rawAccessoriesInfos.Keys.ToList();
-            keylist.Remove(0);
-            foreach (var item in keylist)
+            for (var removeindex = 1; removeindex < 7; removeindex++)
             {
-                dict.Remove(item);
+                dict.Remove(removeindex);
             }
+
 #if false
             //moreoutfits complete transfer
             var size = keylist.Count;
