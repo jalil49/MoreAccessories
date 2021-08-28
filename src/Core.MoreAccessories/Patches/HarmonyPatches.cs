@@ -54,14 +54,16 @@ namespace MoreAccessoriesKOI
                 for (var i = 0; i < instructionsList.Count; i++)
                 {
                     var inst = instructionsList[i];
+
                     yield return inst;
-                    if (inst.opcode == OpCodes.Stloc_S && inst.operand != null && inst.operand.ToString().Equals("System.Int32 (5)"))
+
+                    if (inst.opcode == OpCodes.Stloc_S && inst.operand != null && inst.operand.ToString().Equals("System.Int32 (4)"))//see method assembly local index 4
                     {
+                        _self.Logger.LogWarning(i);
                         var num2Operand = inst.operand;
-                        yield return new CodeInstruction(OpCodes.Ldloc_2); //i
+                        yield return new CodeInstruction(OpCodes.Ldloc_1);//female count
                         yield return new CodeInstruction(OpCodes.Call, typeof(HSprite_Update_Patches).GetMethod(nameof(GetFixedAccessoryCount), BindingFlags.NonPublic | BindingFlags.Static));
                         yield return new CodeInstruction(OpCodes.Stloc_S, num2Operand);
-
                         while (instructionsList[i].opcode != OpCodes.Blt)
                             ++i;
                     }
@@ -76,8 +78,7 @@ namespace MoreAccessoriesKOI
                 for (var k = 0; k < 20; k++)
                     if (female.IsAccessory(k))
                         res++;
-                CharAdditionalData data;
-                if (_self._accessoriesByChar.TryGetValue(female.chaFile, out data) == false)
+                if (_self._accessoriesByChar.TryGetValue(female.chaFile, out var data) == false)
                     return res;
                 foreach (var part in data.nowAccessories)
                 {
