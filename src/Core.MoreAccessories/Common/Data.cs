@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ChaCustom;
-#if EMOTIONCREATORS
+#if EC
 using HPlay;
 using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
 #endif
-#if KOIKATSU
+#if KK || KKS
 using Studio;
 #endif
 using UnityEngine;
@@ -16,43 +15,38 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-        public const string versionNum = "1.1.0";
+        public const string versionNum = "2.0.0";
         public const string GUID = "com.joan6694.illusionplugins.moreaccessories";
 
+        public static MoreAccessories _self;
+
         #region Private Variables
-        public static MoreAccessories _self; //Not internal because other plugins might access this
-        private const int _saveVersion = 1;
+        private const int _saveVersion = 2;
         private const string _extSaveKey = "moreAccessories";
+
+
         private GameObject _charaMakerSlotTemplate;
         private ScrollRect _charaMakerScrollView;
         internal CustomAcsChangeSlot _customAcsChangeSlot;
-        internal CustomAcsParentWindow _customAcsParentWin;
-        internal CustomAcsMoveWindow[] _customAcsMoveWin;
-        internal CustomAcsSelectKind[] _customAcsSelectKind;
-        internal CvsAccessory[] _cvsAccessory;
+
         internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
-        public readonly WeakKeyDictionary<ChaFile, CharAdditionalData> _accessoriesByChar = new WeakKeyDictionary<ChaFile, CharAdditionalData>(); //Sorry Prefer this to be public 
-        public readonly WeakKeyDictionary<ChaFileCoordinate, WeakReference> _charByCoordinate = new WeakKeyDictionary<ChaFileCoordinate, WeakReference>();
-        public CharAdditionalData _charaMakerData = null;
         private float _slotUIPositionY;
         internal bool _hasDarkness;
         internal bool _isParty = false;
 
         private bool _inCharaMaker = false;
         private RectTransform _addButtonsGroup;
-#if KOIKATSU
+#if KK || KKS
         private ScrollRect _charaMakerCopyScrollView;
         private GameObject _copySlotTemplate;
 #endif
         private ScrollRect _charaMakerTransferScrollView;
         private GameObject _transferSlotTemplate;
         private List<UI_RaycastCtrl> _raycastCtrls = new List<UI_RaycastCtrl>();
-        private ChaFile _overrideCharaLoadingFilePre;
-        private ChaFile _overrideCharaLoadingFilePost;
         private bool _loadAdditionalAccessories = true;
         private CustomFileWindow _loadCoordinatesWindow;
 
-#if KOIKATSU
+#if KK || KKS
         private bool _inH;
         internal List<ChaControl> _hSceneFemales;
         private List<HSprite.FemaleDressButtonCategory> _hSceneMultipleFemaleButtons;
@@ -67,7 +61,7 @@ namespace MoreAccessoriesKOI
         private readonly List<StudioSlotData> _additionalStudioSlots = new List<StudioSlotData>();
         private StudioSlotData _studioToggleMain;
         private StudioSlotData _studioToggleSub;
-#elif EMOTIONCREATORS
+#elif EC
         private bool _inPlay;
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
         private RectTransform _playButtonTemplate;
@@ -78,6 +72,13 @@ namespace MoreAccessoriesKOI
         private readonly List<ADVSceneSlotData> _additionalADVSceneSlots = new List<ADVSceneSlotData>();
         private RectTransform _advToggleTemplate;
 #endif
+        #endregion
+
+        #region Properties
+        internal CustomAcsParentWindow CustomAcsParentWin { get { return _customAcsChangeSlot.customAcsParentWin; } set { _customAcsChangeSlot.customAcsParentWin = value; } }
+        internal CustomAcsMoveWindow[] CustomAcsMoveWin { get { return _customAcsChangeSlot.customAcsMoveWin; } set { _customAcsChangeSlot.customAcsMoveWin = value; } }
+        internal CustomAcsSelectKind[] CustomAcsSelectKind { get { return _customAcsChangeSlot.customAcsSelectKind; } set { _customAcsChangeSlot.customAcsSelectKind = value; } }
+        internal CvsAccessory[] CvsAccessoryArray { get { return _customAcsChangeSlot.cvsAccessory; } set { _customAcsChangeSlot.cvsAccessory = value; } }
         #endregion
     }
 }

@@ -140,7 +140,7 @@ namespace MoreAccessoriesKOI.Extensions
             return res;
         }
 
-#if !AISHOUJO && !HONEYSELECT2
+#if !AI && !HS2
         public static IEnumerable<Transform> Children(this Transform self)
         {
             foreach (Transform t in self)

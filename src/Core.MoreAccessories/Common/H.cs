@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
-#if EMOTIONCREATORS
-using HPlay;
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
-#endif
-using Illusion.Game;
-#if KOIKATSU
-#endif
-using TMPro;
-using UnityEngine;
+﻿using MoreAccessoriesKOI.Extensions;
 using UnityEngine.UI;
-using MoreAccessoriesKOI.Extensions;
+using UnityEngine;
+using System.Collections.Generic;
+
+#if !EC
+#if KK || KKS
+
+#if KKS
 using Cysharp.Threading.Tasks;
+#endif
+#endif
 
 namespace MoreAccessoriesKOI
 {
@@ -32,7 +30,7 @@ namespace MoreAccessoriesKOI
             // _ = MakeScrollable();
             UpdateUI();
         }
-
+#if KKS
         private async UniTask MakeScrollable()
         {
             scrollRects.Clear();
@@ -69,61 +67,62 @@ namespace MoreAccessoriesKOI
                 scrollRects.Add(accscroll);
             }
         }
-
+#endif
         private void UpdateHUI()
         {
             if (_hSprite == null)
                 return;
-            for (var i = 0; i < _hSceneFemales.Count; i++)
-            {
-                var female = _hSceneFemales[i];
+            //for (var i = 0; i < _hSceneFemales.Count; i++)
+            //{
+            //    var female = _hSceneFemales[i];
 
-                var additionalData = _accessoriesByChar[female.chaFile];
-                var additionalSlots = _additionalHSceneSlots[i];
-                var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
+            //    var additionalData = _accessoriesByChar[female.chaFile];
+            //    var additionalSlots = _additionalHSceneSlots[i];
+            //    var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
 
-                var j = 0;
-                for (; j < additionalData.nowAccessories.Count; j++)
-                {
-                    HSceneSlotData slot;
-                    if (j < additionalSlots.Count)
-                        slot = additionalSlots[j];
-                    else
-                    {
-                        slot = new HSceneSlotData();
-                        slot.slot = (RectTransform)Instantiate(buttonsParent.GetChild(0).gameObject).transform;
-                        slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
-                        slot.button = slot.slot.GetComponentInChildren<Button>(true);
-                        slot.slot.SetParent(buttonsParent);
-                        slot.slot.localPosition = Vector3.zero;
-                        slot.slot.localScale = Vector3.one;
-                        var i1 = j;
-                        slot.button.onClick = new Button.ButtonClickedEvent();
-                        slot.button.onClick.AddListener(() =>
-                        {
-                            if (!Input.GetMouseButtonUp(0))
-                                return;
-                            if (!_hSprite.IsSpriteAciotn())
-                                return;
-                            additionalData.showAccessories[i1] = !additionalData.showAccessories[i1];
-                            Utils.Sound.Play(SystemSE.sel);
-                        });
-                        additionalSlots.Add(slot);
-                    }
-                    var objAccessory = additionalData.objAccessory[j];
-                    if (objAccessory == null)
-                        slot.slot.gameObject.SetActive(false);
-                    else
-                    {
-                        slot.slot.gameObject.SetActive(true);
-                        var component = objAccessory.GetComponent<ListInfoComponent>();
-                        slot.text.text = component.data.Name;
-                    }
-                }
+            //    var j = 0;
+            //    for (; j < additionalData.nowAccessories.Count; j++)
+            //    {
+            //        HSceneSlotData slot;
+            //        if (j < additionalSlots.Count)
+            //            slot = additionalSlots[j];
+            //        else
+            //        {
+            //            slot = new HSceneSlotData();
+            //            slot.slot = (RectTransform)Instantiate(buttonsParent.GetChild(0).gameObject).transform;
+            //            slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
+            //            slot.button = slot.slot.GetComponentInChildren<Button>(true);
+            //            slot.slot.SetParent(buttonsParent);
+            //            slot.slot.localPosition = Vector3.zero;
+            //            slot.slot.localScale = Vector3.one;
+            //            var i1 = j;
+            //            slot.button.onClick = new Button.ButtonClickedEvent();
+            //            slot.button.onClick.AddListener(() =>
+            //            {
+            //                if (!Input.GetMouseButtonUp(0))
+            //                    return;
+            //                if (!_hSprite.IsSpriteAciotn())
+            //                    return;
+            //                additionalData.showAccessories[i1] = !additionalData.showAccessories[i1];
+            //                Utils.Sound.Play(SystemSE.sel);
+            //            });
+            //            additionalSlots.Add(slot);
+            //        }
+            //        var objAccessory = additionalData.objAccessory[j];
+            //        if (objAccessory == null)
+            //            slot.slot.gameObject.SetActive(false);
+            //        else
+            //        {
+            //            slot.slot.gameObject.SetActive(true);
+            //            var component = objAccessory.GetComponent<ListInfoComponent>();
+            //            slot.text.text = component.data.Name;
+            //        }
+            //    }
 
-                for (; j < additionalSlots.Count; ++j)
-                    additionalSlots[j].slot.gameObject.SetActive(false);
-            }
+            //    for (; j < additionalSlots.Count; ++j)
+            //        additionalSlots[j].slot.gameObject.SetActive(false);
+            //}
         }
     }
 }
+#endif

@@ -34,7 +34,9 @@ namespace MoreAccessoriesKOI
                     }
                     catch (Exception e)
                     {
+#if !KK
                         Debug.LogWarning("Could not parse translation string " + node.OuterXml + " in " + resourceDictionary + "\n" + e);
+#endif
                     }
                 }
             }
@@ -45,7 +47,9 @@ namespace MoreAccessoriesKOI
             if (_strings.TryGetValue(key, out var res) == false)
             {
                 res = "";
+#if !KK
                 Debug.LogError("Could not find string " + key + " in translation dictionary.");
+#endif
             }
             return res;
         }

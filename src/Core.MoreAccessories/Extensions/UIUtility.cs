@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -256,13 +255,13 @@ namespace MoreAccessoriesKOI.Extensions
             {
                 AssetBundle bundle;
 
-#if HONEYSELECT || PLAYHOME
-                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResources.unity3d"))
-#elif KOIKATSU
+#if HS || PH || EC 
+                using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResources.unity3d"))
+#elif KK || KKS
                 using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesKOI.unity3d"))
-#elif AISHOUJO
+#elif AI
                 using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesAI.unity3d"))
-#elif HONEYSELECT2
+#elif HS2
                 using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("UILib.Resources.DefaultResourcesHS2.unity3d"))
 #endif
                 {
@@ -313,11 +312,11 @@ namespace MoreAccessoriesKOI.Extensions
                 _resourcesLoaded = true;
             }
 
-#if HONEYSELECT
+#if HS
             SetCustomFont("mplus-1c-medium");
 #elif KOIKATSU
             SetCustomFont("SourceHanSansJP-Medium");
-#elif AISHOUJO || HONEYSELECT2
+#elif AI || HS2
             SetCustomFont("Yu Gothic UI Semibold");
 #endif
             _displayConfirmationDialog = ConfirmationDialog.SpawnUI();
@@ -611,10 +610,10 @@ namespace MoreAccessoriesKOI.Extensions
             foreach (var element in elements)
             {
                 RectTransform rt = null;
-                if (element is LeafElement)
-                    rt = HandleLeafElement((LeafElement)element, ref elementIndex);
-                else if (element is GroupElement)
-                    rt = HandleGroupElement((GroupElement)element, ref groupIndex, ref elementIndex, width);
+                if (element is LeafElement element2)
+                    rt = HandleLeafElement(element2, ref elementIndex);
+                else if (element is GroupElement element1)
+                    rt = HandleGroupElement(element1, ref groupIndex, ref elementIndex, width);
                 rt.SetParent(_contextMenuRoot);
                 rt.localPosition = Vector3.zero;
                 rt.localRotation = Quaternion.identity;
@@ -756,10 +755,10 @@ namespace MoreAccessoriesKOI.Extensions
             foreach (var e in element.elements)
             {
                 RectTransform rt = null;
-                if (e is LeafElement)
-                    rt = HandleLeafElement((LeafElement)e, ref elementIndex);
-                else if (e is GroupElement)
-                    rt = HandleGroupElement((GroupElement)e, ref groupIndex, ref elementIndex, width);
+                if (e is LeafElement element1)
+                    rt = HandleLeafElement(element1, ref elementIndex);
+                else if (e is GroupElement element2)
+                    rt = HandleGroupElement(element2, ref groupIndex, ref elementIndex, width);
                 rt.SetParent(group);
                 rt.localPosition = Vector3.zero;
                 rt.localRotation = Quaternion.identity;
@@ -775,26 +774,26 @@ namespace MoreAccessoriesKOI.Extensions
             return uiElement.rectTransform;
         }
 
-        private static string GetPathFrom(this Transform self, string root, bool includeRoot = false)
-        {
-            if (self.name.Equals(root))
-                return "";
-            var self2 = self;
-            var path = new StringBuilder(self2.name);
-            self2 = self2.parent;
-            while (self2 != null && self2.name.Equals(root) == false)
-            {
-                path.Insert(0, "/");
-                path.Insert(0, self2.name);
-                self2 = self2.parent;
-            }
-            if (self2 != null && includeRoot)
-            {
-                path.Insert(0, "/");
-                path.Insert(0, root);
-            }
-            return path.ToString();
-        }
+        //private static string GetPathFrom(this Transform self, string root, bool includeRoot = false)
+        //{
+        //    if (self.name.Equals(root))
+        //        return "";
+        //    var self2 = self;
+        //    var path = new StringBuilder(self2.name);
+        //    self2 = self2.parent;
+        //    while (self2 != null && self2.name.Equals(root) == false)
+        //    {
+        //        path.Insert(0, "/");
+        //        path.Insert(0, self2.name);
+        //        self2 = self2.parent;
+        //    }
+        //    if (self2 != null && includeRoot)
+        //    {
+        //        path.Insert(0, "/");
+        //        path.Insert(0, root);
+        //    }
+        //    return path.ToString();
+        //}
 
     }
 

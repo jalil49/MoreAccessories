@@ -1,4 +1,5 @@
-﻿using Studio;
+﻿#if !EC
+using Studio;
 using System;
 using System.Reflection;
 using System.Xml;
@@ -162,3 +163,4 @@ namespace MoreAccessoriesKOI
         }
     }
 }
+#endif

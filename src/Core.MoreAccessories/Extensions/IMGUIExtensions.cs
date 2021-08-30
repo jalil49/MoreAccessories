@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !EC
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -21,9 +22,9 @@ namespace MoreAccessoriesKOI.Extensions
         }
 
         private static readonly GUIStyle _customBoxStyle = new GUIStyle { normal = new GUIStyleState { background = Texture2D.whiteTexture } };
-#if HONEYSELECT || PLAYHOME || KOIKATSU
+#if HS || PH || KK || KKS
         private static readonly Color _backgroundColor = new Color(1f, 1f, 1f, 0.5f);
-#elif AISHOUJO || HONEYSELECT2
+#elif AI || HS2
         private static readonly Color _backgroundColor = new Color(0f, 0f, 0f, 0.5f);
 #endif
         private static readonly Texture2D _simpleTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
@@ -226,7 +227,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static void ColorValue(string label,
                                       Color color,
                                       Color reset,
-#if HONEYSELECT
+#if HS
 									  UI_ColorInfo.UpdateColor onChanged,
 #else
                                       Action<Color> onChanged,
@@ -243,7 +244,7 @@ namespace MoreAccessoriesKOI.Extensions
                                       Color color,
                                       Color reset,
                                       string tooltip,
-#if HONEYSELECT
+#if HS
 									  UI_ColorInfo.UpdateColor onChanged,
 #else
                                       Action<Color> onChanged,
@@ -259,7 +260,7 @@ namespace MoreAccessoriesKOI.Extensions
                     GUILayout.Label(new GUIContent(label, tooltip), GUILayout.ExpandWidth(false));
                 if (GUILayout.Button(GUIContent.none, GUILayout.Height(60f)))
                 {
-#if HONEYSELECT
+#if HS
 					if (Studio.Studio.Instance.colorMenu.updateColorFunc == onChanged)
 						Studio.Studio.Instance.colorPaletteCtrl.visible = !Studio.Studio.Instance.colorPaletteCtrl.visible;
 					else
@@ -286,7 +287,7 @@ namespace MoreAccessoriesKOI.Extensions
                 GUI.DrawTexture(layoutRectangle, _simpleTexture, ScaleMode.StretchToFill, true);
                 if (GUILayout.Button("Reset", GUILayout.ExpandWidth(false)))
                 {
-#if HONEYSELECT
+#if HS
 					if (onChanged == Studio.Studio.Instance.colorMenu.updateColorFunc)
 						Studio.Studio.Instance.colorMenu.SetColor(reset, UI_ColorInfo.ControlType.PresetsSample);
 #endif
@@ -383,7 +384,7 @@ namespace MoreAccessoriesKOI.Extensions
 
         public static void ColorValue(string label,
                                       Color color,
-#if HONEYSELECT
+#if HS
 									  UI_ColorInfo.UpdateColor onChanged,
 #else
                                       Action<Color> onChanged,
@@ -399,7 +400,7 @@ namespace MoreAccessoriesKOI.Extensions
                     GUILayout.Label(label, GUILayout.ExpandWidth(false));
                 if (GUILayout.Button(GUIContent.none, GUILayout.Height(60f)))
                 {
-#if HONEYSELECT
+#if HS
 					if (Studio.Studio.Instance.colorMenu.updateColorFunc == onChanged)
 						Studio.Studio.Instance.colorPaletteCtrl.visible = !Studio.Studio.Instance.colorPaletteCtrl.visible;
 					else
@@ -555,3 +556,4 @@ namespace MoreAccessoriesKOI.Extensions
         }
     }
 }
+#endif

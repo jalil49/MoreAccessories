@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Toolbox")]
+[assembly: AssemblyTitle("MoreAccessories")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Toolbox")]
+[assembly: AssemblyProduct("MoreAccessories")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f8b70c55-803d-4f1b-aa1e-5c43a4b4b92c")]
+[assembly: Guid("675f51e5-166d-49ad-8b01-45e8959629d7")]
 
 // Version information for an assembly consists of the following four values:
 //

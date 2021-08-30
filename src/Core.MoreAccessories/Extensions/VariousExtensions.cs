@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Text;
-#if !EMOTIONCREATORS
+using UnityEngine;
+
+#if KK || KKS
+using System.Reflection;
+#endif
+#if !EC
 using Studio;
 #endif
-using UnityEngine;
 
 namespace MoreAccessoriesKOI.Extensions
 {
@@ -39,7 +42,7 @@ namespace MoreAccessoriesKOI.Extensions
                 self.Add(pair.Key, pair.Value);
         }
 
-#if !EMOTIONCREATORS
+#if !EC
         public static bool IsVisible(this TreeNodeObject self)
         {
             if (self.parent != null)
@@ -75,7 +78,7 @@ namespace MoreAccessoriesKOI.Extensions
             return Color.white;
         }
 
-#if KOIKATSU || AISHOUJO || HONEYSELECT2
+#if KK || KKS || AI || HS2
         private static MethodInfo _initTransforms = null;
         public static void InitTransforms(this DynamicBone self)
         {

@@ -24,7 +24,7 @@ namespace MoreAccessoriesKOI
                 _customHistory_Add1 = (Action<ChaControl, Func<bool>>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool>>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add1", AccessTools.all));
                 _customHistory_Add2 = (Action<ChaControl, Func<bool, bool>, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool>, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add2", AccessTools.all));
                 _customHistory_Add3 = (Action<ChaControl, Func<bool, bool, bool>, bool, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool, bool>, bool, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add3", AccessTools.all));
-                _customHistory_Add5 = (MoreAccessoriesKOI.Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>)Delegate.CreateDelegate(typeof(MoreAccessoriesKOI.Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add5", AccessTools.all));
+                _customHistory_Add5 = (Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>)Delegate.CreateDelegate(typeof(Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add5", AccessTools.all));
             }
         }
 

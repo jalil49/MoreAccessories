@@ -10,8 +10,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BackwardCompatibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\BackwardsCompatibity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Classes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\Plugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Data.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Events.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\H.cs" />
@@ -19,7 +20,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Common\Studio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\UIUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Extensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\HarmonyExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\IMGUIExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\MonoBehaviourExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
@@ -29,13 +29,15 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\VariousExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\WeakKeyDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\XmlExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\CustomAcs.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\CustomAcsParentWindow.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Blank.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\ChaControl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\ChaFile.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\CvsAccessory.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\HarmonyPatches.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\SideLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_H.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_Common.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_CustomAcs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_CustomAcsParentWindow.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_Blank.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_ChaControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_ChaFile.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_CvsAccessory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_HarmonyPatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_SideLoader.cs" />
   </ItemGroup>
 </Project>
