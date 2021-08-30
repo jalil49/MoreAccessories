@@ -41,39 +41,23 @@ namespace MoreAccessoriesKOI
         private void Awake()
         {
             _self = this;
-            logSource = this.Logger;
+            logSource = Logger;
 #if !KK
             ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
 #endif
             SceneManager.sceneLoaded += LevelLoaded;
 
-
             _hasDarkness = true;
             _isParty = Application.productName == "Koikatsu Party";
 
-            var harmony = new Harmony(GUID);
-            harmony.PatchAll();
+
+            var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+
             var uarHooks = typeof(UniversalAutoResolver).GetNestedType("Hooks", BindingFlags.NonPublic | BindingFlags.Static);
             harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
             harmony.Patch(uarHooks.GetMethod("ExtendedCardSave", AccessTools.all), postfix: new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardSave_Postfix)));
             harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordLoad_Prefix)));
             harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateSave", AccessTools.all), postfix: new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordSave_Postfix)));
-
-            var test = new string[22];
-            for (var i = 0; i < 20; i++)
-            {
-                test[i] = i.ToString();
-            }
-            test[20] = "copy";
-            test[21] = "transfer";
-
-            test = test.ConcatNearEnd("20");
-
-            foreach (var item in test)
-            {
-                Logger.LogWarning(item);
-            }
-
         }
 #if !KK
 
@@ -345,48 +329,48 @@ namespace MoreAccessoriesKOI
             }
         }
 
-        private void Update()
-        {
-            //if (_inCharaMaker)
-            //{
-            //    if (_customAcsChangeSlot != null)
-            //    {
-            //        if (CustomBase.Instance.updateCustomUI)
-            //        {
-            //            for (var i = 0; i < _additionalCharaMakerSlots.Count && i < _charaMakerData.nowAccessories.Count; i++)
-            //            {
-            //                var slot = _additionalCharaMakerSlots[i];
-            //                if (slot.toggle.gameObject.activeSelf == false)
-            //                    continue;
-            //                if (i + 20 == CustomBase.Instance.selectSlot)
-            //                    slot.cvsAccessory.UpdateCustomUI();
-            //                slot.cvsAccessory.UpdateSlotName();
-            //            }
-            //        }
-            //    }
-            //    if (_loadCoordinatesWindow == null) //Handling maker with additive loading
-            //        _inCharaMaker = false;
-            //}
-#if KK || KKS
-            if (_inStudio)
-            {
-                var treeNodeObject = Studio.Studio.Instance.treeNodeCtrl.selectNode;
-                if (treeNodeObject != null)
-                {
-                    ObjectCtrlInfo info;
-                    if (Studio.Studio.Instance.dicInfo.TryGetValue(treeNodeObject, out info))
-                    {
-                        var selected = info as OCIChar;
-                        if (selected != _selectedStudioCharacter)
-                        {
-                            _selectedStudioCharacter = selected;
-                            UpdateStudioUI();
-                        }
-                    }
-                }
-            }
-#endif
-        }
+        //        private void Update()
+        //        {
+        //            //if (_inCharaMaker)
+        //            //{
+        //            //    if (_customAcsChangeSlot != null)
+        //            //    {
+        //            //        if (CustomBase.Instance.updateCustomUI)
+        //            //        {
+        //            //            for (var i = 0; i < _additionalCharaMakerSlots.Count && i < _charaMakerData.nowAccessories.Count; i++)
+        //            //            {
+        //            //                var slot = _additionalCharaMakerSlots[i];
+        //            //                if (slot.toggle.gameObject.activeSelf == false)
+        //            //                    continue;
+        //            //                if (i + 20 == CustomBase.Instance.selectSlot)
+        //            //                    slot.cvsAccessory.UpdateCustomUI();
+        //            //                slot.cvsAccessory.UpdateSlotName();
+        //            //            }
+        //            //        }
+        //            //    }
+        //            //    if (_loadCoordinatesWindow == null) //Handling maker with additive loading
+        //            //        _inCharaMaker = false;
+        //            //}
+        //#if KK || KKS
+        //            if (_inStudio)
+        //            {
+        //                var treeNodeObject = Studio.Studio.Instance.treeNodeCtrl.selectNode;
+        //                if (treeNodeObject != null)
+        //                {
+        //                    ObjectCtrlInfo info;
+        //                    if (Studio.Studio.Instance.dicInfo.TryGetValue(treeNodeObject, out info))
+        //                    {
+        //                        var selected = info as OCIChar;
+        //                        if (selected != _selectedStudioCharacter)
+        //                        {
+        //                            _selectedStudioCharacter = selected;
+        //                            UpdateStudioUI();
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //#endif
+        //        }
 
         //private void LateUpdate()
         //{

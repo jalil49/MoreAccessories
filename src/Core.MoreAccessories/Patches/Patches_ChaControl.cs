@@ -22,12 +22,17 @@ namespace MoreAccessoriesKOI
         public static class ChaControl_Patches
         {
 #if true
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) })]
+            internal static void Accessorytest(int slotNo, int type, int id)
+            {
+                _self.Logger.LogWarning($"Changing slot {slotNo} to {type} with id of {id}");
+            }
+
             [HarmonyPatch]
             internal class ChaControl_CheckAdjuster_Patches
             {
 #if DEBUG
-                static int current = 0;
-
                 static readonly List<MethodBase> list = new List<MethodBase>
                     {
                         GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryParent)),
@@ -46,12 +51,10 @@ namespace MoreAccessoriesKOI
 
                 static void Finalizer(Exception __exception)
                 {
-                    current %= list.Count;
                     if (__exception != null)
                     {
-                        _self.Logger.LogError($"Post  Method {current} {list[current].Name}\n" + __exception);
+                        _self.Logger.LogError(__exception);
                     }
-                    current++;
                 }
 
 #endif

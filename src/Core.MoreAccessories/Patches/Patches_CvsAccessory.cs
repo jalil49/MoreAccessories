@@ -13,6 +13,7 @@ using System;
 #endif
 #if KKS
 using Cysharp.Threading.Tasks;
+
 #endif
 using UniRx.Triggers;
 
@@ -29,13 +30,6 @@ namespace MoreAccessoriesKOI
                 private static bool Prefix(CvsAccessory __instance)
                 {
                     _ = Test(__instance);
-                    _self.Logger.LogWarning($"Starting kindinfo for slot {__instance.nSlotNo}");
-                    _self.Logger.LogWarning($"ddAcsType is null? {__instance.ddAcsType == null}  {__instance.ddAcsType.value} {__instance.ddAcsType.value - 1}");
-
-                    _self.Logger.LogWarning($"cgAccessoryWin is null? {__instance.cgAccessoryWin == null} {__instance.cgAccessoryWin.Any(x => x == null)} {__instance.cgAccessoryWin.Length}");
-                    _self.Logger.LogWarning($"tglAcsKind is null? {__instance.tglAcsKind == null}");
-                    _self.Logger.LogWarning($"tglAcsKind is null? {__instance.tglAcsKind.isOn}");
-
                     return false;
                 }
 

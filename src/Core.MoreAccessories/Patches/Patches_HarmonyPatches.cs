@@ -19,7 +19,7 @@ namespace MoreAccessoriesKOI
         [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.GetSelectIndex))]
         private static void testindex(int __result)
         {
-            _self.Logger.LogWarning($"select index returns {__result}");
+            
         }
 
 #if KK

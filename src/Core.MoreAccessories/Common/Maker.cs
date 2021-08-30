@@ -34,6 +34,23 @@ namespace MoreAccessoriesKOI
             return 0;
         }
 
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                _self.Logger.LogWarning($"current slot is {_customAcsChangeSlot.GetSelectIndex()} {CustomBase.instance.selectSlot}");
+                foreach (var item in _additionalCharaMakerSlots)
+                {
+                    _self.Logger.LogWarning(item.cvsAccessory.nSlotNo);
+                }
+                var parts = CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts;
+                for (int i = 0, n = parts.Length; i < n; i++)
+                {
+                    _self.Logger.Log(parts[i].type == 120 ? BepInEx.Logging.LogLevel.Error : BepInEx.Logging.LogLevel.Warning, $"slot {i:00} has type {parts[i].type} and id {parts[i].id}");
+                }
+            }
+        }
+
         private async UniTask UpdateMakerUI()
         {
             if (_customAcsChangeSlot == null || CustomBase.instance.chaCtrl == null)
@@ -43,7 +60,7 @@ namespace MoreAccessoriesKOI
             var i = 0;
             for (; i < count; i++)
             {
-                _self.Logger.LogWarning($"index {i + 20} {i}/{count - 1}");
+
 
                 CharaMakerSlotData info;
                 if (i < _additionalCharaMakerSlots.Count)
@@ -64,11 +81,10 @@ namespace MoreAccessoriesKOI
                     var custombase = CustomBase.instance;
 
                     var reactive = custombase._updateCvsAccessory = custombase._updateCvsAccessory.Concat(new BoolReactiveProperty(false)).ToArray();
-                    _self.Logger.LogWarning("t-3");
 
                     var newSlot = Instantiate(_charaMakerSlotTemplate.transform, _charaMakerScrollView.content);
                     info = new CharaMakerSlotData { toggle = newSlot.GetComponent<Toggle>(), };
-                    _self.Logger.LogWarning("t-2");
+
 
                     info.text = info.toggle.GetComponentInChildren<TextMeshProUGUI>();
                     info.canvasGroup = info.toggle.transform.GetChild(1).GetComponent<CanvasGroup>();
@@ -76,20 +92,6 @@ namespace MoreAccessoriesKOI
 
                     info.toggle.onValueChanged = new Toggle.ToggleEvent();
                     info.toggle.isOn = false;
-
-                    _self.Logger.LogWarning($"ddAcsType is null? {info.cvsAccessory.ddAcsType == null}  {info.cvsAccessory.ddAcsType.value} {info.cvsAccessory.ddAcsType.value - 1}");
-                    _self.Logger.LogWarning($"tglAcsKind is null? {info.cvsAccessory.tglAcsKind == null} {info.cvsAccessory.tglAcsKind.isOn}");
-                    _self.Logger.LogWarning($"cgAccessoryWin is null? {info.cvsAccessory.cgAccessoryWin == null} {info.cvsAccessory.cgAccessoryWin.Any(x => x == null)} {info.cvsAccessory.cgAccessoryWin.Length}");
-
-                    _self.Logger.LogWarning($"tglAcsKind is null? {info.cvsAccessory.tglAcsKind == null} {info.cvsAccessory.tglAcsKind.isOn}");
-                    _self.Logger.LogWarning($"tglAcsKind is null? {info.cvsAccessory.tglAcsKind == null} {info.cvsAccessory.tglAcsKind.isOn}");
-                    _self.Logger.LogWarning($"cgAccessoryWin is null? {info.cvsAccessory.cgAccessoryWin == null} {info.cvsAccessory.cgAccessoryWin.Any(x => x == null)} {info.cvsAccessory.cgAccessoryWin.Length}");
-
-                    _self.Logger.LogWarning($"cgAcsParent is null? {info.cvsAccessory.cgAcsParent == null}");
-                    _self.Logger.LogWarning($"cusAcsParentWin is null? {info.cvsAccessory.cusAcsParentWin == null}");
-                    _self.Logger.LogWarning($"textAcsParent is null? {info.cvsAccessory.textAcsParent == null}");
-                    _self.Logger.LogWarning($"customAccessory is null? {info.cvsAccessory.customAccessory == null} {info.cvsAccessory.customAccessory.Any(x => x == null)} {info.cvsAccessory.customAccessory.Length}");
-
 
                     var localPosition = info.canvasGroup.transform.localPosition;
                     localPosition.y = 40f * index;
@@ -104,16 +106,8 @@ namespace MoreAccessoriesKOI
                     });
 
                     CvsAccessoryArray = CvsAccessoryArray.Concat(info.cvsAccessory).ToArray();
-                    _self.Logger.LogWarning($"t-1 {info.cvsAccessory.customAccessory == null}");
-
-
-                    CustomAcsMoveWin = CustomAcsMoveWin.Concat(gameObject.AddComponent<CustomAcsMoveWindow>()).ToArray();
 
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = info.toggle, cgItem = info.canvasGroup });
-
-                    _self.Logger.LogWarning($"is toggle null? {uigroups.ElementAt(index).tglItem == null} is canvas null? {uigroups.ElementAt(index).cgItem}");
-
-                    _self.Logger.LogWarning("t0");
 
                     foreach (var _custom in CustomAcsSelectKind)
                     {
@@ -125,7 +119,6 @@ namespace MoreAccessoriesKOI
                     }
 
                     CustomAcsParentWin.cvsAccessory = CvsAccessoryArray;
-                    _self.Logger.LogWarning("t1");
 
                     //info.toggle.onValueChanged = new Toggle.ToggleEvent();
                     info.toggle.isOn = false;
@@ -136,9 +129,9 @@ namespace MoreAccessoriesKOI
 
 
 
-                    //_self.Logger.LogWarning($"waited {wait} frames(?) task completed successfully? {etst.Status.IsCompletedSuccessfully()}");
+                    //
 
-                    _self.Logger.LogWarning("t2");
+
                     //info.toggle.onValueChanged.AddListener(b =>
                     //{
                     //    AccessorySlotToggleCallback(index, info.toggle);
@@ -148,7 +141,7 @@ namespace MoreAccessoriesKOI
                     info.text.text = $"スロット{index + 1:00}";
                     info.cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
                     newSlot.name = "tglSlot" + (index + 1).ToString("00");
-                    _self.Logger.LogWarning("t3");
+
 #if KK || KKS
                     info.copySlotObject = Instantiate(_copySlotTemplate, _charaMakerCopyScrollView.content);
                     info.copyToggle = info.copySlotObject.GetComponentInChildren<Toggle>();
@@ -163,7 +156,7 @@ namespace MoreAccessoriesKOI
                     info.copySlotObject.name = "kind" + index.ToString("00");
                     info.copyToggle.graphic.raycastTarget = true;
 #endif
-                    _self.Logger.LogWarning("t4");
+
                     info.transferSlotObject = Instantiate(_transferSlotTemplate, _charaMakerTransferScrollView.content);
                     info.transferSourceToggle = info.transferSlotObject.transform.GetChild(1).GetComponentInChildren<Toggle>();
                     info.transferDestinationToggle = info.transferSlotObject.transform.GetChild(2).GetComponentInChildren<Toggle>();
@@ -189,27 +182,27 @@ namespace MoreAccessoriesKOI
                     info.transferDestinationToggle.isOn = false;
                     info.transferSourceToggle.graphic.raycastTarget = true;
                     info.transferDestinationToggle.graphic.raycastTarget = true;
-                    _self.Logger.LogWarning("t5");
+
                     _additionalCharaMakerSlots.Add(info);
-                    _self.Logger.LogWarning("t6");
+
                     _addButtonsGroup.SetAsLastSibling();
 
-                    _self.Logger.LogWarning("t7");
+
                     _self.ExecuteDelayed(() =>
                     {
                         var test = info.cvsAccessory.accessory.parts.Length;
-                        _self.Logger.LogWarning($"index {_customAcsChangeSlot.GetSelectIndex()}, part length {test}");
+
                         info.cvsAccessory.UpdateCustomUI();
                     }, 5);
-                    _self.Logger.LogWarning("t8");
+
 
                     reactive[index].Subscribe(x =>
                     {
-                        _self.Logger.LogWarning("selectSlot pass");
+
                         if (custombase.selectSlot == index)
                             custombase.actUpdateCvsAccessory[index]();
                     });
-                    _self.Logger.LogWarning("t8");
+
                     //onCharaMakerSlotAdded?.Invoke(index, newSlot.transform);
 
                     this.ExecuteDelayed(() =>
@@ -218,19 +211,19 @@ namespace MoreAccessoriesKOI
 
                     }, 5);
 
-                    _self.Logger.LogWarning($"ddAcsType is null? {info.cvsAccessory.ddAcsType == null}  {info.cvsAccessory.ddAcsType.value} {info.cvsAccessory.ddAcsType.value - 1}");
-                    _self.Logger.LogWarning($"tglAcsKind is null? {info.cvsAccessory.tglAcsKind == null} {info.cvsAccessory.tglAcsKind.isOn}");
-                    _self.Logger.LogWarning($"cgAccessoryWin is null? {info.cvsAccessory.cgAccessoryWin == null} {info.cvsAccessory.cgAccessoryWin.Any(x => x == null)} {info.cvsAccessory.cgAccessoryWin.Length}");
 
-                    _self.Logger.LogWarning($"cgAcsParent is null? {info.cvsAccessory.cgAcsParent == null}");
-                    _self.Logger.LogWarning($"cusAcsParentWin is null? {info.cvsAccessory.cusAcsParentWin == null}");
-                    _self.Logger.LogWarning($"textAcsParent is null? {info.cvsAccessory.textAcsParent == null}");
-                    _self.Logger.LogWarning($"customAccessory is null? {info.cvsAccessory.customAccessory == null} {info.cvsAccessory.customAccessory.Any(x => x == null)} {info.cvsAccessory.customAccessory.Length}");
+
+
+
+
+
+
+
 
                 }
                 info.cvsAccessory.UpdateSlotName();
             }
-            _self.Logger.LogWarning("t7");
+
             for (; i < _additionalCharaMakerSlots.Count; i++)
             {
                 var slot = _additionalCharaMakerSlots[i];
@@ -239,7 +232,7 @@ namespace MoreAccessoriesKOI
                 slot.transferSlotObject.SetActive(false);
             }
             _addButtonsGroup.SetAsLastSibling();
-            _self.Logger.LogWarning("finished maker");
+
         }
 
         private void RestoreToggle(Toggle toggle, int index)
@@ -247,7 +240,7 @@ namespace MoreAccessoriesKOI
             toggle.onValueChanged.AddListener(x =>
             {
                 if (!x) return;
-                _self.Logger.LogWarning(index);
+
 
                 var open = false;
                 if (120 != CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts[index].type)
@@ -294,7 +287,7 @@ namespace MoreAccessoriesKOI
 
         internal void SpawnMakerUI()
         {
-            _self.Logger.LogWarning("SpawnMakerUI");
+
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop").transform;
             Sprite scroll_bar_area_sprite = null;
             Sprite scroll_bar_handle_sprite = null;
@@ -590,21 +583,22 @@ namespace MoreAccessoriesKOI
         private void ArraySync(ChaControl controller)
         {
             var len = controller.nowCoordinate.accessory.parts.Length;
-
+            foreach (var item in controller.chaFile.coordinate)
+            {
+                len = Math.Max(len, item.accessory.parts.Length);
+            }
             var show = controller.fileStatus.showAccessory;
             var obj = controller.objAccessory;
             var objmove = controller.objAcsMove;
             var cusAcsCmp = controller.cusAcsCmp;
             var hideHairAcs = controller.hideHairAcs;
 
-            Logger.LogWarning($"syns show count {show.Length }");
             var delta = len - show.Length;
             controller.fileStatus.showAccessory = show.ArrayExpansion(delta);
             for (var i = 0; i < delta; i++)
             {
                 controller.fileStatus.showAccessory[show.Length - 1 - i] = true;
             }
-            Logger.LogWarning($"finish show count {show.Length} {controller.fileStatus.showAccessory.Length}");
 
             controller.objAccessory = obj.ArrayExpansion(len - obj.Length);
             controller.cusAcsCmp = cusAcsCmp.ArrayExpansion(len - cusAcsCmp.Length);
@@ -632,7 +626,6 @@ namespace MoreAccessoriesKOI
             var controller = CustomBase.instance.chaCtrl;
             var nowparts = controller.nowCoordinate.accessory.parts;
             var coordacc = controller.chaFile.coordinate[controller.chaFile.status.coordinateType].accessory;
-            var coordparts = coordacc.parts;
             var newpart = new ChaFileAccessory.PartsInfo[num];
             for (var i = 0; i < num; i++)
             {
@@ -641,7 +634,7 @@ namespace MoreAccessoriesKOI
             coordacc.parts = controller.nowCoordinate.accessory.parts = nowparts.Concat(newpart).ToArray();
             ArraySync(controller);
 
-            UpdateMakerUI();
+            _ = UpdateMakerUI();
         }
 
         internal int GetSelectedMakerIndex()
