@@ -79,7 +79,7 @@ namespace MoreAccessoriesKOI.Extensions
             public override void OnDisable()
             {
                 base.OnDisable();
-                if (_cameraControlEnabled == false && Camera.main?.GetComponent<CameraControl>()?.NoCtrlCondition == NoCtrlCondition)
+                if (_cameraControlEnabled == false && Camera.main.GetComponent<CameraControl>().NoCtrlCondition == NoCtrlCondition)
                     SetCameraControlEnabled(true);
             }
         }
@@ -123,7 +123,7 @@ namespace MoreAccessoriesKOI.Extensions
             rt.anchorMin = new Vector2(0.5f, 0.5f);
             rt.anchorMax = new Vector2(0.5f, 0.5f);
             rt.pivot = new Vector2(0f, 1f);
-            background.gameObject.SetActive(false);
+            background.SetActive(false);
 
             if (addDisableCameraControlComponent)
                 rt.gameObject.AddComponent<DisableCameraControlOnClick>();
@@ -151,8 +151,7 @@ namespace MoreAccessoriesKOI.Extensions
 
             if (newValueString != valueString)
             {
-                float parseResult;
-                if (float.TryParse(newValueString, out parseResult))
+                if (float.TryParse(newValueString, out var parseResult))
                     newValue = parseResult;
             }
             GUILayout.EndHorizontal();
@@ -171,11 +170,9 @@ namespace MoreAccessoriesKOI.Extensions
 
             if (newValueString != valueString)
             {
-                float parseResult;
-                if (float.TryParse(newValueString, out parseResult))
+                if (float.TryParse(newValueString, out var parseResult))
                 {
-                    if (onChanged != null)
-                        onChanged(parseResult);
+                    onChanged?.Invoke(parseResult);
                 }
             }
             GUILayout.EndHorizontal();
@@ -193,8 +190,7 @@ namespace MoreAccessoriesKOI.Extensions
 
             if (newValueString != valueString)
             {
-                int parseResult;
-                if (int.TryParse(newValueString, out parseResult))
+                if (int.TryParse(newValueString, out var parseResult))
                     newValue = parseResult;
             }
             GUILayout.EndHorizontal();
@@ -213,11 +209,9 @@ namespace MoreAccessoriesKOI.Extensions
 
             if (newValueString != valueString)
             {
-                int parseResult;
-                if (int.TryParse(newValueString, out parseResult))
+                if (int.TryParse(newValueString, out var parseResult))
                 {
-                    if (onChanged != null)
-                        onChanged(parseResult);
+                    onChanged?.Invoke(parseResult);
                 }
             }
             GUILayout.EndHorizontal();

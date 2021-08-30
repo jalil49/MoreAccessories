@@ -447,7 +447,7 @@ namespace MoreAccessoriesKOI
         internal void UpdateUI()
         {
             if (_inCharaMaker)
-                UpdateMakerUI();
+                _ = UpdateMakerUI();
 #if KK || KKS
             else if (_inStudio)
                 UpdateStudioUI();

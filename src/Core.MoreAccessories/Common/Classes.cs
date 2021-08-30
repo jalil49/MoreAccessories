@@ -64,9 +64,6 @@ namespace MoreAccessoriesKOI
             public TextMeshProUGUI text;
             public CvsAccessory cvsAccessory;
 
-            public CustomAcsSelectKind SelectKind;
-            public CustomAcsMoveWindow MoveWindow;
-
 #if KK || KKS
             public GameObject copySlotObject;
             public Toggle copyToggle;

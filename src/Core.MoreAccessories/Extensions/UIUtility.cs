@@ -122,16 +122,14 @@ namespace MoreAccessoriesKOI.Extensions
             #region Private Methods
             private void NoPressed()
             {
-                if (_currentCallback != null)
-                    _currentCallback(false);
+                _currentCallback?.Invoke(false);
                 gameObject.SetActive(false);
                 _currentCallback = null;
             }
 
             private void YesPressed()
             {
-                if (_currentCallback != null)
-                    _currentCallback(true);
+                _currentCallback?.Invoke(true);
                 gameObject.SetActive(false);
                 _currentCallback = null;
             }
@@ -453,7 +451,7 @@ namespace MoreAccessoriesKOI.Extensions
             return go.GetComponent<Toggle>();
         }
 
-        public static Dropdown CreateDropdown(string objectName = "New Dropdown", Transform parent = null, string label = "Label")
+        public static Dropdown CreateDropdown(string objectName = "New Dropdown", Transform parent = null)
         {
             var go = DefaultControls.CreateDropdown(resources);
             go.name = objectName;
@@ -656,8 +654,7 @@ namespace MoreAccessoriesKOI.Extensions
         {
             if (index < _displayedContextMenuElements.Count)
                 return _displayedContextMenuElements[index];
-            var uiElement = new ContextMenuUIElement();
-            uiElement.rectTransform = ConstuctContextMenuElement();
+            var uiElement = new ContextMenuUIElement { rectTransform = ConstuctContextMenuElement() };
             uiElement.button = uiElement.rectTransform.Find("Button").GetComponent<Button>();
             uiElement.icon = uiElement.button.transform.Find("Icon").GetComponent<Image>();
             uiElement.text = uiElement.button.GetComponentInChildren<Text>();

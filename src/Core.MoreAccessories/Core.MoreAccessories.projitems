@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)BackwardCompatibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\BackwardsCompatibity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Classes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Data.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Events.cs" />
@@ -22,12 +23,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\IMGUIExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\MonoBehaviourExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\TimelineCompatibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\TransformExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\TranslationDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\VariousExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Extensions\WeakKeyDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\XmlExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_H.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_Common.cs" />

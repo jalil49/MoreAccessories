@@ -106,8 +106,8 @@ namespace MoreAccessoriesKOI.Extensions
             Transform res = null;
             foreach (Transform transform in self)
             {
-                int resD;
-                var resT = GetDeepestLeaf(transform, 0, out resD);
+
+                var resT = GetDeepestLeaf(transform, 0, out var resD);
                 if (resD > d)
                 {
                     d = resD;
@@ -128,8 +128,7 @@ namespace MoreAccessoriesKOI.Extensions
             var d = 0;
             foreach (Transform child in t)
             {
-                int resD;
-                var resT = GetDeepestLeaf(child, depth + 1, out resD);
+                var resT = GetDeepestLeaf(child, depth + 1, out var resD);
                 if (resD > d)
                 {
                     d = resD;

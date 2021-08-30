@@ -2,6 +2,12 @@
 using System.Reflection;
 using System;
 using HarmonyLib;
+using System.Reflection.Emit;
+using Manager;
+using UnityEngine;
+using UnityEngine.UI;
+using MoreAccessoriesKOI.Extensions;
+using IllusionUtility.GetUtility;
 #if EC
 using ADVPart.Manipulate.Chara;
 using HEdit;
@@ -13,7 +19,6 @@ using ADVPart.Manipulate.Chara;
 using HEdit;
 using HPlay;
 #endif
-using System.Reflection.Emit;
 
 namespace MoreAccessoriesKOI
 {
@@ -22,11 +27,183 @@ namespace MoreAccessoriesKOI
         public static class ChaControl_Patches
         {
 #if true
-            [HarmonyPostfix]
+            static readonly object[] _params = new object[10];
+            static MethodInfo _loadCharaFbxData;
+
+            [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) })]
-            internal static void Accessorytest(int slotNo, int type, int id)
+            private static bool ChangeAccessory(ChaControl __instance, int slotNo, int type, int id, string parentKey, bool forceChange = false, bool update = true)
             {
                 _self.Logger.LogWarning($"Changing slot {slotNo} to {type} with id of {id}");
+                ListInfoBase lib = null;
+                var load = true;
+                var release = true;
+                bool typerelease;
+                if (Game.isAddH)
+                {
+                    typerelease = (120 == type || !MathfEx.RangeEqualOn(121, type, 130));
+                }
+                else
+                {
+                    typerelease = (120 == type || !MathfEx.RangeEqualOn(121, type, 129));
+                }
+
+                if (typerelease)
+                {
+                    release = true;
+                    load = false;
+                }
+                else
+                {
+                    if (id == -1)
+                    {
+                        release = false;
+                        load = false;
+                    }
+                    var num = (__instance.infoAccessory[slotNo] != null) ? __instance.infoAccessory[slotNo].Category : -1;
+                    var num2 = (__instance.infoAccessory[slotNo] != null) ? __instance.infoAccessory[slotNo].Id : -1;
+                    if (!forceChange && null != __instance.objAccessory[slotNo] && type == num && id == num2)
+                    {
+                        load = false;
+                        release = false;
+                    }
+                    if (-1 != id)
+                    {
+                        if (!__instance.lstCtrl.ContainsCategoryInfo((ChaListDefine.CategoryNo)type))
+                        {
+                            release = true;
+                            load = false;
+                        }
+                        else
+                        {
+                            lib = __instance.lstCtrl.GetInfo((ChaListDefine.CategoryNo)type, id);
+                            if (lib == null)
+                            {
+                                release = true;
+                                load = false;
+                            }
+                            else if (!__instance.hiPoly)
+                            {
+                                var flag4 = true;
+                                if (123 == type && 1 == lib.Kind)
+                                {
+                                    flag4 = false;
+                                }
+                                if (122 == type && 1 == lib.GetInfoInt(ChaListDefine.KeyType.HideHair))
+                                {
+                                    flag4 = false;
+                                }
+                                if (Manager.Config.EtcData.loadHeadAccessory && 122 == type && 1 == lib.Kind)
+                                {
+                                    flag4 = false;
+                                }
+                                if (Manager.Config.EtcData.loadAllAccessory)
+                                {
+                                    flag4 = false;
+                                }
+                                if (flag4)
+                                {
+                                    release = true;
+                                    load = false;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (release)
+                {
+                    if (!load)
+                    {
+                        __instance.nowCoordinate.accessory.parts[slotNo].MemberInit();
+                        __instance.nowCoordinate.accessory.parts[slotNo].type = 120;
+                    }
+                    if (__instance.objAccessory[slotNo])
+                    {
+                        __instance.SafeDestroy(__instance.objAccessory[slotNo]);
+                        __instance.objAccessory[slotNo] = null;
+                        __instance.infoAccessory[slotNo] = null;
+                        __instance.cusAcsCmp[slotNo] = null;
+                        for (var i = 0; i < 2; i++)
+                        {
+                            __instance.objAcsMove[slotNo, i] = null;
+                        }
+                    }
+                }
+                if (load)
+                {
+                    byte weight = 0;
+                    Transform trfParent = null;
+                    if ("null" == lib.GetInfo(ChaListDefine.KeyType.Parent))
+                    {
+                        weight = 2;
+                        trfParent = __instance.objTop.transform;
+                    }
+                    if (_loadCharaFbxData == null)
+                        _loadCharaFbxData = __instance.GetType().GetMethod("LoadCharaFbxData", AccessTools.all);
+#if KK || KKS
+
+                    _params[0] = new Action<ListInfoBase>(delegate (ListInfoBase l) { __instance.infoAccessory[slotNo] = l; });
+                    _params[1] = true;
+                    _params[2] = type;
+                    _params[3] = id;
+                    _params[4] = "ca_slot" + (slotNo + 20).ToString("00");
+                    _params[5] = false;
+                    _params[6] = weight;
+                    _params[7] = trfParent;
+                    _params[8] = -1;
+                    _params[9] = false;
+#elif EMOTIONCREATORS
+                _params[0] = type;
+                _params[1] = id;
+                _params[2] = "ca_slot" + (slotNo + 20).ToString("00");
+                _params[3] = false;
+                _params[4] = weight;
+                _params[5] = trfParent;
+                _params[6] = -1;
+                _params[7] = false;
+#endif
+
+                    __instance.objAccessory[slotNo] = (GameObject)_loadCharaFbxData.Invoke(__instance, _params); // I'm doing this the reflection way in order to be compatible with other plugins (like RimRemover)
+                    if (__instance.objAccessory[slotNo])
+                    {
+                        var component = __instance.objAccessory[slotNo].GetComponent<ListInfoComponent>();
+                        lib = (__instance.infoAccessory[slotNo] = component.data);
+                        __instance.cusAcsCmp[slotNo] = __instance.objAccessory[slotNo].GetComponent<ChaAccessoryComponent>();
+                        __instance.nowCoordinate.accessory.parts[slotNo].type = type;
+                        __instance.nowCoordinate.accessory.parts[slotNo].id = lib.Id;
+                        __instance.objAcsMove[slotNo, 0] = __instance.objAccessory[slotNo].transform.FindLoop("N_move");
+                        __instance.objAcsMove[slotNo, 1] = __instance.objAccessory[slotNo].transform.FindLoop("N_move2");
+                    }
+                }
+                if (__instance.objAccessory[slotNo])
+                {
+                    if (__instance.loadWithDefaultColorAndPtn)
+                    {
+                        __instance.SetAccessoryDefaultColor(slotNo);
+                    }
+                    __instance.ChangeAccessoryColor(slotNo + 20);
+                    if (string.Empty == parentKey)
+                    {
+                        parentKey = lib.GetInfo(ChaListDefine.KeyType.Parent);
+                    }
+                    __instance.ChangeAccessoryParent(slotNo + 20, parentKey);
+                    __instance.UpdateAccessoryMoveFromInfo(slotNo + 20);
+                    __instance.nowCoordinate.accessory.parts[slotNo].partsOfHead = ChaAccessoryDefine.CheckPartsOfHead(parentKey);
+#if KOIKATSU
+                        if (!__instance.hiPoly && !Manager.Config.EtcData.loadAllAccessory)
+                        {
+                            var componentsInChildren = __instance.objAccessory[slotNo].GetComponentsInChildren<DynamicBone>(true);
+                            foreach (var dynamicBone in componentsInChildren)
+                            {
+                                dynamicBone.enabled = false;
+                            }
+                        }
+#endif
+                    if (_self._hasDarkness)
+                        __instance.ChangeShakeAccessory(slotNo + 20);
+                }
+                __instance.SetHideHairAccessory();
+                return false;
             }
 
             [HarmonyPatch]
@@ -43,7 +220,7 @@ namespace MoreAccessoriesKOI
                         GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryColor)),
                         GetMethod(typeof(ChaControl), nameof(ChaControl.GetAccessoryDefaultColor)),
                         GetMethod(typeof(ChaControl), nameof(ChaControl.SetAccessoryDefaultColor)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) }),
+                        //GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) }),
 #if KKS
                         GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryNoAsync)),
 #endif

@@ -499,7 +499,7 @@ namespace MoreAccessoriesKOI
             }, 5);
             _customAcsChangeSlot.ExecuteDelayed(() =>
             {
-                UpdateMakerUI();
+                _ = UpdateMakerUI();
                 CustomBase.Instance.updateCustomUI = true;
             }, 2);
         }

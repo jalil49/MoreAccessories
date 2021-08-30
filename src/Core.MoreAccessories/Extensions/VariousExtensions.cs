@@ -20,7 +20,7 @@ namespace MoreAccessoriesKOI.Extensions
             var diff = self.Count - newSize;
             if (diff < 0)
                 while (self.Count != newSize)
-                    self.Add(default(T));
+                    self.Add(default);
             else if (diff > 0)
                 while (self.Count != newSize)
                     self.RemoveRange(newSize, diff);
