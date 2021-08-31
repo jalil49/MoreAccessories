@@ -17,7 +17,7 @@ namespace MoreAccessoriesKOI
                 private static void Postfix()
                 {
                     if (_self._inCharaMaker)
-                        _self.ArraySync(ChaCustom.CustomBase.instance.chaCtrl);
+                        ArraySync(ChaCustom.CustomBase.instance.chaCtrl);
                 }
             }
         }

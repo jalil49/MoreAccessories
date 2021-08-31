@@ -31,8 +31,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static void SetPrivateExplicit<T>(this T self, string name, object value)
         {
             var key = new MemberKey(typeof(T), name);
-            FieldInfo info;
-            if (_fieldCache.TryGetValue(key, out info) == false)
+            if (_fieldCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetField(key.name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _fieldCache.Add(key, info);
@@ -42,8 +41,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static void SetPrivate(this object self, string name, object value)
         {
             var key = new MemberKey(self.GetType(), name);
-            FieldInfo info;
-            if (_fieldCache.TryGetValue(key, out info) == false)
+            if (_fieldCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetField(key.name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _fieldCache.Add(key, info);
@@ -53,8 +51,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static object GetPrivateExplicit<T>(this T self, string name)
         {
             var key = new MemberKey(typeof(T), name);
-            FieldInfo info;
-            if (_fieldCache.TryGetValue(key, out info) == false)
+            if (_fieldCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetField(key.name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _fieldCache.Add(key, info);
@@ -64,8 +61,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static object GetPrivate(this object self, string name)
         {
             var key = new MemberKey(self.GetType(), name);
-            FieldInfo info;
-            if (_fieldCache.TryGetValue(key, out info) == false)
+            if (_fieldCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetField(key.name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _fieldCache.Add(key, info);
@@ -76,8 +72,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static void SetPrivateProperty(this object self, string name, object value)
         {
             var key = new MemberKey(self.GetType(), name);
-            PropertyInfo info;
-            if (_propertyCache.TryGetValue(key, out info) == false)
+            if (_propertyCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetProperty(key.name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _propertyCache.Add(key, info);
@@ -88,8 +83,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static object GetPrivateProperty(this object self, string name)
         {
             var key = new MemberKey(self.GetType(), name);
-            PropertyInfo info;
-            if (_propertyCache.TryGetValue(key, out info) == false)
+            if (_propertyCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetProperty(key.name, BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _propertyCache.Add(key, info);
@@ -101,8 +95,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static void SetPrivate(this Type self, string name, object value)
         {
             var key = new MemberKey(self, name);
-            FieldInfo info;
-            if (_fieldCache.TryGetValue(key, out info) == false)
+            if (_fieldCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetField(key.name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _fieldCache.Add(key, info);
@@ -113,8 +106,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static object GetPrivate(this Type self, string name)
         {
             var key = new MemberKey(self, name);
-            FieldInfo info;
-            if (_fieldCache.TryGetValue(key, out info) == false)
+            if (_fieldCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetField(key.name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _fieldCache.Add(key, info);
@@ -125,8 +117,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static void SetPrivateProperty(this Type self, string name, object value)
         {
             var key = new MemberKey(self, name);
-            PropertyInfo info;
-            if (_propertyCache.TryGetValue(key, out info) == false)
+            if (_propertyCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetProperty(key.name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _propertyCache.Add(key, info);
@@ -137,8 +128,7 @@ namespace MoreAccessoriesKOI.Extensions
         public static object GetPrivateProperty(this Type self, string name)
         {
             var key = new MemberKey(self, name);
-            PropertyInfo info;
-            if (_propertyCache.TryGetValue(key, out info) == false)
+            if (_propertyCache.TryGetValue(key, out var info) == false)
             {
                 info = key.type.GetProperty(key.name, BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                 _propertyCache.Add(key, info);

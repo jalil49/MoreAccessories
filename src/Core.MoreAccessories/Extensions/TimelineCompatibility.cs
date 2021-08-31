@@ -158,8 +158,7 @@ namespace MoreAccessoriesKOI
 
         public static void RefreshInterpolablesList()
         {
-            if (_refreshInterpolablesList != null)
-                _refreshInterpolablesList();
+            _refreshInterpolablesList?.Invoke();
         }
     }
 }

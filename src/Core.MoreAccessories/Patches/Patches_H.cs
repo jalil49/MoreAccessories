@@ -26,7 +26,6 @@ namespace MoreAccessoriesKOI
                     }
                     current++;
                 }
-
 #endif
 
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)

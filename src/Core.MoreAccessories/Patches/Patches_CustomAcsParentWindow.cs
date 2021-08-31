@@ -19,7 +19,7 @@ namespace MoreAccessoriesKOI
             {
                 private static void Postfix(CustomAcsParentWindow __instance)
                 {
-                    _self.CustomAcsParentWin = __instance;
+                    _self.ParentWin = __instance;
                 }
             }
 

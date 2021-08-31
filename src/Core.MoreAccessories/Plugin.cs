@@ -51,7 +51,8 @@ namespace MoreAccessoriesKOI
             _isParty = Application.productName == "Koikatsu Party";
 
 
-            var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+            var harmony = new Harmony(GUID);
+            harmony.PatchAll();
 
             var uarHooks = typeof(UniversalAutoResolver).GetNestedType("Hooks", BindingFlags.NonPublic | BindingFlags.Static);
             harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
@@ -267,7 +268,6 @@ namespace MoreAccessoriesKOI
                 case LoadSceneMode.Single:
                     if (!instudio)
                     {
-                        Logger.LogWarning(scene.buildIndex);
                         _inCharaMaker = false;
 #if KK || KKS
                         _inH = false;
@@ -668,6 +668,7 @@ namespace MoreAccessoriesKOI
                             {
                                 var part = new ChaFileAccessory.PartsInfo();
                                 part.type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value);
+                                };
                                 if (part.type != 120)
                                 {
                                     part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
@@ -810,6 +811,7 @@ namespace MoreAccessoriesKOI
 
                 var pluginData = new PluginData();
                 pluginData.version = _saveVersion;
+                var pluginData = new PluginData { version = _saveVersion };
                 pluginData.data.Add("additionalAccessories", stringWriter.ToString());
                 ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
             }

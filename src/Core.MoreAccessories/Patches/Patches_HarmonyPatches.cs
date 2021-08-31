@@ -15,13 +15,6 @@ namespace MoreAccessoriesKOI
     public partial class MoreAccessories
     {
         #region Patches
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.GetSelectIndex))]
-        private static void testindex(int __result)
-        {
-            
-        }
-
 #if KK
         [HarmonyPatch]
         private static class VRHScene_Start_Patches

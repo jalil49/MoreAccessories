@@ -34,22 +34,22 @@ namespace MoreAccessoriesKOI
             return 0;
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.N))
-            {
-                _self.Logger.LogWarning($"current slot is {_customAcsChangeSlot.GetSelectIndex()} {CustomBase.instance.selectSlot}");
-                foreach (var item in _additionalCharaMakerSlots)
-                {
-                    _self.Logger.LogWarning(item.cvsAccessory.nSlotNo);
-                }
-                var parts = CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts;
-                for (int i = 0, n = parts.Length; i < n; i++)
-                {
-                    _self.Logger.Log(parts[i].type == 120 ? BepInEx.Logging.LogLevel.Error : BepInEx.Logging.LogLevel.Warning, $"slot {i:00} has type {parts[i].type} and id {parts[i].id}");
-                }
-            }
-        }
+        //private void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.N))
+        //    {
+        //        _self.Logger.LogWarning($"current slot is {_customAcsChangeSlot.GetSelectIndex()} {CustomBase.instance.selectSlot}");
+        //        foreach (var item in _additionalCharaMakerSlots)
+        //        {
+        //            _self.Logger.LogWarning(item.cvsAccessory.nSlotNo);
+        //        }
+        //        var parts = CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts;
+        //        for (int i = 0, n = parts.Length; i < n; i++)
+        //        {
+        //            _self.Logger.Log(parts[i].type == 120 ? BepInEx.Logging.LogLevel.Error : BepInEx.Logging.LogLevel.Warning, $"slot {i:00} has type {parts[i].type} and id {parts[i].id}");
+        //        }
+        //    }
+        //}
 
         private async UniTask UpdateMakerUI()
         {
@@ -109,28 +109,22 @@ namespace MoreAccessoriesKOI
 
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = info.toggle, cgItem = info.canvasGroup });
 
-                    foreach (var _custom in CustomAcsSelectKind)
+                    foreach (var _custom in SelectKind)
                     {
                         _custom.cvsAccessory = CvsAccessoryArray;
                     }
-                    foreach (var _custom in CustomAcsMoveWin)
+                    foreach (var _custom in MoveWin)
                     {
                         _custom.cvsAccessory = CvsAccessoryArray;
                     }
 
-                    CustomAcsParentWin.cvsAccessory = CvsAccessoryArray;
+                    ParentWin.cvsAccessory = CvsAccessoryArray;
 
                     //info.toggle.onValueChanged = new Toggle.ToggleEvent();
                     info.toggle.isOn = false;
                     info.canvasGroup.Enable(false, false);
 
                     RestoreToggle(info.toggle, index);
-
-
-
-
-                    //
-
 
                     //info.toggle.onValueChanged.AddListener(b =>
                     //{
@@ -211,17 +205,8 @@ namespace MoreAccessoriesKOI
 
                     }, 5);
 
-
-
-
-
-
-
-
-
-
                 }
-                info.cvsAccessory.UpdateSlotName();
+                //info.cvsAccessory.UpdateSlotName();
             }
 
             for (; i < _additionalCharaMakerSlots.Count; i++)
@@ -251,7 +236,7 @@ namespace MoreAccessoriesKOI
                 {
                     open = false;
                 }
-                CustomAcsParentWin.ChangeSlot(index, open);
+                ParentWin.ChangeSlot(index, open);
                 var array3 = _customAcsChangeSlot.customAcsMoveWin;
                 for (var j = 0; j < array3.Length; j++)
                 {
@@ -327,7 +312,7 @@ namespace MoreAccessoriesKOI
             Destroy(_charaMakerScrollView.GetComponent<Image>());
             _charaMakerSlotTemplate = container.GetChild(0).gameObject;
 
-            var rootCanvas = ((RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform);
+            var rootCanvas = (RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform;
             var element = _charaMakerScrollView.gameObject.AddComponent<LayoutElement>();
             element.minHeight = rootCanvas.rect.height / 1.298076f;
             element.minWidth = 622f; //Because trying to get the value dynamically fails for some reason so fuck it.
@@ -391,11 +376,6 @@ namespace MoreAccessoriesKOI
             text.text = "+10";
             addTenButton.onClick.AddListener(delegate () { AddSlot(10); });
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
-
-            for (var i = 0; i < _customAcsChangeSlot.items.Length; i++)
-            {
-                FixWindowScroll();
-            }
 
             //            for (var i = 0; i < _customAcsChangeSlot.items.Length; i++)
             //            {
@@ -580,7 +560,7 @@ namespace MoreAccessoriesKOI
 
         }
 
-        private void ArraySync(ChaControl controller)
+        public static void ArraySync(ChaControl controller)
         {
             var len = controller.nowCoordinate.accessory.parts.Length;
             foreach (var item in controller.chaFile.coordinate)
@@ -592,6 +572,7 @@ namespace MoreAccessoriesKOI
             var objmove = controller.objAcsMove;
             var cusAcsCmp = controller.cusAcsCmp;
             var hideHairAcs = controller.hideHairAcs;
+            var listinfo = controller.infoAccessory;
 
             var delta = len - show.Length;
             controller.fileStatus.showAccessory = show.ArrayExpansion(delta);
@@ -603,6 +584,7 @@ namespace MoreAccessoriesKOI
             controller.objAccessory = obj.ArrayExpansion(len - obj.Length);
             controller.cusAcsCmp = cusAcsCmp.ArrayExpansion(len - cusAcsCmp.Length);
             controller.hideHairAcs = hideHairAcs.ArrayExpansion(len - hideHairAcs.Length);
+            controller.infoAccessory = listinfo.ArrayExpansion(len - listinfo.Length);
 
             var movelen = objmove.GetLength(0);
             var count = len - movelen;
@@ -644,12 +626,6 @@ namespace MoreAccessoriesKOI
                 var info = _customAcsChangeSlot.items[i];
                 if (info.tglItem.isOn)
                     return i;
-            }
-            for (var i = 0; i < _additionalCharaMakerSlots.Count; i++)
-            {
-                var slot = _additionalCharaMakerSlots[i];
-                if (slot.toggle.isOn)
-                    return i + 20;
             }
             return -1;
         }
