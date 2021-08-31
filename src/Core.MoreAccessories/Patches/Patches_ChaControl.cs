@@ -1,19 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System;
-using HarmonyLib;
-using System.Reflection.Emit;
+﻿using HarmonyLib;
+using IllusionUtility.GetUtility;
 using Manager;
+using MoreAccessoriesKOI.Extensions;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using UnityEngine;
 using UnityEngine.UI;
-using MoreAccessoriesKOI.Extensions;
-using IllusionUtility.GetUtility;
-#if EC
-using ADVPart.Manipulate.Chara;
-using HEdit;
-using HPlay;
-#endif
-using System.Linq;
+
 #if EC
 using ADVPart.Manipulate.Chara;
 using HEdit;
@@ -26,206 +23,134 @@ namespace MoreAccessoriesKOI
     {
         public static class ChaControl_Patches
         {
-#if true
-            static readonly object[] _params = new object[10];
-            static MethodInfo _loadCharaFbxData;
 
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) })]
-            private static bool ChangeAccessory(ChaControl __instance, int slotNo, int type, int id, string parentKey, bool forceChange = false, bool update = true)
+#if KKS
+            [HarmonyPatch]
+            internal class ChaControl_ChangeAccessoryAsync_Patches
             {
-                _self.Logger.LogWarning($"Changing slot {slotNo} to {type} with id of {id}");
-                ListInfoBase lib = null;
-                var load = true;
-                var release = true;
-                bool typerelease;
-                if (Game.isAddH)
+                static MethodBase methodbase;
+
+                static MethodBase TargetMethod()
                 {
-                    typerelease = (120 == type || !MathfEx.RangeEqualOn(121, type, 130));
-                }
-                else
-                {
-                    typerelease = (120 == type || !MathfEx.RangeEqualOn(121, type, 129));
+                    methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>d__483, Assembly-CSharp"), "MoveNext");
+                    return methodbase;
                 }
 
-                if (typerelease)
+                public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
                 {
-                    release = true;
-                    load = false;
-                }
-                else
-                {
-                    if (id == -1)
-                    {
-                        release = false;
-                        load = false;
-                    }
-                    var num = (__instance.infoAccessory[slotNo] != null) ? __instance.infoAccessory[slotNo].Category : -1;
-                    var num2 = (__instance.infoAccessory[slotNo] != null) ? __instance.infoAccessory[slotNo].Id : -1;
-                    if (!forceChange && null != __instance.objAccessory[slotNo] && type == num && id == num2)
-                    {
-                        load = false;
-                        release = false;
-                    }
-                    if (-1 != id)
-                    {
-                        if (!__instance.lstCtrl.ContainsCategoryInfo((ChaListDefine.CategoryNo)type))
-                        {
-                            release = true;
-                            load = false;
-                        }
-                        else
-                        {
-                            lib = __instance.lstCtrl.GetInfo((ChaListDefine.CategoryNo)type, id);
-                            if (lib == null)
-                            {
-                                release = true;
-                                load = false;
-                            }
-                            else if (!__instance.hiPoly)
-                            {
-                                var flag4 = true;
-                                if (123 == type && 1 == lib.Kind)
-                                {
-                                    flag4 = false;
-                                }
-                                if (122 == type && 1 == lib.GetInfoInt(ChaListDefine.KeyType.HideHair))
-                                {
-                                    flag4 = false;
-                                }
-                                if (Manager.Config.EtcData.loadHeadAccessory && 122 == type && 1 == lib.Kind)
-                                {
-                                    flag4 = false;
-                                }
-                                if (Manager.Config.EtcData.loadAllAccessory)
-                                {
-                                    flag4 = false;
-                                }
-                                if (flag4)
-                                {
-                                    release = true;
-                                    load = false;
-                                }
-                            }
-                        }
-                    }
-                }
-                if (release)
-                {
-                    if (!load)
-                    {
-                        __instance.nowCoordinate.accessory.parts[slotNo].MemberInit();
-                        __instance.nowCoordinate.accessory.parts[slotNo].type = 120;
-                    }
-                    if (__instance.objAccessory[slotNo])
-                    {
-                        __instance.SafeDestroy(__instance.objAccessory[slotNo]);
-                        __instance.objAccessory[slotNo] = null;
-                        __instance.infoAccessory[slotNo] = null;
-                        __instance.cusAcsCmp[slotNo] = null;
-                        for (var i = 0; i < 2; i++)
-                        {
-                            __instance.objAcsMove[slotNo, i] = null;
-                        }
-                    }
-                }
-                if (load)
-                {
-                    byte weight = 0;
-                    Transform trfParent = null;
-                    if ("null" == lib.GetInfo(ChaListDefine.KeyType.Parent))
-                    {
-                        weight = 2;
-                        trfParent = __instance.objTop.transform;
-                    }
-                    if (_loadCharaFbxData == null)
-                        _loadCharaFbxData = __instance.GetType().GetMethod("LoadCharaFbxData", AccessTools.all);
-#if KK || KKS
+#if DEBUG
+                    _self.Logger.LogWarning($"ChaControl_ChangeAccessoryAsync_Patches\t\t{methodbase.ReflectedType}  .   {methodbase.Name}");
+#endif
+                    var instructionsList = instructions.ToList();
+                    var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue || x.opcode == OpCodes.Brtrue_S); //work backwards from end
 
-                    _params[0] = new Action<ListInfoBase>(delegate (ListInfoBase l) { __instance.infoAccessory[slotNo] = l; });
-                    _params[1] = true;
-                    _params[2] = type;
-                    _params[3] = id;
-                    _params[4] = "ca_slot" + (slotNo + 20).ToString("00");
-                    _params[5] = false;
-                    _params[6] = weight;
-                    _params[7] = trfParent;
-                    _params[8] = -1;
-                    _params[9] = false;
-#elif EMOTIONCREATORS
-                _params[0] = type;
-                _params[1] = id;
-                _params[2] = "ca_slot" + (slotNo + 20).ToString("00");
-                _params[3] = false;
-                _params[4] = weight;
-                _params[5] = trfParent;
-                _params[6] = -1;
-                _params[7] = false;
+#if DEBUG
+                    if (end == -1)
+                    {
+                        _self.Logger.LogError($"Opcode not found Brtrue || Brtrue_s");
+                        for (var i = 0; i < instructionsList.Count; i++)
+                        {
+                            _self.Logger.LogWarning($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        }
+                    }
 #endif
 
-                    __instance.objAccessory[slotNo] = (GameObject)_loadCharaFbxData.Invoke(__instance, _params); // I'm doing this the reflection way in order to be compatible with other plugins (like RimRemover)
-                    if (__instance.objAccessory[slotNo])
+                    var start = end - 4; //code is at least 4 lines
+
+                    for (; start > 0; start--)
                     {
-                        var component = __instance.objAccessory[slotNo].GetComponent<ListInfoComponent>();
-                        lib = (__instance.infoAccessory[slotNo] = component.data);
-                        __instance.cusAcsCmp[slotNo] = __instance.objAccessory[slotNo].GetComponent<ChaAccessoryComponent>();
-                        __instance.nowCoordinate.accessory.parts[slotNo].type = type;
-                        __instance.nowCoordinate.accessory.parts[slotNo].id = lib.Id;
-                        __instance.objAcsMove[slotNo, 0] = __instance.objAccessory[slotNo].transform.FindLoop("N_move");
-                        __instance.objAcsMove[slotNo, 1] = __instance.objAccessory[slotNo].transform.FindLoop("N_move2");
-                    }
-                }
-                if (__instance.objAccessory[slotNo])
-                {
-                    if (__instance.loadWithDefaultColorAndPtn)
-                    {
-                        __instance.SetAccessoryDefaultColor(slotNo);
-                    }
-                    __instance.ChangeAccessoryColor(slotNo + 20);
-                    if (string.Empty == parentKey)
-                    {
-                        parentKey = lib.GetInfo(ChaListDefine.KeyType.Parent);
-                    }
-                    __instance.ChangeAccessoryParent(slotNo + 20, parentKey);
-                    __instance.UpdateAccessoryMoveFromInfo(slotNo + 20);
-                    __instance.nowCoordinate.accessory.parts[slotNo].partsOfHead = ChaAccessoryDefine.CheckPartsOfHead(parentKey);
-#if KOIKATSU
-                        if (!__instance.hiPoly && !Manager.Config.EtcData.loadAllAccessory)
+                        if (instructionsList[start].opcode == OpCodes.Ldc_I4_0)
                         {
-                            var componentsInChildren = __instance.objAccessory[slotNo].GetComponentsInChildren<DynamicBone>(true);
-                            foreach (var dynamicBone in componentsInChildren)
-                            {
-                                dynamicBone.enabled = false;
-                            }
+                            break;
                         }
+                    }
+
+                    for (int i = 0, j = 0; i < instructionsList.Count; i++, j++)
+                    {
+                        var inst = instructionsList[i];
+
+                        if (i == start)//instead pushing 0,slot,19 and popping RangeEqual => push Chacontrol, slotno and pop with call
+                        {
+                            i++;//skip pushing 0 to stack
+                            yield return new CodeInstruction(OpCodes.Ldloc_1); //ldarg_0  contains chacontrol don't use this.chacontrol parts array is null for a mysterious reason
+                            yield return instructionsList[i++]; //ldarg_0  this
+                            yield return instructionsList[i++]; //ldfld  this.Chacontrol
+                            yield return instructionsList[i++]; //ldfld  this.Chacontrol.slotno
+
+                            //var test = new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
+                            //_self.Logger.LogWarning($"{j++:00} {test.opcode} {test.operand}");
+                            yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
+                            i += 2;//skip 19 insert and call range
+                        }
+                        //if (i < 35)
+                        //    _self.Logger.LogWarning($"{j:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        yield return instructionsList[i];
+                    }
+
+#if DEBUG
+                    _self.Logger.LogWarning($"Transpiler worked");
 #endif
-                    if (_self._hasDarkness)
-                        __instance.ChangeShakeAccessory(slotNo + 20);
+
                 }
-                __instance.SetHideHairAccessory();
-                return false;
+
+                private static bool AccessoryCheck(ChaControl chara, int slot)
+                {
+                    return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
+                }
+
             }
 
             [HarmonyPatch]
-            internal class ChaControl_CheckAdjuster_Patches
+            internal class ChaControl_ChangeAccessoryAsync_Replace20_Patches
             {
-#if DEBUG
-                static readonly List<MethodBase> list = new List<MethodBase>
-                    {
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryParent)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.SetAccessoryPos)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.SetAccessoryRot)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.SetAccessoryScl)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.UpdateAccessoryMoveFromInfo)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryColor)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.GetAccessoryDefaultColor)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.SetAccessoryDefaultColor)),
-                        //GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) }),
-#if KKS
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryNoAsync)),
-#endif
-                    };
+                static MethodBase methodbase;
 
+                static MethodBase TargetMethod()
+                {
+                    methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>d__482, Assembly-CSharp"), "MoveNext");
+                    return methodbase;
+                }
+
+                public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+                {
+#if DEBUG
+                    _self.Logger.LogWarning($"{nameof(ChaControl_ChangeAccessoryAsync_Replace20_Patches)} Method");
+                                        var worked = false;
+
+#endif
+                    var instructionsList = instructions.ToList();
+                    for (var i = 0; i < instructionsList.Count; i++)
+                    {
+                        var inst = instructionsList[i];
+                        if (inst.opcode == OpCodes.Ldc_I4_S && inst.operand.ToString() == "20")
+                        {
+#if DEBUG
+                            worked = true;
+#endif
+                            yield return new CodeInstruction(OpCodes.Ldloc_1);//feed chacontrol to method
+                            yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Replace20_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
+                            continue;
+                        }
+                        yield return inst;
+                    }
+
+#if DEBUG
+                    _self.Logger.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+#endif
+                }
+
+                private static int AccessoryCount(ChaControl chara)
+                {
+                    return chara.nowCoordinate.accessory.parts.Length;
+                }
+            }
+#endif
+
+            [HarmonyPatch]
+            internal class ChaControl_CheckAdjuster_param_slot_0_Patches
+            {
+                static int count = 0;
+#if DEBUG
                 static void Finalizer(Exception __exception)
                 {
                     if (__exception != null)
@@ -233,37 +158,58 @@ namespace MoreAccessoriesKOI
                         _self.Logger.LogError(__exception);
                     }
                 }
-
 #endif
-
                 static IEnumerable<MethodBase> TargetMethods()
                 {
-#if !DEBUG
                     var ChaCon = typeof(ChaControl);
                     var list = new List<MethodBase>
                     {
-                        GetMethod(ChaCon, nameof(ChaControl.ChangeAccessoryParent)),
-                        GetMethod(ChaCon, nameof(ChaControl.SetAccessoryPos)),
-                        GetMethod(ChaCon, nameof(ChaControl.SetAccessoryRot)),
-                        GetMethod(ChaCon, nameof(ChaControl.SetAccessoryScl)),
-                        GetMethod(ChaCon, nameof(ChaControl.UpdateAccessoryMoveFromInfo)),
-                        GetMethod(ChaCon, nameof(ChaControl.ChangeAccessoryColor)),
-                        GetMethod(ChaCon, nameof(ChaControl.GetAccessoryDefaultColor)),
-                        GetMethod(ChaCon, nameof(ChaControl.SetAccessoryDefaultColor)),
-                        GetMethod(ChaCon, nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(int), typeof(int), typeof(int), typeof(string), typeof(bool), typeof(bool) }),
-#if KKS
-                        GetMethod(ChaCon, nameof(ChaControl.ChangeAccessoryNoAsync)),
-#endif
+                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryParent)),        //0
+                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryPos)),              //1
+                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryRot)),              //2
+                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryScl)),              //3
+                        AccessTools.Method(ChaCon, nameof(ChaControl.UpdateAccessoryMoveFromInfo)),  //4
+                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryColor)),         //5
+                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryDefaultColor)),     //6
                     };
+
+#if KKS
+                    list.Add(AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryNoAsync)));
 #endif
+
                     return list;
                 }
 
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
                 {
+#if DEBUG
+                    _self.Logger.LogWarning($"ChaControl_CheckAdjuster_param_slot_0_Patches Method {count}");
+                                        var worked = false;
+
+#endif
                     var instructionsList = instructions.ToList();
-                    var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue_S); //work backwards from end
+                    var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue || x.opcode == OpCodes.Brtrue_S); //work backwards from end
+#if DEBUG
+                    if (end == -1)
+                    {
+                        _self.Logger.LogError($"Opcode not found Brtrue || Brtrue_s");
+                        for (var i = 0; i < instructionsList.Count; i++)
+                        {
+                            _self.Logger.LogWarning($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        }
+                    }
+#endif
+
                     var start = end - 4; //code is at least 4 lines
+
+                    for (; start > 0; start--)
+                    {
+                        if (instructionsList[start].opcode == OpCodes.Ldc_I4_0)
+                        {
+                            break;
+                        }
+                    }
+
                     for (; start > 0; start--)
                     {
                         if (instructionsList[start].opcode == OpCodes.Ldc_I4_0)
@@ -278,13 +224,25 @@ namespace MoreAccessoriesKOI
 
                         if (i == start)
                         {
-                            yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_CheckAdjuster_Patches).GetMethod(nameof(AccessoryCheck), BindingFlags.NonPublic | BindingFlags.Static));
+#if DEBUG
+worked = true;
+#endif
+                            yield return new CodeInstruction(OpCodes.Ldarg_0);
+                            yield return new CodeInstruction(OpCodes.Ldarg_1);
+
+                            yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_CheckAdjuster_param_slot_0_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
                             i = end;
                             inst = instructionsList[i];
                         }
 
                         yield return inst;
                     }
+
+#if DEBUG
+                    _self.Logger.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+#endif
+
+                    count++;
                 }
 
                 private static bool AccessoryCheck(ChaControl chara, int slot)
@@ -294,62 +252,147 @@ namespace MoreAccessoriesKOI
             }
 
             [HarmonyPatch]
-            internal static class Replace_20_Patch
+            internal class ChaControl_CheckAdjuster_param_slot_1_Patches
             {
 #if DEBUG
-                static int current = 0;
-
-                static readonly List<MethodBase> list = new List<MethodBase>
-                    {
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.UpdateAccessoryMoveAllFromInfo)),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) }),
-                        GetMethod(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) }),
-                    };
-
+                static int count = 0;
                 static void Finalizer(Exception __exception)
                 {
-                    current %= list.Count;
-
                     if (__exception != null)
                     {
-                        _self.Logger.LogError($"Post Method {current} {list[current].Name}\n" + __exception);
+                        _self.Logger.LogError(__exception);
                     }
-                    current++;
                 }
-
 #endif
-
-
                 static IEnumerable<MethodBase> TargetMethods()
                 {
-#if !DEBUG
                     var ChaCon = typeof(ChaControl);
                     var list = new List<MethodBase>
                     {
-                        GetMethod(ChaCon, nameof(ChaControl.UpdateAccessoryMoveAllFromInfo)),
-                        GetMethod(ChaCon, nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) }),
-                        GetMethod(ChaCon, nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) }),
+                        AccessTools.Method(ChaCon, nameof(ChaControl.GetAccessoryDefaultColor)),
                     };
-#endif
                     return list;
                 }
 
                 public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
                 {
+#if DEBUG
+                    _self.Logger.LogWarning($"ChaControl_CheckAdjuster_param_slot_1_Patches Method {count}");
+#endif
                     var instructionsList = instructions.ToList();
-                    print("test");
+                    var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue); //work backwards from end
+
+#if DEBUG
+                    var worked = false;
+                    if (end == -1)
+                    {
+                        _self.Logger.LogError($"Opcode not found OpCodes.Brtrue_S");
+                        for (var i = 0; i < instructionsList.Count; i++)
+                        {
+                            _self.Logger.LogWarning($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        }
+                    }
+#endif
+
+                    var start = end - 4; //code is at least 4 lines
+
+                    for (; start > 0; start--)
+                    {
+                        if (instructionsList[start].opcode == OpCodes.Ldc_I4_0)
+                        {
+                            break;
+                        }
+                    }
+
+                    for (; start > 0; start--)
+                    {
+                        if (instructionsList[start].opcode == OpCodes.Ldc_I4_0)
+                        {
+                            break;
+                        }
+                    }
+
+                    for (var i = 0; i < instructionsList.Count; i++)
+                    {
+                        var inst = instructionsList[i];
+
+                        if (i == start)
+                        {
+#if DEBUG
+                            worked = true;
+#endif
+                            yield return new CodeInstruction(OpCodes.Ldarg_0);
+                            yield return new CodeInstruction(OpCodes.Ldarg_2);
+                            yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_CheckAdjuster_param_slot_1_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
+                            i = end;
+                            inst = instructionsList[i];
+                        }
+
+                        yield return inst;
+                    }
+#if DEBUG
+                    _self.Logger.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+                    count++;
+#endif
+
+                }
+
+                private static bool AccessoryCheck(ChaControl chara, int slot)
+                {
+                    return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
+                }
+            }
+
+            [HarmonyPatch]
+            internal static class ChaControl_Replace_20_Patch
+            {
+#if DEBUG
+                static int count = 0;
+                static void Finalizer(Exception __exception)
+                {
+                    if (__exception != null)
+                    {
+                        _self.Logger.LogError(__exception);
+                    }
+                }
+#endif
+                static IEnumerable<MethodBase> TargetMethods()
+                {
+                    var ChaCon = typeof(ChaControl);
+                    var list = new List<MethodBase>
+                    {
+                        AccessTools.Method(ChaCon, nameof(ChaControl.UpdateAccessoryMoveAllFromInfo)),
+                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) }),
+                    };
+                    return list;
+                }
+
+                public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+                {
+#if DEBUG
+                    _self.Logger.LogWarning($"{nameof(ChaControl_Replace_20_Patch)} Method {count++}");
+                                        var worked = false;
+#endif
+                    var instructionsList = instructions.ToList();
                     for (var i = 0; i < instructionsList.Count; i++)
                     {
                         var inst = instructionsList[i];
                         if (inst.opcode == OpCodes.Ldc_I4_S && inst.operand.ToString() == "20")
                         {
+#if DEBUG
+                            worked = true;
+#endif
                             yield return new CodeInstruction(OpCodes.Ldarg_0);//feed chacontrol to method
-                            yield return new CodeInstruction(OpCodes.Call, typeof(Replace_20_Patch).GetMethod(nameof(AccessoryCount), AccessTools.all));
-
+                            yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Replace_20_Patch).GetMethod(nameof(AccessoryCount), AccessTools.all));
                             continue;
                         }
                         yield return inst;
                     }
+
+#if DEBUG
+                    _self.Logger.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+#endif
+
                 }
 
                 private static int AccessoryCount(ChaControl chara)
@@ -357,7 +400,6 @@ namespace MoreAccessoriesKOI
                     return chara.nowCoordinate.accessory.parts.Length;
                 }
             }
-#endif
         }
     }
 }

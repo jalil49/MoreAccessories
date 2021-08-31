@@ -312,7 +312,7 @@ namespace MoreAccessoriesKOI.Extensions
 
 #if HS
             SetCustomFont("mplus-1c-medium");
-#elif KOIKATSU
+#elif KK || KKS
             SetCustomFont("SourceHanSansJP-Medium");
 #elif AI || HS2
             SetCustomFont("Yu Gothic UI Semibold");
