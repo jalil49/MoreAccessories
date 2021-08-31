@@ -87,10 +87,7 @@ namespace MoreAccessoriesKOI
 
                         foreach (XmlNode accessoryNode in childNode.ChildNodes)
                         {
-                            var part = new ChaFileAccessory.PartsInfo
-                            {
-                                type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value)
-                            };
+                            var part = new ChaFileAccessory.PartsInfo { type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value) };
                             if (part.type != 120)
                             {
                                 part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
@@ -666,9 +663,7 @@ namespace MoreAccessoriesKOI
 
                             foreach (XmlNode accessoryNode in childNode.ChildNodes)
                             {
-                                var part = new ChaFileAccessory.PartsInfo();
-                                part.type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value);
-                                };
+                                var part = new ChaFileAccessory.PartsInfo { type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value) };
                                 if (part.type != 120)
                                 {
                                     part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
@@ -809,8 +804,6 @@ namespace MoreAccessoriesKOI
 
                 xmlWriter.WriteEndElement();
 
-                var pluginData = new PluginData();
-                pluginData.version = _saveVersion;
                 var pluginData = new PluginData { version = _saveVersion };
                 pluginData.data.Add("additionalAccessories", stringWriter.ToString());
                 ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
@@ -1006,8 +999,7 @@ namespace MoreAccessoriesKOI
                 }
                 xmlWriter.WriteEndElement();
 
-                var pluginData = new PluginData();
-                pluginData.version = _saveVersion;
+                var pluginData = new PluginData { version = _saveVersion };
                 pluginData.data.Add("additionalAccessories", stringWriter.ToString());
                 ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
             }
