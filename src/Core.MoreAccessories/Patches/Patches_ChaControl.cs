@@ -21,8 +21,41 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-        public static class ChaControl_Patches
+        public class ChaControl_Patches
         {
+#if KK || KKS
+            [HarmonyPatch]
+            internal class ChaControl_NowCoordinate_Patch
+            {
+                static IEnumerable<MethodBase> TargetMethods()
+                {
+                    var ChaCon = typeof(ChaControl);
+                    var list = new List<MethodBase>
+                    {
+                        AccessTools.Method(ChaCon, nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate)}),        //0
+                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool)}),              //1
+                    };
+                    return list;
+                }
+
+                static void Prefix(ChaControl __instance)
+                {
+                    _self.PendingNowAccessories.Add(__instance);
+                }
+            }
+
+            [HarmonyPostfix, HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadBytes))]
+            internal static void Nowcoordinatechange()
+            {
+                if (_self._inCharaMaker || _self._inH) _self.ExecuteDelayed(_self.UpdateUI);
+
+                foreach (var controller in _self.PendingNowAccessories)
+                {
+                    ArraySync(controller);
+                }
+                _self.PendingNowAccessories.Clear();
+            }
+#endif
 
 #if KKS
             [HarmonyPatch]
@@ -115,7 +148,7 @@ namespace MoreAccessoriesKOI
                 {
 #if DEBUG
                     _self.Logger.LogWarning($"{nameof(ChaControl_ChangeAccessoryAsync_Replace20_Patches)} Method");
-                                        var worked = false;
+                    var worked = false;
 
 #endif
                     var instructionsList = instructions.ToList();
@@ -184,7 +217,7 @@ namespace MoreAccessoriesKOI
                 {
 #if DEBUG
                     _self.Logger.LogWarning($"ChaControl_CheckAdjuster_param_slot_0_Patches Method {count}");
-                                        var worked = false;
+                    var worked = false;
 
 #endif
                     var instructionsList = instructions.ToList();
@@ -225,7 +258,7 @@ namespace MoreAccessoriesKOI
                         if (i == start)
                         {
 #if DEBUG
-worked = true;
+                            worked = true;
 #endif
                             yield return new CodeInstruction(OpCodes.Ldarg_0);
                             yield return new CodeInstruction(OpCodes.Ldarg_1);
@@ -371,7 +404,7 @@ worked = true;
                 {
 #if DEBUG
                     _self.Logger.LogWarning($"{nameof(ChaControl_Replace_20_Patch)} Method {count++}");
-                                        var worked = false;
+                    var worked = false;
 #endif
                     var instructionsList = instructions.ToList();
                     for (var i = 0; i < instructionsList.Count; i++)

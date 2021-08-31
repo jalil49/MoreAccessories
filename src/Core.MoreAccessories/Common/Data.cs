@@ -47,6 +47,7 @@ namespace MoreAccessoriesKOI
         private CustomFileWindow _loadCoordinatesWindow;
 
 #if KK || KKS
+        private readonly List<ChaControl> PendingNowAccessories = new List<ChaControl>();
         private bool _inH;
         internal List<ChaControl> _hSceneFemales;
         private List<HSprite.FemaleDressButtonCategory> _hSceneMultipleFemaleButtons;

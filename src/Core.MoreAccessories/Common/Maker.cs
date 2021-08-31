@@ -34,22 +34,27 @@ namespace MoreAccessoriesKOI
             return 0;
         }
 
-        //private void Update()
-        //{
-        //    if (Input.GetKeyDown(KeyCode.N))
-        //    {
-        //        _self.Logger.LogWarning($"current slot is {_customAcsChangeSlot.GetSelectIndex()} {CustomBase.instance.selectSlot}");
-        //        foreach (var item in _additionalCharaMakerSlots)
-        //        {
-        //            _self.Logger.LogWarning(item.cvsAccessory.nSlotNo);
-        //        }
-        //        var parts = CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts;
-        //        for (int i = 0, n = parts.Length; i < n; i++)
-        //        {
-        //            _self.Logger.Log(parts[i].type == 120 ? BepInEx.Logging.LogLevel.Error : BepInEx.Logging.LogLevel.Warning, $"slot {i:00} has type {parts[i].type} and id {parts[i].id}");
-        //        }
-        //    }
-        //}
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                _self.Logger.LogWarning($"current slot is {_customAcsChangeSlot.GetSelectIndex()} {CustomBase.instance.selectSlot}");
+                foreach (var item in _additionalCharaMakerSlots)
+                {
+                    _self.Logger.LogWarning(item.cvsAccessory.nSlotNo);
+                }
+                var parts = CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts;
+                for (int i = 0, n = parts.Length; i < n; i++)
+                {
+                    _self.Logger.Log(parts[i].type == 120 ? BepInEx.Logging.LogLevel.Error : BepInEx.Logging.LogLevel.Warning, $"slot {i:00} has type {parts[i].type} and id {parts[i].id}");
+                }
+                var coord = 0;
+                foreach (var item in CustomBase.Instance.chaCtrl.chaFile.coordinate.Select(x => x.accessory.parts))
+                {
+                    _self.Logger.LogWarning($"{coord++:00} coord is size of {item.Length}");
+                }
+            }
+        }
 
         private async UniTask UpdateMakerUI()
         {
@@ -60,8 +65,6 @@ namespace MoreAccessoriesKOI
             var i = 0;
             for (; i < count; i++)
             {
-
-
                 CharaMakerSlotData info;
                 if (i < _additionalCharaMakerSlots.Count)
                 {
@@ -377,6 +380,16 @@ namespace MoreAccessoriesKOI
             addTenButton.onClick.AddListener(delegate () { AddSlot(10); });
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
 
+            for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 2; j--, i++)
+            {
+                var data = _customAcsChangeSlot.items[j];
+                data.tglItem.onValueChanged.AddListener(b =>
+                {
+                    var t = data.cgItem.transform;
+                    t.position = new Vector3(t.position.x, _slotUIPositionY);
+                });
+            }
+
             //            for (var i = 0; i < _customAcsChangeSlot.items.Length; i++)
             //            {
             //                var info = _customAcsChangeSlot.items[i];
@@ -501,7 +514,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             var listParent = slotTransform.Cast<Transform>().Where(x => x.name.EndsWith("Top")).First();
 #if KKS
-            GameObject.DestroyImmediate(listParent.GetComponent<Image>());//Destroy image that contains scrollbar
+            DestroyImmediate(listParent.GetComponent<Image>());//Destroy image that contains scrollbar
 #endif
             var elements = new List<Transform>();
             foreach (Transform t in listParent)
@@ -530,9 +543,9 @@ namespace MoreAccessoriesKOI
             image.sprite = content_image.sprite;
             image.type = content_image.type;
 #endif
-            UnityEngine.Object.DestroyImmediate(scroll.horizontalScrollbar.gameObject);
+            DestroyImmediate(scroll.horizontalScrollbar.gameObject);
             var content = scroll.content.transform;
-            UnityEngine.Object.Destroy(scroll.GetComponent<Image>());
+            Destroy(scroll.GetComponent<Image>());
 
             var s_LE = scroll.gameObject.AddComponent<LayoutElement>();
 #if KK
@@ -601,6 +614,23 @@ namespace MoreAccessoriesKOI
                 controller.objAcsMove = newarray;
             }
 
+            if (_self._inCharaMaker)
+            {
+                foreach (var item in controller.chaFile.coordinate)
+                {
+                    delta = len - item.accessory.parts.Length;
+                    if (delta > 0)
+                    {
+                        var array = new ChaFileAccessory.PartsInfo[delta];
+                        for (var i = 0; i < delta; i++)
+                        {
+                            array[i] = new ChaFileAccessory.PartsInfo();
+                        }
+                        item.accessory.parts = item.accessory.parts.Concat(array).ToArray();
+                    }
+                }
+                CvsAccessory_Patches.CvsAccessoryCopy_Start_Patches.RefreshToggles(len);
+            }
         }
 
         private void AddSlot(int num)

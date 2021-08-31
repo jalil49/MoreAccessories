@@ -50,18 +50,15 @@ namespace MoreAccessoriesKOI
             _hasDarkness = true;
             _isParty = Application.productName == "Koikatsu Party";
 
+            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
 
-            var harmony = new Harmony(GUID);
-            harmony.PatchAll();
-
-            var uarHooks = typeof(UniversalAutoResolver).GetNestedType("Hooks", BindingFlags.NonPublic | BindingFlags.Static);
-            harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
-            harmony.Patch(uarHooks.GetMethod("ExtendedCardSave", AccessTools.all), postfix: new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardSave_Postfix)));
-            harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordLoad_Prefix)));
-            harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateSave", AccessTools.all), postfix: new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordSave_Postfix)));
+            ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
+            ExtendedSave.CardBeingSaved += OnActualCharaSave;
+            ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
+            ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
         }
-#if !KK
 
+#if !KK
         private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
         {
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return;
@@ -584,57 +581,37 @@ namespace MoreAccessoriesKOI
             //});
         }
 #endif
-        internal void OnCoordTypeChange()
-        {
-            if (_inCharaMaker)
-            {
-                if (CustomBase.Instance.selectSlot >= 20 && !_additionalCharaMakerSlots[CustomBase.Instance.selectSlot - 20].toggle.gameObject.activeSelf)
-                {
-                    var toggle = _customAcsChangeSlot.items[0].tglItem;
-                    toggle.isOn = true;
-                    CustomBase.Instance.selectSlot = 0;
-                }
-            }
-            UpdateUI();
-        }
         #endregion
 
         #region Saves
-        private static void UAR_ExtendedCardLoad_Prefix(ChaFile file)
-        {
-            _self.OnActualCharaLoad(file);
-        }
-
-        private static void UAR_ExtendedCardSave_Postfix(ChaFile file)
-        {
-            _self.OnActualCharaSave(file);
-        }
-
-        private static void UAR_ExtendedCoordLoad_Prefix(ChaFileCoordinate file)
-        {
-            _self.OnActualCoordLoad(file);
-        }
-
-        private static void UAR_ExtendedCoordSave_Postfix(ChaFileCoordinate file)
-        {
-            _self.OnActualCoordSave(file);
-        }
-
         private void OnActualCharaLoad(ChaFile file)
         {
-
             if (_loadAdditionalAccessories == false)
                 return;
+            var heroine = Game.HeroineList.Find(x => x.chaCtrl.chaFile == file);
+            var control = heroine?.chaCtrl;
+            if (_inH && control == null) { control = _hSceneFemales.Find(x => x.chaFile == file); }
+            if (_inCharaMaker) { control = CustomBase.instance.chaCtrl; }
+            if (control == null)
+            {
+                if (!_inCharaMaker)
+                    Logger.LogError($"ChaControl not found for {file.parameter.fullname}");
+                return;
+            }
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
-                return;
-#else
             {
+                ArraySync(control);
+                return;
+            }
+#else
+            
                 if (file.coordinate.accessory.parts.Length > 20)
                     return;
-            }
+            
 #endif
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
+            if (pluginData == null) return;
 
             var data = new CharAdditionalData();
 
@@ -715,6 +692,8 @@ namespace MoreAccessoriesKOI
                 var accessory = file.coordinate[item.Key].accessory;
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
             }
+
+            ArraySync(control);
 
             if (
 #if KK || KKS
@@ -954,7 +933,6 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCoordSave(ChaFileCoordinate file)
         {
-
             var data = new CharAdditionalData(CustomBase.instance.chaCtrl);
 
             using (var stringWriter = new StringWriter())

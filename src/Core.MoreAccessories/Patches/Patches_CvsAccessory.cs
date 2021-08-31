@@ -8,6 +8,7 @@ using System.Reflection.Emit;
 using UniRx;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Illusion.Extensions;
 #if DEBUG
 
@@ -53,6 +54,37 @@ namespace MoreAccessoriesKOI
                 }
             }
 
+            [HarmonyPatch(typeof(CvsAccessoryCopy), nameof(CvsAccessoryCopy.Start))]
+            internal static class CvsAccessoryCopy_Start_Patches
+            {
+                private static CvsAccessoryCopy copywindow;
+
+                private static void Postfix(CvsAccessoryCopy __instance)
+                {
+                    copywindow = __instance;
+                }
+
+                public static void RefreshToggles(int length)
+                {
+                    var delta = length - copywindow.tglKind.Length;
+                    if (delta < 1) return;
+                    foreach (var item in copywindow.tglKind)
+                    {
+                        item.onValueChanged.RemoveAllListeners();
+                    }
+
+                    var tgl = copywindow.tglKind[0];
+                    var tglarray = new Toggle[delta];
+                    for (var i = 0; i < delta; i++)
+                    {
+                        tglarray[i] = Instantiate(tgl);
+                    }
+                    copywindow.tglKind = copywindow.tglKind.Concat(tglarray).ToArray();
+
+                    copywindow.Start();
+                }
+            }
+
 #if true
 
             [HarmonyPatch]
@@ -70,7 +102,7 @@ namespace MoreAccessoriesKOI
                 {
 #if DEBUG
                     _self.Logger.LogWarning($"{nameof(CustomAcsChangeSlot_Patch)} Method");
-                                        var worked2 = false;
+                    var worked2 = false;
 
 #endif
                     var worked = false;

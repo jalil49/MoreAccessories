@@ -15,7 +15,6 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-
         private readonly List<ScrollRect> scrollRects = new List<ScrollRect>();
 
         internal void SpawnHUI(List<ChaControl> females, HSprite hSprite)
