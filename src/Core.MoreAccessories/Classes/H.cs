@@ -1,21 +1,23 @@
-﻿using MoreAccessoriesKOI.Extensions;
-using UnityEngine.UI;
-using UnityEngine;
-using System.Collections.Generic;
-
-#if !EC
-#if KK || KKS
-
-#if KKS
+﻿using ChaCustom;
 using Cysharp.Threading.Tasks;
-#endif
-#endif
+using MoreAccessoriesKOI.Extensions;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {
-    public partial class MoreAccessories
+    public class HScene
     {
+        private List<List<HSceneSlotData>> _additionalHSceneSlots = new List<List<HSceneSlotData>>();
         private readonly List<ScrollRect> scrollRects = new List<ScrollRect>();
+        internal List<ChaControl> _hSceneFemales;
+        private List<HSprite.FemaleDressButtonCategory> _hSceneMultipleFemaleButtons;
+        private HSprite _hSprite;
+        private HSceneSpriteCategory _hSceneSoloFemaleAccessoryButton;
+        private MoreAccessories Plugin => MoreAccessories._self;
 
         internal void SpawnHUI(List<ChaControl> females, HSprite hSprite)
         {
@@ -26,8 +28,7 @@ namespace MoreAccessoriesKOI
             _hSprite = hSprite;
             _hSceneMultipleFemaleButtons = _hSprite.lstMultipleFemaleDressButton;
             _hSceneSoloFemaleAccessoryButton = _hSprite.categoryAccessory;
-            // _ = MakeScrollable();
-            UpdateUI();
+            _ = MakeScrollable();
         }
 #if KKS
         private async UniTask MakeScrollable()
@@ -35,12 +36,10 @@ namespace MoreAccessoriesKOI
             scrollRects.Clear();
             await UniTask.WaitUntil(() => _hSceneFemales.Count > 0, PlayerLoopTiming.Update, default);
             await UniTask.DelayFrame(10);
-            Logger.LogWarning($"makng scroll {_hSceneFemales.Count}");
             for (var i = 0; i < _hSceneFemales.Count; i++)
             {
                 var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
 
-                Logger.LogWarning($"Making parent with {buttonsParent.name}");
                 var accscroll = UIUtility.CreateScrollView($"Accessory Scroll {i}");
 
                 accscroll.movementType = ScrollRect.MovementType.Clamped;
@@ -67,7 +66,7 @@ namespace MoreAccessoriesKOI
             }
         }
 #endif
-        private void UpdateHUI()
+        public void UpdateHUI()
         {
             if (_hSprite == null)
                 return;
@@ -123,5 +122,21 @@ namespace MoreAccessoriesKOI
             //}
         }
     }
+
+    public class StudioSlotData
+    {
+        public RectTransform slot;
+        public Text name;
+        public Button onButton;
+        public Button offButton;
+    }
+
+    public class HSceneSlotData
+    {
+        public RectTransform slot;
+        public TextMeshProUGUI text;
+        public Button button;
+    }
+
+
 }
-#endif

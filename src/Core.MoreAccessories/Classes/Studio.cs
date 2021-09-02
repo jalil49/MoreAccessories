@@ -1,19 +1,20 @@
-﻿#if EC
-using HPlay;
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
-#endif
-#if KK || KKS
-#endif
-using MoreAccessoriesKOI.Extensions;
+﻿using MoreAccessoriesKOI.Extensions;
+using Studio;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {
-    public partial class MoreAccessories
+    public class StudioClass
     {
-#if KK || KKS
+        private StudioSlotData _studioToggleAll;
+        private RectTransform _studioToggleTemplate;
+        private OCIChar _selectedStudioCharacter;
+        private readonly List<StudioSlotData> _additionalStudioSlots = new List<StudioSlotData>();
+        private StudioSlotData _studioToggleMain;
+        private StudioSlotData _studioToggleSub;
+
         private void SpawnStudioUI()
         {
             var accList = GameObject.Find("StudioScene/Canvas Main Menu/02_Manipulate/00_Chara/01_State/Viewport/Content/Slot").transform;
@@ -22,7 +23,7 @@ namespace MoreAccessoriesKOI
             var ctrl = Studio.Studio.Instance.manipulatePanelCtrl.charaPanelInfo.m_MPCharCtrl;
 
             _studioToggleAll = new StudioSlotData();
-            _studioToggleAll.slot = (RectTransform)Instantiate(_studioToggleTemplate.gameObject).transform;
+            _studioToggleAll.slot = (RectTransform)Object.Instantiate(_studioToggleTemplate.gameObject).transform;
             _studioToggleAll.name = _studioToggleAll.slot.GetComponentInChildren<Text>();
             _studioToggleAll.onButton = _studioToggleAll.slot.GetChild(1).GetComponent<Button>();
             _studioToggleAll.offButton = _studioToggleAll.slot.GetChild(2).GetComponent<Button>();
@@ -47,7 +48,7 @@ namespace MoreAccessoriesKOI
             _studioToggleAll.slot.SetAsLastSibling();
 
             _studioToggleMain = new StudioSlotData();
-            _studioToggleMain.slot = (RectTransform)Instantiate(_studioToggleTemplate.gameObject).transform;
+            _studioToggleMain.slot = (RectTransform)Object.Instantiate(_studioToggleTemplate.gameObject).transform;
             _studioToggleMain.name = _studioToggleMain.slot.GetComponentInChildren<Text>();
             _studioToggleMain.onButton = _studioToggleMain.slot.GetChild(1).GetComponent<Button>();
             _studioToggleMain.offButton = _studioToggleMain.slot.GetChild(2).GetComponent<Button>();
@@ -72,7 +73,7 @@ namespace MoreAccessoriesKOI
             _studioToggleMain.slot.SetAsLastSibling();
 
             _studioToggleSub = new StudioSlotData();
-            _studioToggleSub.slot = (RectTransform)Instantiate(_studioToggleTemplate.gameObject).transform;
+            _studioToggleSub.slot = (RectTransform)Object.Instantiate(_studioToggleTemplate.gameObject).transform;
             _studioToggleSub.name = _studioToggleSub.slot.GetComponentInChildren<Text>();
             _studioToggleSub.onButton = _studioToggleSub.slot.GetChild(1).GetComponent<Button>();
             _studioToggleSub.offButton = _studioToggleSub.slot.GetChild(2).GetComponent<Button>();
@@ -152,6 +153,6 @@ namespace MoreAccessoriesKOI
             //_studioToggleMain.slot.SetAsFirstSibling();
             //_studioToggleAll.slot.SetAsFirstSibling();
         }
-#endif
+
     }
 }

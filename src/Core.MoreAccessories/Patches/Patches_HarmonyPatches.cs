@@ -10,11 +10,9 @@ using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MoreAccessoriesKOI
+namespace MoreAccessoriesKOI.Patches
 {
-    public partial class MoreAccessories
-    {
-        #region Patches
+    #region Patches
 #if KK
         [HarmonyPatch]
         private static class VRHScene_Start_Patches
@@ -110,6 +108,5 @@ namespace MoreAccessoriesKOI
         }
 
 #endif
-        #endregion
-    }
+    #endregion
 }

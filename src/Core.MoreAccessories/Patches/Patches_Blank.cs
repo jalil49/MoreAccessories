@@ -1,10 +1,7 @@
-﻿namespace MoreAccessoriesKOI
+﻿namespace MoreAccessoriesKOI.Patches
 {
-    public partial class MoreAccessories
+    public static class Blank_Patches
     {
-        public static class Blank_Patches
-        {
 
-        }
     }
 }

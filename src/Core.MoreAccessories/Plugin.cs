@@ -34,14 +34,13 @@ namespace MoreAccessoriesKOI
     [BepInDependency(Sideloader.Sideloader.GUID)]
     public partial class MoreAccessories : BaseUnityPlugin
     {
-        public static ManualLogSource logSource;
 
 
         #region Unity Methods
         private void Awake()
         {
             _self = this;
-            logSource = Logger;
+            LogSource = this.Logger;
 #if !KK
             ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
 #endif
@@ -56,6 +55,11 @@ namespace MoreAccessoriesKOI
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
             ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
+        }
+
+        internal void Print(string text, LogLevel logLevel = LogLevel.Warning)
+        {
+            LogSource.Log(logLevel, text);
         }
 
 #if !KK
@@ -233,7 +237,7 @@ namespace MoreAccessoriesKOI
                 }
 
 #if KK || KKS
-                if (_inStudio)
+                if (StudioMode != null)
                 {
                     xmlWriter.WriteStartElement("visibility");
                     for (var i = 0; i < maxCount && i < data.showAccessories.Count; i++)
@@ -257,14 +261,14 @@ namespace MoreAccessoriesKOI
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {
             var instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
+            LogSource.LogWarning($"Loadmode {loadMode} index {scene.buildIndex}");
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
                     if (!instudio)
                     {
-                        _inCharaMaker = false;
+                        MakerMode = null;
 #if KK || KKS
-                        _inH = false;
 #elif EC
                         _inPlay = false;
 #endif
@@ -273,15 +277,12 @@ namespace MoreAccessoriesKOI
                             //Chara maker
                             case 3: //sunshine uses 3 for chara
                                 CustomBase.Instance.selectSlot = 0;
-                                _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
-                                _raycastCtrls = new List<UI_RaycastCtrl>();
-                                _inCharaMaker = true;
+                                MakerMode = new MakerMode();
                                 _loadCoordinatesWindow = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop/cosFileControl/charaFileWindow").GetComponent<CustomFileWindow>();
                                 break;
 
 #if KK || KKS
                             case 7: //Hscenes
-                                _inH = true;
                                 break;
 
                             case 1: //converted
@@ -297,11 +298,10 @@ namespace MoreAccessoriesKOI
                     {
                         if (scene.buildIndex == 1) //Studio
                         {
-                            SpawnStudioUI();
-                            _inStudio = true;
+                            StudioMode = new StudioClass();
                         }
                         else
-                            _inStudio = false;
+                            StudioMode = null;
                     }
 #endif
                     break;
@@ -313,10 +313,7 @@ namespace MoreAccessoriesKOI
                     if (Game.IsInstance() && scene.buildIndex == 2) //Class chara maker
 #endif
                     {
-                        CustomBase.Instance.selectSlot = 0;
-                        _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
-                        _raycastCtrls = new List<UI_RaycastCtrl>();
-                        _inCharaMaker = true;
+                        MakerMode = new MakerMode();
                         _loadCoordinatesWindow = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop/cosFileControl/charaFileWindow").GetComponent<CustomFileWindow>();
                     }
                     break;
@@ -440,13 +437,13 @@ namespace MoreAccessoriesKOI
 #endif
         internal void UpdateUI()
         {
-            if (_inCharaMaker)
-                _ = UpdateMakerUI();
+            if (MakerMode != null)
+                MakerMode.UpdateMakerUI();
 #if KK || KKS
-            else if (_inStudio)
-                UpdateStudioUI();
+            else if (StudioMode != null)
+                StudioMode.UpdateStudioUI();
             else if (_inH)
-                this.ExecuteDelayed(UpdateHUI);
+                this.ExecuteDelayed(HMode.UpdateHUI);
 #elif EC
             else if (_inPlay)
                 UpdatePlayUI();
@@ -590,12 +587,12 @@ namespace MoreAccessoriesKOI
                 return;
             var heroine = Game.HeroineList.Find(x => x.chaCtrl.chaFile == file);
             var control = heroine?.chaCtrl;
-            if (_inH && control == null) { control = _hSceneFemales.Find(x => x.chaFile == file); }
-            if (_inCharaMaker) { control = CustomBase.instance.chaCtrl; }
+            if (_inH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
+            if (CharaMaker) { control = CustomBase.instance.chaCtrl; }
             if (control == null)
             {
-                if (!_inCharaMaker)
-                    Logger.LogError($"ChaControl not found for {file.parameter.fullname}");
+                if (!CharaMaker)
+                    LogSource.LogError($"ChaControl not found for {file.parameter.fullname}");
                 return;
             }
 #if KK || KKS
@@ -699,7 +696,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
                     _inH ||
 #endif
-                    _inCharaMaker
+                    CharaMaker
             )
                 this.ExecuteDelayed(UpdateUI);
             else
@@ -768,7 +765,7 @@ namespace MoreAccessoriesKOI
                 }
 
 #if KK || KKS
-                if (_inStudio)
+                if (StudioMode != null)
                 {
                     xmlWriter.WriteStartElement("visibility");
                     for (var i = 0; i < maxCount && i < data.showAccessories.Count; i++)
@@ -791,7 +788,7 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCoordLoad(ChaFileCoordinate file)
         {
-            if (_inCharaMaker && _loadCoordinatesWindow != null && _loadCoordinatesWindow.tglCoordeLoadAcs != null && _loadCoordinatesWindow.tglCoordeLoadAcs.isOn == false)
+            if (CharaMaker && _loadCoordinatesWindow != null && _loadCoordinatesWindow.tglCoordeLoadAcs != null && _loadCoordinatesWindow.tglCoordeLoadAcs.isOn == false)
                 _loadAdditionalAccessories = false;
             if (_loadAdditionalAccessories == false) // This stuff is done this way because some user might want to change _loadAdditionalAccessories manually through reflection.
             {
@@ -924,7 +921,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
                     _inH ||
 #endif
-                    _inCharaMaker
+                    CharaMaker
             )
                 this.ExecuteDelayed(UpdateUI);
             else

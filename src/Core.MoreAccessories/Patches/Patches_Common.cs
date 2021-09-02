@@ -5,9 +5,9 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 
-namespace MoreAccessoriesKOI
+namespace MoreAccessoriesKOI.Patches
 {
-    public partial class MoreAccessories
+    public class Common_Patches
     {
     }
 }
