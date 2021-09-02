@@ -18,9 +18,7 @@ using UnityEngine.UI;
 using TMPro;
 #endif
 using Manager;
-using Sideloader.AutoResolver;
 #if KK || KKS
-using Studio;
 #endif
 using MoreAccessoriesKOI.Extensions;
 using UnityEngine;
@@ -34,8 +32,6 @@ namespace MoreAccessoriesKOI
     [BepInDependency(Sideloader.Sideloader.GUID)]
     public partial class MoreAccessories : BaseUnityPlugin
     {
-
-
         #region Unity Methods
         private void Awake()
         {
@@ -49,17 +45,36 @@ namespace MoreAccessoriesKOI
             _hasDarkness = true;
             _isParty = Application.productName == "Koikatsu Party";
 
-            Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+            var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
+            var uarHooks = typeof(Sideloader.AutoResolver.UniversalAutoResolver).GetNestedType("Hooks", AccessTools.all);
+            harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
+            harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordLoad_Prefix)));
 
-            ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
+            foreach (var item in harmony.GetPatchedMethods())
+            {
+                Print($"{item.ReflectedType}.{item.Name}");
+            }
+
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
-            ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
         }
 
-        internal void Print(string text, LogLevel logLevel = LogLevel.Warning)
+        internal static void Print(string text, LogLevel logLevel = LogLevel.Warning)
         {
             LogSource.Log(logLevel, text);
+        }
+
+        internal void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                var i = 0;
+                foreach (var item in CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts)
+                {
+                    Print($"slot {i} has type {item.type} and {item.id}");
+                    i++;
+                }
+            }
         }
 
 #if !KK
@@ -268,6 +283,8 @@ namespace MoreAccessoriesKOI
                     if (!instudio)
                     {
                         MakerMode = null;
+                        HMode = null;
+
 #if KK || KKS
 #elif EC
                         _inPlay = false;
@@ -579,9 +596,16 @@ namespace MoreAccessoriesKOI
         }
 #endif
         #endregion
-
+        private static void UAR_ExtendedCardLoad_Prefix(ChaFile file)
+        {
+            _self.OnActualCharaLoad(file);
+        }
+        private static void UAR_ExtendedCoordLoad_Prefix(ChaFileCoordinate file)
+        {
+            _self.OnActualCoordLoad(file);
+        }
         #region Saves
-        private void OnActualCharaLoad(ChaFile file)
+        internal void OnActualCharaLoad(ChaFile file)
         {
             if (_loadAdditionalAccessories == false)
                 return;
@@ -786,7 +810,7 @@ namespace MoreAccessoriesKOI
             }
         }
 
-        private void OnActualCoordLoad(ChaFileCoordinate file)
+        internal void OnActualCoordLoad(ChaFileCoordinate file)
         {
             if (CharaMaker && _loadCoordinatesWindow != null && _loadCoordinatesWindow.tglCoordeLoadAcs != null && _loadCoordinatesWindow.tglCoordeLoadAcs.isOn == false)
                 _loadAdditionalAccessories = false;

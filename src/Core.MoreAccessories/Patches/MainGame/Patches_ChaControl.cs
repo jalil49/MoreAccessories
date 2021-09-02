@@ -1,15 +1,10 @@
 ﻿using HarmonyLib;
-using IllusionUtility.GetUtility;
-using Manager;
 using MoreAccessoriesKOI.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using UnityEngine;
-using UnityEngine.UI;
 
 #if EC
 using ADVPart.Manipulate.Chara;
@@ -21,43 +16,42 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 {
     public class ChaControl_Patches
     {
-        static readonly List<ChaControl> PendingNowAccessories = new List<ChaControl>();
-
-#if KK || KKS
         [HarmonyPatch]
-        internal class ChaControl_NowCoordinate_Patch
+        public class ChangeCoordinate_Patch
         {
-            static IEnumerable<MethodBase> TargetMethods()
+            static readonly List<ChaControl> PendingNowAccessories = new List<ChaControl>();
+#if KK || KKS
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
+            internal static void ChangeCoordPrefix(ChaControl __instance)
             {
-                var ChaCon = typeof(ChaControl);
-                var list = new List<MethodBase>
-                    {
-                        AccessTools.Method(ChaCon, nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate)}),        //0
-                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool)}),              //1
-                    };
-                return list;
+                PendingNowAccessories.Add(__instance);
             }
+#endif
 
-            static void Prefix(ChaControl __instance)
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
+            internal static void SetNowCoordinatePrefix(ChaControl __instance)
             {
-                MoreAccessories.print("pre now coord");
+                MoreAccessories.Print("pre now coord change coord");
 
                 PendingNowAccessories.Add(__instance);
             }
+
+
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadBytes))]
+            internal static void Nowcoordinatechange(ChaFileCoordinate __instance)
+            {
+                if (PendingNowAccessories.Count == 0) return;
+                foreach (var item in PendingNowAccessories)
+                {
+                    MoreAccessories.ArraySync(item);
+                }
+                PendingNowAccessories.Clear();
+                if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories._self.MakerMode.UpdateMakerUI();
+            }
         }
-
-        [HarmonyPostfix, HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadBytes))]
-        internal static void Nowcoordinatechange()
-        {
-            MoreAccessories.print("Post now coord");
-
-            if (MoreAccessories.CharaMaker || MoreAccessories._inH) MoreAccessories._self.ExecuteDelayed(MoreAccessories._self.UpdateUI);
-
-            foreach (var controller in PendingNowAccessories) { MoreAccessories.ArraySync(controller); }
-
-            PendingNowAccessories.Clear();
-        }
-#endif
 
 #if KKS
         [HarmonyPatch]

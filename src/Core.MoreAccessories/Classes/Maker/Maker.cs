@@ -7,12 +7,7 @@ using ADVPart.Manipulate.Chara;
 #endif
 #if KK || KKS
 #endif
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Linq;
-using MoreAccessoriesKOI.Extensions;
-using System;
 
 namespace MoreAccessoriesKOI
 {

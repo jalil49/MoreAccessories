@@ -1,16 +1,11 @@
 ﻿using ChaCustom;
 using HarmonyLib;
-using Illusion.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UniRx;
-using UniRx.Triggers;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI.Patches.Maker
 {
@@ -51,6 +46,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                         AccessTools.Method(typeof(CvsAccessoryCopy), nameof(CvsAccessoryCopy.CopyAcs)),//11
 #endif
                 };
+
             return list;
         }
 
@@ -87,21 +83,13 @@ namespace MoreAccessoriesKOI.Patches.Maker
     [HarmonyPatch]
     internal static class Maker_Replace_20_Patch_2
     {
-        static readonly List<MethodBase> list = new List<MethodBase>
+        static IEnumerable<MethodBase> TargetMethods()
+        {
+            var list = new List<MethodBase>
                     {
                         AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.LateUpdate)),
                         AccessTools.Method(typeof(CustomControl), nameof(CustomControl.Update)),
                     };
-
-        static void Finalizer(Exception __exception)
-        {
-            if (__exception != null)
-            {
-                MoreAccessories.LogSource.LogError(__exception);
-            }
-        }
-        static IEnumerable<MethodBase> TargetMethods()
-        {
             return list;
         }
 
@@ -126,6 +114,15 @@ namespace MoreAccessoriesKOI.Patches.Maker
         {
             return CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length;
         }
+
+        static void Finalizer(Exception __exception)
+        {
+            if (__exception != null)
+            {
+                MoreAccessories.LogSource.LogError(__exception);
+            }
+        }
+
     }
 #endif
 }

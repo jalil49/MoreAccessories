@@ -1,8 +1,6 @@
-﻿using ChaCustom;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

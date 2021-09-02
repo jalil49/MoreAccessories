@@ -1,11 +1,8 @@
 ﻿using ChaCustom;
-using Cysharp.Threading.Tasks;
-using HarmonyLib;
 using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -84,10 +81,10 @@ namespace MoreAccessoriesKOI
             {
                 var Transfer = Object.Instantiate(gameobject, ScrollView.content);
                 tglSrcKindarray[i] = Transfer.GetChild(1).GetComponentInChildren<Toggle>();
-                srcarray[i] = tglSrcKindarray[i].GetComponent<TextMeshProUGUI>();
+                srcarray[i] = tglSrcKindarray[i].GetComponentInChildren<TextMeshProUGUI>();
 
                 tglDstKindarray[i] = Transfer.GetChild(2).GetComponentInChildren<Toggle>();
-                dstarray[i] = tglDstKindarray[i].GetComponent<TextMeshProUGUI>();
+                dstarray[i] = tglDstKindarray[i].GetComponentInChildren<TextMeshProUGUI>();
 
                 Transfer.name = "Slot" + index.ToString("00");
 

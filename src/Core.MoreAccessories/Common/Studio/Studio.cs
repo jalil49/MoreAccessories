@@ -5,9 +5,6 @@ using ADVPart.Manipulate.Chara;
 #endif
 #if KK || KKS
 #endif
-using MoreAccessoriesKOI.Extensions;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {

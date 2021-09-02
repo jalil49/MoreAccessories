@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
 using ChaCustom;
-using HarmonyLib;
 #if EC
 using HPlay;
 using ADVPart.Manipulate;
@@ -11,12 +8,8 @@ using ADVPart.Manipulate.Chara;
 #endif
 using Illusion.Extensions;
 #if KKS
-using Cysharp.Threading.Tasks;
 #endif
-using TMPro;
-using MoreAccessoriesKOI.Extensions;
 using UnityEngine;
-using UnityEngine.UI;
 using UniRx;
 
 namespace MoreAccessoriesKOI
@@ -31,7 +24,9 @@ namespace MoreAccessoriesKOI
 
         public static void ArraySync(ChaControl controller)
         {
-            var len = controller.nowCoordinate.accessory.parts.Length;
+            var nowcoordinatevalid = controller.nowCoordinate != null;
+            var parts = nowcoordinatevalid ? controller.nowCoordinate.accessory.parts : new ChaFileAccessory.PartsInfo[20];
+            var len = parts.Length;
             var nowlength = len;
             foreach (var item in controller.chaFile.coordinate)
             {
@@ -45,20 +40,38 @@ namespace MoreAccessoriesKOI
             var listinfo = controller.infoAccessory;
 
             var delta = len - show.Length;
-            controller.fileStatus.showAccessory = show.ArrayExpansion(delta);
-            for (var i = 0; i < delta; i++)
+            if (delta > 0)
             {
-                controller.fileStatus.showAccessory[show.Length - 1 - i] = true;
+                var newarray = new bool[delta];
+                for (var i = 0; i < delta; i++)
+                {
+                    newarray[i] = true;
+                }
+                controller.fileStatus.showAccessory = controller.fileStatus.showAccessory.Concat(newarray).ToArray();
             }
 
             controller.objAccessory = obj.ArrayExpansion(len - obj.Length);
             controller.cusAcsCmp = cusAcsCmp.ArrayExpansion(len - cusAcsCmp.Length);
             controller.hideHairAcs = hideHairAcs.ArrayExpansion(len - hideHairAcs.Length);
-            controller.infoAccessory = listinfo.ArrayExpansion(len - listinfo.Length);
+
+            delta = parts.Length - listinfo.Length;
+            if (nowcoordinatevalid && delta > 0)
+            {
+                var newarray = new ListInfoBase[delta];
+                for (var i = 0; i < delta; i++)
+                {
+                    var part = parts[listinfo.Length + i];
+                    if (part.type != 120)
+                    {
+                        newarray[i] = controller.lstCtrl.GetInfo((ChaListDefine.CategoryNo)part.type, part.id);
+                    }
+                }
+                controller.infoAccessory = listinfo.Concat(newarray).ToArray();
+            }
 
             var movelen = objmove.GetLength(0);
-            var count = len - movelen;
-            if (count > 0)
+            delta = len - movelen;
+            if (delta > 0)
             {
                 var newarray = new GameObject[len, 2];
                 for (var i = 0; i < movelen; i++)

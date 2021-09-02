@@ -5,10 +5,6 @@ using HPlay;
 using MoreAccessoriesKOI.Extensions;
 using UnityEngine.UI;
 #endif
-using ChaCustom;
-using HarmonyLib;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI.Patches
 {

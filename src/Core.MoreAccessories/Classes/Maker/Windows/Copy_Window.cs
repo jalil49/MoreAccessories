@@ -1,12 +1,8 @@
 ﻿using ChaCustom;
-using Cysharp.Threading.Tasks;
-using HarmonyLib;
 using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -54,7 +50,7 @@ namespace MoreAccessoriesKOI
                 copyToggle.name = "Slot" + index.ToString("00");
                 srcarray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
                 dstarray[i] = copyToggle.transform.Find("dstText00").GetComponent<TextMeshProUGUI>();
-                Plugin.Print(index.ToString("00"));
+                MoreAccessories.Print(index.ToString("00"));
                 var info = AdditionalCharaMakerSlots[index - 21];//21 since index starts at 1
                 info.copySlotObject = copyToggle;
             }

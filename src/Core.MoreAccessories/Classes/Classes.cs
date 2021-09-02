@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ChaCustom;
 #if EC
 using HPlay;
 using ADVPart.Manipulate;
@@ -7,9 +6,6 @@ using ADVPart.Manipulate.Chara;
 #endif
 #if KK || KKS
 #endif
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
 using System.Linq;
 
 namespace MoreAccessoriesKOI

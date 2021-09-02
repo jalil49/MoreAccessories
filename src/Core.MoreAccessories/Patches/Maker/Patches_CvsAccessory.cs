@@ -1,23 +1,16 @@
 ﻿using ChaCustom;
-using System;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UniRx;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using Illusion.Extensions;
 #if DEBUG
 
 #endif
 #if KKS
-using Cysharp.Threading.Tasks;
 
 #endif
-using UniRx.Triggers;
 
 
 namespace MoreAccessoriesKOI.Patches.Maker

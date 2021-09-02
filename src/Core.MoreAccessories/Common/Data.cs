@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using BepInEx.Logging;
 using ChaCustom;
-using UnityEngine;
-using UnityEngine.UI;
-using BepInEx.Logging;
 
 #if EC
 using HPlay;
@@ -10,7 +7,6 @@ using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
 #endif
 #if KK || KKS
-using Studio;
 #endif
 
 namespace MoreAccessoriesKOI
