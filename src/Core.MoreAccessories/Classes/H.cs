@@ -15,15 +15,24 @@ namespace MoreAccessoriesKOI
         private List<HSprite.FemaleDressButtonCategory> _hSceneMultipleFemaleButtons;
         private HSprite _hSprite;
         private HSceneSpriteCategory _hSceneSoloFemaleAccessoryButton;
+
+        public HScene(List<ChaControl> lstFemale, HSprite sprite)
+        {
+            _hSceneFemales = lstFemale;
+            MoreAccessories.Print($"started H with {lstFemale.Count}");
+            _hSprite = sprite;
+            SpawnHUI();
+        }
+
         private MoreAccessories Plugin => MoreAccessories._self;
 
-        internal void SpawnHUI(List<ChaControl> females, HSprite hSprite)
+        public List<ChaControl> LstFemale { get; }
+        public HSprite Sprite { get; }
+
+        internal void SpawnHUI()
         {
-            _hSceneFemales = females;
-            _additionalHSceneSlots = new List<List<HSceneSlotData>>();
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < _hSceneFemales.Count; i++)
                 _additionalHSceneSlots.Add(new List<HSceneSlotData>());
-            _hSprite = hSprite;
             _hSceneMultipleFemaleButtons = _hSprite.lstMultipleFemaleDressButton;
             _hSceneSoloFemaleAccessoryButton = _hSprite.categoryAccessory;
             _ = MakeScrollable();
@@ -120,21 +129,4 @@ namespace MoreAccessoriesKOI
             //}
         }
     }
-
-    public class StudioSlotData
-    {
-        public RectTransform slot;
-        public Text name;
-        public Button onButton;
-        public Button offButton;
-    }
-
-    public class HSceneSlotData
-    {
-        public RectTransform slot;
-        public TextMeshProUGUI text;
-        public Button button;
-    }
-
-
 }

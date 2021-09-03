@@ -613,16 +613,17 @@ namespace MoreAccessoriesKOI
             var control = heroine?.chaCtrl;
             if (_inH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
             if (CharaMaker) { control = CustomBase.instance.chaCtrl; }
+            if (control == null) { control = Character.ChaControls.Find(x => x.chaFile == file); }
             if (control == null)
             {
                 if (!CharaMaker)
                     LogSource.LogError($"ChaControl not found for {file.parameter.fullname}");
-                return;
             }
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
-                ArraySync(control);
+                if (control != null)
+                    ArraySync(control);
                 return;
             }
 #else
@@ -713,8 +714,8 @@ namespace MoreAccessoriesKOI
                 var accessory = file.coordinate[item.Key].accessory;
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
             }
-
-            ArraySync(control);
+            if (control != null)
+                ArraySync(control);
 
             if (
 #if KK || KKS

@@ -5,7 +5,7 @@ using HEdit;
 using HPlay;
 #endif
 
-namespace MoreAccessoriesKOI.Patches.MainGame
+namespace MoreAccessoriesKOI.Patches
 {
     public static class ChaFile_Patches
     {

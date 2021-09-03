@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections.Generic;
 #if EC
 using HPlay;
 using ADVPart.Manipulate;
@@ -6,6 +9,7 @@ using ADVPart.Manipulate.Chara;
 #endif
 #if KK || KKS
 #endif
+
 using System.Linq;
 
 namespace MoreAccessoriesKOI
@@ -52,6 +56,20 @@ namespace MoreAccessoriesKOI
     }
 
 #if KK || KKS
+    public class StudioSlotData
+    {
+        public RectTransform slot;
+        public Text name;
+        public Button onButton;
+        public Button offButton;
+    }
+
+    public class HSceneSlotData
+    {
+        public RectTransform slot;
+        public TextMeshProUGUI text;
+        public Button button;
+    }
 
 #elif EC
         private class PlaySceneSlotData

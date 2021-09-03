@@ -210,9 +210,8 @@ namespace MoreAccessoriesKOI
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            var scrollTransform = Object.Instantiate(scrolltemplate);
-            scrollTransform.name = $"{slotTransform.name}ScrollView";
-            scrollTransform.transform.SetParent(listParent, false);
+            var scrollTransform = Object.Instantiate(scrolltemplate, listParent);
+            scrollTransform.name = $"Scroll View";
 
             scrollTransform.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 

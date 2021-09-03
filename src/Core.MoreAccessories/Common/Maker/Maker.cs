@@ -64,6 +64,7 @@ namespace MoreAccessoriesKOI
                     if (part.type != 120)
                     {
                         newarray[i] = controller.lstCtrl.GetInfo((ChaListDefine.CategoryNo)part.type, part.id);
+                        continue;
                     }
                 }
                 controller.infoAccessory = listinfo.Concat(newarray).ToArray();

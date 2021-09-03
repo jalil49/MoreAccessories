@@ -80,7 +80,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             private static void Postfix(List<ChaControl> ___lstFemale, HSprite ___sprite)
             {
-                MoreAccessories._self.HMode.SpawnHUI(___lstFemale, ___sprite);
+                MoreAccessories._self.HMode = new HScene(___lstFemale, ___sprite);
             }
         }
     }
