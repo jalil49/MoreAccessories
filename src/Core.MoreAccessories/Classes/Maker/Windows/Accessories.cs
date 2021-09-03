@@ -42,7 +42,7 @@ namespace MoreAccessoriesKOI
         private float height;
         private float _slotUIPositionY;
         private RectTransform _addButtonsGroup;
-
+        private VerticalLayoutGroup parentGroup;
         private void PrepareScroll()
         {
             var original_scroll = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/03_ClothesTop/tglTop/TopTop/Scroll View").GetComponent<ScrollRect>();
@@ -50,13 +50,9 @@ namespace MoreAccessoriesKOI
             scrolltemplate = DefaultControls.CreateScrollView(new DefaultControls.Resources());
             var scrollrect = scrolltemplate.GetComponent<ScrollRect>();
 
-            MoreAccessories.Print("2");
+
             scrollrect.verticalScrollbar.GetComponent<Image>().sprite = original_scroll.verticalScrollbar.GetComponent<Image>().sprite;
             scrollrect.verticalScrollbar.image.sprite = original_scroll.verticalScrollbar.image.sprite;
-            var contentimage = original_scroll.content.GetComponent<Image>();
-            var image = scrollrect.content.gameObject.AddComponent<Image>();
-            image.sprite = contentimage.sprite;
-            image.type = contentimage.type;
 
             scrollrect.horizontal = false;
             scrollrect.scrollSensitivity = 40f;
@@ -65,24 +61,24 @@ namespace MoreAccessoriesKOI
             scrollrect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
 
             if (scrollrect.horizontalScrollbar != null)
-                Object.Destroy(ScrollView.horizontalScrollbar.gameObject);
-            Object.Destroy(scrollrect.GetComponent<Image>());
+                Object.DestroyImmediate(scrollrect.horizontalScrollbar.gameObject);
+            Object.DestroyImmediate(scrollrect.GetComponent<Image>());
 
         }
 
         private void MakeSlotsScrollable()
         {
-            MoreAccessories.Print("1");
+
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop").transform;
 
-            MoreAccessories.Print("3");
+
             foreach (var slotTransform in container.Cast<Transform>())
             {
                 var layout = slotTransform.GetComponent<LayoutElement>();
                 layout.minWidth = buttonwidth;
                 layout.preferredWidth = buttonwidth;
             }
-            MoreAccessories.Print("4");
+
             ScrollView = Object.Instantiate(scrolltemplate, container).GetComponent<ScrollRect>();
             ScrollView.name = "Slots";
             ScrollView.onValueChanged.AddListener(x =>
@@ -97,37 +93,38 @@ namespace MoreAccessoriesKOI
             ScrollView.transform.position -= new Vector3(50, 0, 0);
             //if (ScrollView.verticalScrollbar != null)
             //    Object.Destroy(ScrollView.verticalScrollbar.gameObject);
-            Object.Destroy(ScrollView.content.GetComponent<Image>());
+            //Object.Destroy(ScrollView.content.GetComponent<Image>());
             var _charaMakerSlotTemplate = container.GetChild(0).gameObject;
-            MoreAccessories.Print("5");
+
             var rootCanvas = (RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform;
             var element = ScrollView.gameObject.AddComponent<LayoutElement>();
             height = element.minHeight = rootCanvas.rect.height / 1.298076f;
             element.minWidth = 680f; //Because trying to get the value dynamically fails for some reason so fuck it.
-            var group = ScrollView.content.gameObject.AddComponent<VerticalLayoutGroup>();
-            var parentGroup = container.GetComponent<VerticalLayoutGroup>();
-            MoreAccessories.Print("6");
-            group.childAlignment = parentGroup.childAlignment;
-            group.childControlHeight = parentGroup.childControlHeight;
-            group.childControlWidth = parentGroup.childControlWidth;
-            group.childForceExpandHeight = parentGroup.childForceExpandHeight;
-            group.childForceExpandWidth = parentGroup.childForceExpandWidth;
-            group.spacing = parentGroup.spacing;
+            var vlg = ScrollView.content.gameObject.AddComponent<VerticalLayoutGroup>();
+            parentGroup = container.GetComponent<VerticalLayoutGroup>();
+
+            vlg.childAlignment = parentGroup.childAlignment;
+            vlg.childControlHeight = parentGroup.childControlHeight;
+            vlg.childControlWidth = parentGroup.childControlWidth;
+            vlg.childForceExpandHeight = parentGroup.childForceExpandHeight;
+            vlg.childForceExpandWidth = parentGroup.childForceExpandWidth;
+            vlg.spacing = parentGroup.spacing;
+
             ScrollView.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            ScrollView.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
             _customAcsChangeSlot.ExecuteDelayed(() =>
             {
                 _slotUIPositionY = _charaMakerSlotTemplate.transform.parent.position.y;
             }, 15);
-            MoreAccessories.Print("7");
 
             var kkus = System.Type.GetType("HSUS.HSUS,KKUS");
             if (kkus != null)
             {
                 var self = kkus.GetField("_self", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
                 var scale = Traverse.Create(self).Field("_gameUIScale").GetValue<float>();
-                element.minHeight = element.minHeight / scale + 160f * (1f - scale);
+                //element.minHeight = element.minHeight / scale + 160f * (1f - scale);
             }
-            MoreAccessories.Print("8");
 
             for (var i = 0; i < 20; i++)
             {
@@ -136,7 +133,6 @@ namespace MoreAccessoriesKOI
                 container.GetChild(0).SetParent(ScrollView.content);
             }
 
-            MoreAccessories.Print("9");
 
             ScrollView.transform.SetAsFirstSibling();
             var toggleChange = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglChange").GetComponent<Toggle>();
@@ -145,7 +141,6 @@ namespace MoreAccessoriesKOI
             element.preferredWidth = buttonwidth;
             element.preferredHeight = 32f;
             var textModel = toggleChange.transform.Find("imgOff").GetComponentInChildren<TextMeshProUGUI>().gameObject;
-            MoreAccessories.Print("10");
 
             var addOneButton = UIUtility.CreateButton("Add One Button", _addButtonsGroup, "+1");
             addOneButton.transform.SetRect(Vector2.zero, new Vector2(0.5f, 1f));
@@ -157,7 +152,6 @@ namespace MoreAccessoriesKOI
             text.rectTransform.SetRect(Vector2.zero, Vector2.one, new Vector2(5f, 4f), new Vector2(-5f, -4f));
             text.text = "+1";
             addOneButton.onClick.AddListener(delegate () { AddSlot(1); });
-            MoreAccessories.Print("11");
 
             var addTenButton = UIUtility.CreateButton("Add Ten Button", _addButtonsGroup, "+10");
             addTenButton.transform.SetRect(new Vector2(0.5f, 0f), Vector2.one);
@@ -170,7 +164,6 @@ namespace MoreAccessoriesKOI
             text.text = "+10";
             addTenButton.onClick.AddListener(delegate () { AddSlot(10); });
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
-            MoreAccessories.Print("12");
 
             for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 2; j--, i++)
             {
@@ -206,10 +199,12 @@ namespace MoreAccessoriesKOI
         private void MakeWindowScrollable(Transform slotTransform)
         {
             var listParent = slotTransform.Cast<Transform>().Where(x => x.name.EndsWith("Top")).First();
-            Object.DestroyImmediate(listParent.GetComponent<Image>());//Destroy image that contains scrollbar
+            //Object.Destroy(listParent.GetComponent<Image>());//Destroy image that contains scrollbar
             var elements = new List<Transform>();
             foreach (Transform t in listParent)
                 elements.Add(t);
+
+            listParent.position -= new Vector3(30, 0, 0);
 
             var fitter = listParent.GetComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -218,20 +213,38 @@ namespace MoreAccessoriesKOI
             var scrollTransform = Object.Instantiate(scrolltemplate);
             scrollTransform.name = $"{slotTransform.name}ScrollView";
             scrollTransform.transform.SetParent(listParent, false);
-            scrollTransform.transform.position -= new Vector2(-50, 0)
+
+            scrollTransform.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+
             var s_LE = scrollTransform.AddComponent<LayoutElement>();
 
-            s_LE.minHeight = ScrollView.rectTransform.rect.height;
-            s_LE.minWidth = 500;
+            s_LE.preferredWidth = 400;
+            s_LE.preferredHeight = height;
+            //s_LE.flexibleHeight = 1;
 
             var scroll = scrollTransform.GetComponent<ScrollRect>();
+            scroll.viewport.transform.position -= new Vector3(300, 0, 0);
             var vlg = scroll.content.gameObject.AddComponent<VerticalLayoutGroup>();
-            vlg.childControlWidth = true;
-            vlg.childControlHeight = true;
-            vlg.childForceExpandWidth = true;
-            vlg.childForceExpandHeight = false;
+            vlg.childAlignment = parentGroup.childAlignment;
+            vlg.childControlHeight = parentGroup.childControlHeight;
+            vlg.childControlWidth = parentGroup.childControlWidth;
+            vlg.childForceExpandHeight = parentGroup.childForceExpandHeight;
+            vlg.childForceExpandWidth = parentGroup.childForceExpandWidth;
+            vlg.spacing = parentGroup.spacing;
+
+            //var vlg2 = scroll.viewport.gameObject.AddComponent<VerticalLayoutGroup>();
+            //vlg2.childAlignment = parentGroup.childAlignment;
+            //vlg2.childControlHeight = parentGroup.childControlHeight;
+            //vlg2.childControlWidth = parentGroup.childControlWidth;
+            //vlg2.childForceExpandHeight = parentGroup.childForceExpandHeight;
+            //vlg2.childForceExpandWidth = parentGroup.childForceExpandWidth;
+            //vlg2.spacing = parentGroup.spacing;
+
 
             scroll.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            //scroll.viewport.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
 
             foreach (var item in elements)
                 item.SetParent(scroll.content);
@@ -266,7 +279,7 @@ namespace MoreAccessoriesKOI
 
                     info.AccessorySlot = newSlot.gameObject;
                     var toggle = newSlot.GetComponent<Toggle>();
-                    var canvasGroup = toggle.transform.GetChild(1).GetComponent<CanvasGroup>();
+                    var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
                     cvsAccessory.textSlotName = toggle.GetComponentInChildren<TextMeshProUGUI>();
 
@@ -309,8 +322,14 @@ namespace MoreAccessoriesKOI
 
                     _addButtonsGroup.SetAsLastSibling();
                     cvsAccessory.Start();
-
-                    Plugin.NewSlotAdded(index, newSlot.transform);
+                    try
+                    {
+                        Plugin.NewSlotAdded(index, newSlot.transform);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        MoreAccessories.Print(ex.ToString(), BepInEx.Logging.LogLevel.Error);
+                    }
                 }
             }
 
