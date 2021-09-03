@@ -175,6 +175,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 #endif
 
+
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches
         {
@@ -279,6 +280,19 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
             }
         }
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
+        internal class ChacontrolChangeAccessory_Patch
+        {
+            internal static void Prefix(ChaControl __instance)
+            {
+                if (__instance.nowCoordinate.accessory.parts.Length > __instance.infoAccessory.Length)
+                {
+                    MoreAccessories.ArraySync(__instance);
+                }
+            }
+        }
+
 
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_1_Patches
