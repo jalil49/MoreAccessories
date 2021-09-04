@@ -37,7 +37,7 @@ namespace MoreAccessoriesKOI
         internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return Plugin.MakerMode._additionalCharaMakerSlots; } set { Plugin.MakerMode._additionalCharaMakerSlots = value; } }
 
         private ScrollRect ScrollView;
-        private float buttonwidth = 175;
+        private readonly float buttonwidth = .109375f * Screen.width;
         private float height;
         private float _slotUIPositionY;
         private RectTransform _addButtonsGroup;
@@ -84,12 +84,13 @@ namespace MoreAccessoriesKOI
             {
                 FixWindowScroll();
                 Plugin.ExecuteDelayed(FixWindowScroll);
+                Plugin.ExecuteDelayed(FixWindowScroll, 2);
             });
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
             ScrollView.scrollSensitivity = 18f;
-            ScrollView.verticalScrollbar.transform.position -= new Vector3(400, 0, 0);
-            ScrollView.transform.position -= new Vector3(50, 0, 0);
+            ScrollView.verticalScrollbar.transform.position -= new Vector3(0.25f * Screen.width, 0, 0);
+            ScrollView.transform.position -= new Vector3(0.03125f * Screen.width, 0, 0);
             //if (ScrollView.verticalScrollbar != null)
             //    Object.Destroy(ScrollView.verticalScrollbar.gameObject);
             //Object.Destroy(ScrollView.content.GetComponent<Image>());
@@ -98,7 +99,7 @@ namespace MoreAccessoriesKOI
             var rootCanvas = (RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform;
             var element = ScrollView.gameObject.AddComponent<LayoutElement>();
             height = element.minHeight = rootCanvas.rect.height / 1.298076f;
-            element.minWidth = 680f; //Because trying to get the value dynamically fails for some reason so fuck it.
+            element.minWidth = 0.425f * Screen.width;
             var vlg = ScrollView.content.gameObject.AddComponent<VerticalLayoutGroup>();
             parentGroup = container.GetComponent<VerticalLayoutGroup>();
 
@@ -282,11 +283,20 @@ namespace MoreAccessoriesKOI
                     var toggle = newSlot.GetComponent<Toggle>();
                     var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
+                    //cvsAccessory.cvsColor = toggle.GetComponentInChildren<CvsColor>();
                     cvsAccessory.textSlotName = toggle.GetComponentInChildren<TextMeshProUGUI>();
 
                     CvsAccessoryArray = CvsAccessoryArray.Concat(cvsAccessory).ToArray();
 
+                    var cvscolor = CVSColor(index + 1);
+                    cvsAccessory.colorKind = cvscolor;
+                    foreach (var item in CvsAccessoryArray)
+                    {
+                        item.colorKind = cvscolor;
+                    }
+
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
+
                     foreach (var _custom in SelectKind)
                     {
                         _custom.cvsAccessory = CvsAccessoryArray;
@@ -322,7 +332,9 @@ namespace MoreAccessoriesKOI
                     });
 
                     _addButtonsGroup.SetAsLastSibling();
-                    cvsAccessory.Start();
+                    var action = new System.Action(delegate () { cvsAccessory.Start(); });
+
+                    //Plugin.ExecuteDelayed(action);
                     try
                     {
                         Plugin.NewSlotAdded(index, newSlot.transform);
@@ -344,6 +356,32 @@ namespace MoreAccessoriesKOI
 #endif
             }
             _addButtonsGroup.SetAsLastSibling();
+        }
+
+        private int[,] CVSColor(int rank)
+        {
+            var newarray = new int[rank, 4];
+            var value = 124;
+            var print = "";
+            for (var i = 0; i < 20; i++)
+            {
+                for (var j = 0; j < 4; j++, value++)
+                {
+                    newarray[i, j] = value;
+                }
+                print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
+            }
+            value = 5000;
+            for (var i = 20; i < rank; i++)
+            {
+                for (var j = 0; j < 4; j++, value++)
+                {
+                    newarray[i, j] = value;
+                }
+                print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
+            }
+            MoreAccessories.Print(print);
+            return newarray;
         }
 
         private void RestoreToggle(Toggle toggle, int index)

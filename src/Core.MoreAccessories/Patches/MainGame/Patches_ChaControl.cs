@@ -52,7 +52,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
         }
 
-#if KKS
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Patches
         {
@@ -60,7 +59,11 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             static MethodBase TargetMethod()
             {
+#if KKS
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>d__483, Assembly-CSharp"), "MoveNext");
+#elif KK
+                methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator11, Assembly-CSharp"), "MoveNext");
+#endif
                 return methodbase;
             }
 
@@ -172,10 +175,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return chara.nowCoordinate.accessory.parts.Length;
             }
         }
-#endif
-
-        [HarmonyPatch]
-
 
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches

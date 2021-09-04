@@ -69,7 +69,8 @@ namespace MoreAccessoriesKOI
 #endif
         }
 
-        public bool inFreeHSelect { get; private set; }
+        public bool InFreeHSelect { get; private set; }
+        public bool AtMenu { get; private set; }
 
 #if !KK
         private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
@@ -276,6 +277,7 @@ namespace MoreAccessoriesKOI
 #elif KKS
             instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
 #endif
+            MoreAccessories.Print($"loadmode {loadMode} index {scene.buildIndex} ");
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
@@ -283,7 +285,8 @@ namespace MoreAccessoriesKOI
                     {
                         MakerMode = null;
                         ImportingCards = false;
-                        inFreeHSelect = false;
+                        InFreeHSelect = false;
+                        AtMenu = false;
 #if KK || KKS
                         HMode = null;
 #elif EC
@@ -291,6 +294,10 @@ namespace MoreAccessoriesKOI
 #endif
                         switch (scene.buildIndex)
                         {
+                            case 1: //converted
+                                ImportingCards = true;
+                                break;
+
                             //Chara maker
 #if KK || EC
                             case 2:
@@ -304,15 +311,14 @@ namespace MoreAccessoriesKOI
                             case 7: //Hscenes
                                 break;
 
-                            case 1: //converted
-                                ImportingCards = true;
-                                break;
 
                             case 11: //freeh select
-                                inFreeHSelect = true;
+                                InFreeHSelect = true;
                                 break;
-
+                            case -1:
                             case 4: //menu
+                                AtMenu = true;
+                                break;
                             default:
                                 break;
 #endif
@@ -592,9 +598,9 @@ namespace MoreAccessoriesKOI
             ChaControl control = null;
 #if KK || KKS   //start heroineheck
 #if KKS
-            var heroine = Game.HeroineList.Find(x => x.chaCtrl.chaFile == file);
+            var heroine = Game.HeroineList.Find(x => x.charFile == file);
 #elif KK
-            var heroine = Game.instance.HeroineList.Find(x => x.chaCtrl.chaFile == file);
+            var heroine = Game.instance.HeroineList.Find(x => x.charFile == file);
 #endif
             control = heroine?.chaCtrl;
             if (InH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
@@ -606,7 +612,7 @@ namespace MoreAccessoriesKOI
 #endif
             if (control == null)
             {
-                if (!(CharaMaker || inFreeHSelect))
+                if (!(CharaMaker || InFreeHSelect || AtMenu || ImportingCards))
                     LogSource.LogError($"ChaControl not found for {file.parameter.fullname}");
             }
 
@@ -726,10 +732,10 @@ namespace MoreAccessoriesKOI
         private void OnActualCharaSave(ChaFile file)
         {
             if (ImportingCards) return;
-
-            var data = new CharAdditionalData(CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts);
             var pluginData = new PluginData { version = _saveVersion };
 #if false
+
+            var data = new CharAdditionalData(file);
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
             {

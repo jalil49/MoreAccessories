@@ -28,6 +28,14 @@ namespace MoreAccessoriesKOI
                 rawAccessoriesInfos[i].RemoveRange(0, 20);
             }
         }
+        public CharAdditionalData(ChaFile file)
+        {
+            for (var i = 0; i < file.coordinate.Length; i++)
+            {
+                rawAccessoriesInfos[i] = file.coordinate[i].accessory.parts.ToList();
+                rawAccessoriesInfos[i].RemoveRange(0, 20);
+            }
+        }
 #elif EC
         public CharAdditionalData(ChaControl chactrl)
         {
