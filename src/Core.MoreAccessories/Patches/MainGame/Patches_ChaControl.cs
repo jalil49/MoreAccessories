@@ -27,7 +27,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 PendingNowAccessories.Add(__instance);
             }
-#endif
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
@@ -37,7 +36,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
                 PendingNowAccessories.Add(__instance);
             }
-
+#endif
 
             [HarmonyPostfix]
             [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadBytes))]
@@ -175,6 +174,8 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 #endif
 
+        [HarmonyPatch]
+
 
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches
@@ -201,6 +202,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         AccessTools.Method(ChaCon, nameof(ChaControl.UpdateAccessoryMoveFromInfo)),  //4
                         AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryColor)),         //5
                         AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryDefaultColor)),     //6
+                        AccessTools.Method(ChaCon, nameof(ChaControl.IsAccessory)),     //6
                     };
 
 #if KKS
@@ -289,6 +291,27 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 if (__instance.nowCoordinate.accessory.parts.Length > __instance.infoAccessory.Length)
                 {
                     MoreAccessories.ArraySync(__instance);
+                }
+            }
+
+            internal static void Postfix(ChaControl __instance)
+            {
+                var obj = __instance.objAccessory;
+                var info = __instance.infoAccessory;
+                var cusacscmp = __instance.cusAcsCmp;
+                var objAcsMove = __instance.objAcsMove;
+                for (int i = __instance.nowCoordinate.accessory.parts.Length, n = obj.Length; i < n; i++)
+                {
+                    if (obj[i])
+                    {
+                        __instance.SafeDestroy(obj[i]);
+                        info[i] = null;
+                        cusacscmp[i] = null;
+                        for (var j = 0; j < 2; j++)
+                        {
+                            objAcsMove[i, j] = null;
+                        }
+                    }
                 }
             }
         }

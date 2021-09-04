@@ -1,7 +1,6 @@
 ﻿using ChaCustom;
 using HarmonyLib;
 using Illusion.Extensions;
-using Localize.Translate;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,11 @@ using TMPro;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+
+#if KKS
+//using Localize.Translate;
+#endif
+
 
 namespace MoreAccessoriesKOI
 {
@@ -192,6 +196,7 @@ namespace MoreAccessoriesKOI
 
         internal void FixWindowScroll()
         {
+            if (CustomBase.Instance.selectSlot < 0) return;
             var t = _customAcsChangeSlot.items[CustomBase.Instance.selectSlot].cgItem.transform;
             t.position = new Vector3(t.position.x, _slotUIPositionY);
         }
@@ -268,7 +273,9 @@ namespace MoreAccessoriesKOI
                     if (slotindex + 20 == CustomBase.Instance.selectSlot)
                         Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
                     info.transferSlotObject.SetActive(true);
+#if KK || KKS
                     info.copySlotObject.SetActive(true);
+#endif
                 }
                 else
                 {
@@ -306,7 +313,7 @@ namespace MoreAccessoriesKOI
                     newSlot.name = "tglSlot" + (index + 1).ToString("00");
 
                     custombase.actUpdateCvsAccessory = custombase.actUpdateCvsAccessory.Concat(new System.Action(cvsAccessory.UpdateCustomUI)).ToArray();
-                    custombase.actUpdateAcsSlotName = custombase.actUpdateAcsSlotName.Concat(new System.Action(cvsAccessory.UpdateSlotName)).ToArray();
+                    custombase.actUpdateAcsSlotName = custombase.actUpdateAcsSlotName.Concat(new System.Action(delegate () { Plugin.ExecuteDelayed(cvsAccessory.UpdateSlotName); })).ToArray(); //delay to avoid an error when called early due to additional patches
                     var newreactive = new BoolReactiveProperty(false);
                     custombase._updateCvsAccessory = custombase._updateCvsAccessory.Concat(newreactive).ToArray();
                     newreactive.Subscribe(delegate (bool f)
@@ -337,7 +344,9 @@ namespace MoreAccessoriesKOI
                 var slot = AdditionalCharaMakerSlots[slotindex];
                 slot.AccessorySlot.SetActive(false);
                 slot.transferSlotObject.SetActive(false);
+#if KK || KKS
                 slot.copySlotObject.SetActive(false);
+#endif
             }
             _addButtonsGroup.SetAsLastSibling();
         }
@@ -397,7 +406,11 @@ namespace MoreAccessoriesKOI
             AddInProgress = true;
             var controller = CustomBase.instance.chaCtrl;
             var nowparts = controller.nowCoordinate.accessory.parts;
+#if KK || KKS
             var coordacc = controller.chaFile.coordinate[controller.chaFile.status.coordinateType].accessory;
+#else
+            var coordacc = controller.chaFile.coordinate.accessory;
+#endif
             var newpart = new ChaFileAccessory.PartsInfo[num];
             for (var i = 0; i < num; i++)
             {

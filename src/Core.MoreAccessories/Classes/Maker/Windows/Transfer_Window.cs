@@ -47,14 +47,13 @@ namespace MoreAccessoriesKOI
                 Object.Destroy(ScrollView.horizontalScrollbar.gameObject);
             if (ScrollView.verticalScrollbar != null)
                 Object.Destroy(ScrollView.verticalScrollbar.gameObject);
-
             Object.Destroy(ScrollView.GetComponent<Image>());
+
             var content = (RectTransform)container.Find("grpClothes");
             ScrollView.transform.SetRect(content);
             content.SetParent(ScrollView.viewport);
             Object.Destroy(ScrollView.content.gameObject);
             ScrollView.content = content;
-            Plugin.MakerMode.RaycastCtrls.Add(container.parent.GetComponent<UI_RaycastCtrl>());
             ScrollView.transform.SetAsFirstSibling();
             ScrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -530f), new Vector2(-16f, -48f));
         }

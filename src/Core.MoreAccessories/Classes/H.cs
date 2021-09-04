@@ -1,7 +1,6 @@
-﻿using Cysharp.Threading.Tasks;
+﻿#if KK || KKS
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,19 +8,17 @@ namespace MoreAccessoriesKOI
 {
     public class HScene
     {
-        private List<List<HSceneSlotData>> _additionalHSceneSlots = new List<List<HSceneSlotData>>();
-        private readonly List<ScrollRect> scrollRects = new List<ScrollRect>();
         internal List<ChaControl> _hSceneFemales;
-        private List<HSprite.FemaleDressButtonCategory> _hSceneMultipleFemaleButtons;
-        private HSprite _hSprite;
-        private HSceneSpriteCategory _hSceneSoloFemaleAccessoryButton;
+        private readonly HSprite[] _hSprite;
 
-        public HScene(List<ChaControl> lstFemale, HSprite sprite)
+        public HScene(List<ChaControl> lstFemale, HSprite[] sprite)
         {
             _hSceneFemales = lstFemale;
             MoreAccessories.Print($"started H with {lstFemale.Count}");
             _hSprite = sprite;
             SpawnHUI();
+            Plugin.ExecuteDelayed(MakeSingleScrollable, 1);
+            Plugin.ExecuteDelayed(MakeMultiScrollable, 1);
         }
 
         private MoreAccessories Plugin => MoreAccessories._self;
@@ -31,49 +28,74 @@ namespace MoreAccessoriesKOI
 
         internal void SpawnHUI()
         {
-            for (var i = 0; i < _hSceneFemales.Count; i++)
-                _additionalHSceneSlots.Add(new List<HSceneSlotData>());
-            _hSceneMultipleFemaleButtons = _hSprite.lstMultipleFemaleDressButton;
-            _hSceneSoloFemaleAccessoryButton = _hSprite.categoryAccessory;
-            _ = MakeScrollable();
+            //for (var i = 0; i < _hSceneFemales.Count; i++)
+            //    _additionalHSceneSlots.Add(new List<HSceneSlotData>());
+            //foreach (var item in _hSceneFemales)
+            //{
+            //    MoreAccessories.Print($"H Sync Syncing {item.chaFile.parameter.fullname}");
+            //    MoreAccessories.ArraySync(item);
+            //    MoreAccessories.Print($"H Sync Finished syncing {item.chaFile.parameter.fullname}");
+            //}
+
         }
-#if KKS
-        private async UniTask MakeScrollable()
+        private void MakeSingleScrollable()
         {
-            scrollRects.Clear();
-            await UniTask.WaitUntil(() => _hSceneFemales.Count > 0, PlayerLoopTiming.Update, default);
-            await UniTask.DelayFrame(10);
-            for (var i = 0; i < _hSceneFemales.Count; i++)
+            foreach (var sprite in _hSprite)
             {
-                var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
-
-                var accscroll = UIUtility.CreateScrollView($"Accessory Scroll {i}");
-
-                accscroll.movementType = ScrollRect.MovementType.Clamped;
-                accscroll.horizontal = false;
-                accscroll.scrollSensitivity = 18f;
-                var element = accscroll.gameObject.AddComponent<LayoutElement>();
-                element.minHeight = Screen.height / 3;
-                var group = accscroll.content.gameObject.AddComponent<VerticalLayoutGroup>();
-                var parentGroup = buttonsParent.GetComponent<VerticalLayoutGroup>();
-                group.childAlignment = parentGroup.childAlignment;
-                group.childControlHeight = parentGroup.childControlHeight;
-                group.childControlWidth = parentGroup.childControlWidth;
-                group.childForceExpandHeight = parentGroup.childForceExpandHeight;
-                group.childForceExpandWidth = parentGroup.childForceExpandWidth;
-                group.spacing = parentGroup.spacing;
-                accscroll.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-                for (int j = 0, n = buttonsParent.childCount; j < n; j++)
-                {
-                    buttonsParent.GetChild(0).SetParent(accscroll.content);
-                }
-                accscroll.transform.SetParent(buttonsParent, true);
-                scrollRects.Add(accscroll);
+                Scrollingwork(sprite, sprite.categoryAccessory.transform);
             }
         }
-#endif
-        public void UpdateHUI()
+        private void MakeMultiScrollable()
+        {
+            foreach (var sprite in _hSprite)
+            {
+                foreach (var FemaleDressButton in sprite.lstMultipleFemaleDressButton)
+                {
+                    Scrollingwork(sprite, FemaleDressButton.accessory.transform);
+                }
+            }
+        }
+        public void MakeMultiScrollable(int female)//in case adding multiple heroines
+        {
+            foreach (var sprite in _hSprite)
+            {
+                Scrollingwork(sprite, sprite.lstMultipleFemaleDressButton[female].accessory.transform);
+            }
+        }
+        private void Scrollingwork(HSprite sprite, Transform container)//Its a miracle that this works
+        {
+            var original_scroll = sprite.clothCusutomCtrl.transform.GetComponentInChildren<ScrollRect>();
+
+            var scrolltemplate = DefaultControls.CreateScrollView(new DefaultControls.Resources());
+            var scrollrect = scrolltemplate.GetComponent<ScrollRect>();
+
+            scrollrect.verticalScrollbar.GetComponent<Image>().sprite = original_scroll.verticalScrollbar.GetComponent<Image>().sprite;
+            scrollrect.verticalScrollbar.image.sprite = original_scroll.verticalScrollbar.image.sprite;
+
+            scrollrect.horizontal = false;
+            scrollrect.scrollSensitivity = 40f;
+
+            scrollrect.movementType = ScrollRect.MovementType.Clamped;
+            scrollrect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
+            scrolltemplate.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            var element = scrolltemplate.AddComponent<LayoutElement>();
+            element.preferredHeight = element.minHeight = Screen.height / 2;
+            element.minWidth = element.minWidth = Screen.width / 10;
+            if (scrollrect.horizontalScrollbar != null)
+                Object.DestroyImmediate(scrollrect.horizontalScrollbar.gameObject);
+            //if (scrollrect.verticalScrollbar != null)
+            //    Object.DestroyImmediate(scrollrect.verticalScrollbar.gameObject);
+            // Object.DestroyImmediate(scrollrect.transform.GetComponent<Image>());
+
+            var vlg = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
+            vlg.childForceExpandHeight = true;
+
+            scrollrect.transform.SetRect(container);
+            Object.Destroy(scrollrect.content.gameObject);
+            scrollrect.content = (RectTransform)container;
+            scrollrect.transform.SetParent(container.parent, false);
+        }
+        internal void UpdateHUI()
         {
             if (_hSprite == null)
                 return;
@@ -130,3 +152,4 @@ namespace MoreAccessoriesKOI
         }
     }
 }
+#endif

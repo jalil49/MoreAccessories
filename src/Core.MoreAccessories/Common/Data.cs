@@ -5,6 +5,8 @@ using ChaCustom;
 using HPlay;
 using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
+using System.Collections.Generic;
+using UnityEngine;
 #endif
 #if KK || KKS
 #endif
@@ -18,7 +20,6 @@ namespace MoreAccessoriesKOI
 
         public static MoreAccessories _self;
 
-        #region Private Variables
         private const int _saveVersion = 2;
         private const string _extSaveKey = "moreAccessories";
 
@@ -27,13 +28,16 @@ namespace MoreAccessoriesKOI
         internal static ManualLogSource LogSource;
         internal static bool CharaMaker => _self.MakerMode != null;
         internal bool _loadAdditionalAccessories = true;
-        private CustomFileWindow _loadCoordinatesWindow;
+
+        public bool ImportingCards { get; private set; } = true;
+        public static bool ClothesFileControlLoading { get; internal set; }
+        public static bool CharaListIsLoading { get; internal set; }
 
         public MakerMode MakerMode { get; private set; }
-        public StudioClass StudioMode { get; private set; }
 #if KK || KKS
-        internal static bool _inH => _self.HMode != null;
+        internal static bool InH => _self.HMode != null;
         public HScene HMode;
+        public StudioClass StudioMode { get; private set; }
 #elif EC
         private bool _inPlay;
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
@@ -42,9 +46,8 @@ namespace MoreAccessoriesKOI
         private Coroutine _updatePlayUIHandler;
 
         private AccessoryUICtrl _advUI;
-        private readonly List<ADVSceneSlotData> _additionalADVSceneSlots = new List<ADVSceneSlotData>();
+        public readonly List<ADVSceneSlotData> _additionalADVSceneSlots = new List<ADVSceneSlotData>();
         private RectTransform _advToggleTemplate;
 #endif
-        #endregion
     }
 }

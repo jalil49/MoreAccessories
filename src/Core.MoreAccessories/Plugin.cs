@@ -23,6 +23,8 @@ using Manager;
 using MoreAccessoriesKOI.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using MoreAccessoriesKOI.Patches;
+using MoreAccessoriesKOI.Patches.MainGame;
 using Scene = UnityEngine.SceneManagement.Scene;
 
 namespace MoreAccessoriesKOI
@@ -47,35 +49,27 @@ namespace MoreAccessoriesKOI
 
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
             var uarHooks = typeof(Sideloader.AutoResolver.UniversalAutoResolver).GetNestedType("Hooks", AccessTools.all);
-            harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
-            harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordLoad_Prefix)));
 
+#if DEBUG
             foreach (var item in harmony.GetPatchedMethods())
             {
                 Print($"{item.ReflectedType}.{item.Name}");
             }
-
+#endif
+            ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
+            ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
         }
 
         internal static void Print(string text, LogLevel logLevel = LogLevel.Warning)
         {
+#if DEBUG
             LogSource.Log(logLevel, text);
+#endif
         }
 
-        internal void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.N))
-            {
-                var i = 0;
-                foreach (var item in CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts)
-                {
-                    Print($"slot {i} has type {item.type} and {item.id}");
-                    i++;
-                }
-            }
-        }
+        public bool inFreeHSelect { get; private set; }
 
 #if !KK
         private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
@@ -275,27 +269,35 @@ namespace MoreAccessoriesKOI
 
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {
-            var instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
-            LogSource.LogWarning($"Loadmode {loadMode} index {scene.buildIndex}");
+            var instudio = false;
+
+#if KK
+            instudio = Application.productName.StartsWith("KoikatsuStudio");
+#elif KKS
+            instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
+#endif
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
                     if (!instudio)
                     {
                         MakerMode = null;
-                        HMode = null;
-
+                        ImportingCards = false;
+                        inFreeHSelect = false;
 #if KK || KKS
+                        HMode = null;
 #elif EC
                         _inPlay = false;
 #endif
                         switch (scene.buildIndex)
                         {
                             //Chara maker
+#if KK || EC
+                            case 2:
+#elif KKS
                             case 3: //sunshine uses 3 for chara
-                                CustomBase.Instance.selectSlot = 0;
+#endif
                                 MakerMode = new MakerMode();
-                                _loadCoordinatesWindow = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop/cosFileControl/charaFileWindow").GetComponent<CustomFileWindow>();
                                 break;
 
 #if KK || KKS
@@ -303,8 +305,14 @@ namespace MoreAccessoriesKOI
                                 break;
 
                             case 1: //converted
-                            case 4: //menu
+                                ImportingCards = true;
+                                break;
+
                             case 11: //freeh select
+                                inFreeHSelect = true;
+                                break;
+
+                            case 4: //menu
                             default:
                                 break;
 #endif
@@ -331,7 +339,6 @@ namespace MoreAccessoriesKOI
 #endif
                     {
                         MakerMode = new MakerMode();
-                        _loadCoordinatesWindow = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/06_SystemTop/cosFileControl/charaFileWindow").GetComponent<CustomFileWindow>();
                     }
                     break;
             }
@@ -339,26 +346,6 @@ namespace MoreAccessoriesKOI
 
         //        private void Update()
         //        {
-        //            //if (_inCharaMaker)
-        //            //{
-        //            //    if (_customAcsChangeSlot != null)
-        //            //    {
-        //            //        if (CustomBase.Instance.updateCustomUI)
-        //            //        {
-        //            //            for (var i = 0; i < _additionalCharaMakerSlots.Count && i < _charaMakerData.nowAccessories.Count; i++)
-        //            //            {
-        //            //                var slot = _additionalCharaMakerSlots[i];
-        //            //                if (slot.toggle.gameObject.activeSelf == false)
-        //            //                    continue;
-        //            //                if (i + 20 == CustomBase.Instance.selectSlot)
-        //            //                    slot.cvsAccessory.UpdateCustomUI();
-        //            //                slot.cvsAccessory.UpdateSlotName();
-        //            //            }
-        //            //        }
-        //            //    }
-        //            //    if (_loadCoordinatesWindow == null) //Handling maker with additive loading
-        //            //        _inCharaMaker = false;
-        //            //}
         //#if KK || KKS
         //            if (_inStudio)
         //            {
@@ -459,7 +446,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             else if (StudioMode != null)
                 StudioMode.UpdateStudioUI();
-            else if (_inH)
+            else if (InH)
                 this.ExecuteDelayed(HMode.UpdateHUI);
 #elif EC
             else if (_inPlay)
@@ -607,18 +594,29 @@ namespace MoreAccessoriesKOI
         #region Saves
         internal void OnActualCharaLoad(ChaFile file)
         {
-            if (_loadAdditionalAccessories == false)
+            if (_loadAdditionalAccessories == false || CharaListIsLoading)
                 return;
+            ChaControl control = null;
+#if KK || KKS   //start heroineheck
+#if KKS
             var heroine = Game.HeroineList.Find(x => x.chaCtrl.chaFile == file);
-            var control = heroine?.chaCtrl;
-            if (_inH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
+#elif KK
+            var heroine = Game.instance.HeroineList.Find(x => x.chaCtrl.chaFile == file);
+#endif
+            control = heroine?.chaCtrl;
+            if (InH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
+#endif          //end heroine check
+
             if (CharaMaker) { control = CustomBase.instance.chaCtrl; }
+#if KKS
             if (control == null) { control = Character.ChaControls.Find(x => x.chaFile == file); }
+#endif
             if (control == null)
             {
-                if (!CharaMaker)
+                if (!(CharaMaker || inFreeHSelect))
                     LogSource.LogError($"ChaControl not found for {file.parameter.fullname}");
             }
+
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
@@ -627,10 +625,10 @@ namespace MoreAccessoriesKOI
                 return;
             }
 #else
-            
-                if (file.coordinate.accessory.parts.Length > 20)
-                    return;
-            
+
+            if (file.coordinate.accessory.parts.Length > 20)
+                return;
+
 #endif
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
             if (pluginData == null) return;
@@ -709,9 +707,13 @@ namespace MoreAccessoriesKOI
 
             foreach (var item in data.rawAccessoriesInfos)
             {
+#if KK || KKS
                 if (!(item.Key < file.coordinate.Length)) continue;
 
                 var accessory = file.coordinate[item.Key].accessory;
+#else
+                var accessory = file.coordinate.accessory;
+#endif
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
             }
             if (control != null)
@@ -719,7 +721,7 @@ namespace MoreAccessoriesKOI
 
             if (
 #if KK || KKS
-                    _inH ||
+                    InH ||
 #endif
                     CharaMaker
             )
@@ -730,6 +732,8 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCharaSave(ChaFile file)
         {
+            if (ImportingCards) return;
+
             var data = new CharAdditionalData(CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts);
 
             using (var stringWriter = new StringWriter())
@@ -813,8 +817,8 @@ namespace MoreAccessoriesKOI
 
         internal void OnActualCoordLoad(ChaFileCoordinate file)
         {
-            if (CharaMaker && _loadCoordinatesWindow != null && _loadCoordinatesWindow.tglCoordeLoadAcs != null && _loadCoordinatesWindow.tglCoordeLoadAcs.isOn == false)
-                _loadAdditionalAccessories = false;
+            if (ClothesFileControlLoading) return;
+
             if (_loadAdditionalAccessories == false) // This stuff is done this way because some user might want to change _loadAdditionalAccessories manually through reflection.
             {
                 _loadAdditionalAccessories = true;
@@ -944,7 +948,7 @@ namespace MoreAccessoriesKOI
 
             if (
 #if KK || KKS
-                    _inH ||
+                    InH ||
 #endif
                     CharaMaker
             )

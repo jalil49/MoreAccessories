@@ -1,4 +1,5 @@
-﻿using MoreAccessoriesKOI.Extensions;
+﻿#if KK || KKS
+using MoreAccessoriesKOI.Extensions;
 using Studio;
 using System.Collections.Generic;
 using UnityEngine;
@@ -156,3 +157,4 @@ namespace MoreAccessoriesKOI
 
     }
 }
+#endif

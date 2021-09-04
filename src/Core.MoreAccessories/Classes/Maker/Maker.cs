@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using ChaCustom;
 #if EC
 using HPlay;
@@ -15,14 +16,14 @@ namespace MoreAccessoriesKOI
     {
         public MakerMode()
         {
-            CustomBase.Instance.selectSlot = 0;
+            CustomBase.Instance.selectSlot = -1;
         }
-
+        internal static MoreAccessories Plugin => MoreAccessories._self;
         public Accessories AccessoriesWindow;
-        public List<UI_RaycastCtrl> RaycastCtrls = new List<UI_RaycastCtrl>();
         internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
-
+#if KK || KKS
         public Copy_Window CopyWindow { get; internal set; }
+#endif
         internal Transfer_Window TransferWindow { get; set; }
 
         public void UpdateMakerUI()
@@ -33,16 +34,10 @@ namespace MoreAccessoriesKOI
         internal void RefreshToggles(int len)
         {
             TransferWindow.RefreshToggles(len); //CharaMakerSlotData is added here 
-            CopyWindow.RefreshToggles(len);
-        }
-    }
-
-    public class CharaMakerSlotData
-    {
-        public GameObject AccessorySlot;
 #if KK || KKS
-        public GameObject copySlotObject;
+            CopyWindow.RefreshToggles(len);
 #endif
-        public GameObject transferSlotObject;
+            UpdateMakerUI();
+        }
     }
 }

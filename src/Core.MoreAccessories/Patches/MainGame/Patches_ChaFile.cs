@@ -15,7 +15,10 @@ namespace MoreAccessoriesKOI.Patches
             private static void Postfix()
             {
                 if (MoreAccessories.CharaMaker)
+                {
+                    ChaCustom.CustomBase.Instance.selectSlot = -1;
                     MoreAccessories.ArraySync(ChaCustom.CustomBase.instance.chaCtrl);
+                }
             }
         }
     }

@@ -7,8 +7,6 @@ using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
 #endif
 using Illusion.Extensions;
-#if KKS
-#endif
 using UnityEngine;
 using UniRx;
 
@@ -16,22 +14,18 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-        internal static void ArrayExpansion<T>(ref T[] array, int count = 1)
-        {
-            if (count < 1) return;
-            array = array.Concat(new T[count]).ToArray();
-        }
-
         public static void ArraySync(ChaControl controller)
         {
             var nowcoordinatevalid = controller.nowCoordinate != null;
             var parts = nowcoordinatevalid ? controller.nowCoordinate.accessory.parts : new ChaFileAccessory.PartsInfo[20];
             var len = parts.Length;
             var nowlength = len;
+#if KK || KKS
             foreach (var item in controller.chaFile.coordinate)
             {
                 len = Math.Max(len, item.accessory.parts.Length);
             }
+#endif
             var show = controller.fileStatus.showAccessory;
             var obj = controller.objAccessory;
             var objmove = controller.objAcsMove;
@@ -49,27 +43,14 @@ namespace MoreAccessoriesKOI
                 }
                 controller.fileStatus.showAccessory = controller.fileStatus.showAccessory.Concat(newarray).ToArray();
             }
-
             controller.objAccessory = obj.ArrayExpansion(len - obj.Length);
             controller.cusAcsCmp = cusAcsCmp.ArrayExpansion(len - cusAcsCmp.Length);
             controller.hideHairAcs = hideHairAcs.ArrayExpansion(len - hideHairAcs.Length);
-
             delta = parts.Length - listinfo.Length;
-            if (nowcoordinatevalid && delta > 0)
+            if (delta > 0)
             {
-                var newarray = new ListInfoBase[delta];
-                for (var i = 0; i < delta; i++)
-                {
-                    var part = parts[listinfo.Length + i];
-                    if (part.type != 120)
-                    {
-                        newarray[i] = controller.lstCtrl.GetInfo((ChaListDefine.CategoryNo)part.type, part.id);
-                        continue;
-                    }
-                }
-                controller.infoAccessory = listinfo.Concat(newarray).ToArray();
+                controller.infoAccessory = listinfo.Concat(new ListInfoBase[delta]).ToArray();
             }
-
             var movelen = objmove.GetLength(0);
             delta = len - movelen;
             if (delta > 0)
@@ -84,9 +65,21 @@ namespace MoreAccessoriesKOI
                 }
                 controller.objAcsMove = newarray;
             }
-
             if (CharaMaker)
             {
+                for (var i = 0; i < nowlength; i++)
+                {
+                    var part = parts[i];
+                    if (part.type != 120)
+                    {
+#if KKS
+                        controller.infoAccessory[i] = controller.lstCtrl.GetInfo((ChaListDefine.CategoryNo)part.type, part.id);
+#else
+                        controller.infoAccessory[i] = controller.lstCtrl.GetListInfo((ChaListDefine.CategoryNo)part.type, part.id);
+#endif
+                        continue;
+                    }
+                }
                 delta = len - nowlength;
                 if (delta > 0)
                 {
@@ -94,6 +87,7 @@ namespace MoreAccessoriesKOI
                     for (var i = 0; i < delta; i++) { partsarray[i] = new ChaFileAccessory.PartsInfo(); }
                     controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Concat(partsarray).ToArray();
                 }
+#if KK || KKS
                 foreach (var item in controller.chaFile.coordinate)
                 {
                     delta = len - item.accessory.parts.Length;
@@ -104,29 +98,9 @@ namespace MoreAccessoriesKOI
                         item.accessory.parts = item.accessory.parts.Concat(array).ToArray();
                     }
                 }
+#endif
                 _self.MakerMode.RefreshToggles(len);
             }
-        }
-
-        internal int GetSelectedMakerIndex()
-        {
-            for (var i = 0; MakerMode.AccessoriesWindow != null && i < MakerMode.AccessoriesWindow._customAcsChangeSlot.items.Length; i++)
-            {
-                var info = MakerMode.AccessoriesWindow._customAcsChangeSlot.items[i];
-                if (info.tglItem.isOn)
-                    return i;
-            }
-            return -1;
-        }
-
-        internal ChaFileAccessory.PartsInfo GetPart(int index)
-        {
-            return CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts[index];
-        }
-
-        internal CvsAccessory GetCvsAccessory(int index)
-        {
-            return MakerMode.AccessoriesWindow.CvsAccessoryArray[index];
         }
     }
 }

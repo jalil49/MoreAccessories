@@ -1,4 +1,5 @@
-﻿using ChaCustom;
+﻿#if KKS || KK
+using ChaCustom;
 using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches.Maker
@@ -12,3 +13,4 @@ namespace MoreAccessoriesKOI.Patches.Maker
         }
     }
 }
+#endif

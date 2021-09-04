@@ -9,11 +9,11 @@
     <Import_RootNamespace>MoreAccessoriesKOI</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)BackwardCompatibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\BackwardCompatibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\H.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Maker\Maker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Studio.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\Maker\BackwardsCompatibity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\PluginSupport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Classes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_CvsAccessoryChange.cs" />
@@ -22,10 +22,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SavePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\Data.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\Maker\Events.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\MainGame\H.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\Maker\Maker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Common\Studio\Studio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\Events.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\Common.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\UIUtility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\IMGUIExtensions.cs" />
@@ -50,9 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Classes\Maker\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Common\Maker\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Common\MainGame\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Common\Studio\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\" />
     <Folder Include="$(MSBuildThisFileDirectory)Patches\MainGame\" />
     <Folder Include="$(MSBuildThisFileDirectory)Patches\Studio\" />
   </ItemGroup>

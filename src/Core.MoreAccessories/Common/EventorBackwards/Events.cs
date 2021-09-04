@@ -5,7 +5,6 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-        #region Events
         /// <summary>
         /// Fires when a new accessory UI slot is created in the maker.
         /// </summary>
@@ -17,6 +16,5 @@ namespace MoreAccessoriesKOI
         {
             onCharaMakerSlotAdded?.Invoke(index, slot);
         }
-        #endregion
     }
 }

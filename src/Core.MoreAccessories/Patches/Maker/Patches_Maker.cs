@@ -38,7 +38,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                         AccessTools.Method(typeof(CvsAccessoryChange), nameof(CvsAccessoryChange.CalculateUI)),//7
                         AccessTools.Method(typeof(CustomControl), nameof(CustomControl.Update)),//8
 #if !KKS
-                        AccessTools.Method(change, nameof(CustomAcsChangeSlot.Start)), 
+                        AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Start)), 
 #endif
 #if !EC
                         AccessTools.Method(typeof(CvsAccessoryCopy), nameof(CvsAccessoryCopy.ChangeDstDD)),//9

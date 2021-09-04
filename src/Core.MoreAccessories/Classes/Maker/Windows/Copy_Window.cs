@@ -1,4 +1,5 @@
-﻿using ChaCustom;
+﻿#if KK || KKS
+using ChaCustom;
 using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
@@ -79,7 +80,7 @@ namespace MoreAccessoriesKOI
             ScrollView.content = content;
             ScrollView.transform.SetAsFirstSibling();
             ScrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -570f), new Vector2(-16f, -80f));
-            Plugin.MakerMode.RaycastCtrls.Add(container.parent.GetComponent<UI_RaycastCtrl>());
         }
     }
 }
+#endif
