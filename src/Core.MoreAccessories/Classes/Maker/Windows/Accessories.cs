@@ -10,11 +10,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-#if KKS
-//using Localize.Translate;
-#endif
-
-
 namespace MoreAccessoriesKOI
 {
     public class Accessories

@@ -583,14 +583,7 @@ namespace MoreAccessoriesKOI
         }
 #endif
         #endregion
-        private static void UAR_ExtendedCardLoad_Prefix(ChaFile file)
-        {
-            _self.OnActualCharaLoad(file);
-        }
-        private static void UAR_ExtendedCoordLoad_Prefix(ChaFileCoordinate file)
-        {
-            _self.OnActualCoordLoad(file);
-        }
+
         #region Saves
         internal void OnActualCharaLoad(ChaFile file)
         {
@@ -735,7 +728,8 @@ namespace MoreAccessoriesKOI
             if (ImportingCards) return;
 
             var data = new CharAdditionalData(CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts);
-
+            var pluginData = new PluginData { version = _saveVersion };
+#if false
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
             {
@@ -809,10 +803,12 @@ namespace MoreAccessoriesKOI
 
                 xmlWriter.WriteEndElement();
 
-                var pluginData = new PluginData { version = _saveVersion };
                 pluginData.data.Add("additionalAccessories", stringWriter.ToString());
                 ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
             }
+#else
+            ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
+#endif
         }
 
         internal void OnActualCoordLoad(ChaFileCoordinate file)
@@ -959,6 +955,7 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCoordSave(ChaFileCoordinate file)
         {
+#if false
             var data = new CharAdditionalData(CustomBase.instance.chaCtrl);
 
             using (var stringWriter = new StringWriter())
@@ -1007,6 +1004,12 @@ namespace MoreAccessoriesKOI
                 pluginData.data.Add("additionalAccessories", stringWriter.ToString());
                 ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
             }
+#endif
+            var pluginData = new PluginData
+            {
+                version = _saveVersion
+            };
+            ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
         }
         #endregion
     }

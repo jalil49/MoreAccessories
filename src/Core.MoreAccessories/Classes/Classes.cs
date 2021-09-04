@@ -7,8 +7,6 @@ using HPlay;
 using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
 #endif
-#if KK || KKS
-#endif
 
 using System.Linq;
 
@@ -19,7 +17,7 @@ namespace MoreAccessoriesKOI
     {
         public CharAdditionalData() { }
 
-#if KKS || KK
+#if KK || KKS
         public CharAdditionalData(ChaControl chactrl)
         {
             nowAccessories = chactrl.nowCoordinate.accessory.parts.ToList();
