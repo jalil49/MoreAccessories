@@ -258,6 +258,7 @@ namespace MoreAccessoriesKOI
                 return;
             }
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
+            var cvscolor = CVSColor(count + 21);//do once rather than every time slots are made in case of 10 batch
             var slotindex = 0;
             for (; slotindex < count; slotindex++)
             {
@@ -283,12 +284,11 @@ namespace MoreAccessoriesKOI
                     var toggle = newSlot.GetComponent<Toggle>();
                     var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
-                    //cvsAccessory.cvsColor = toggle.GetComponentInChildren<CvsColor>();
+
                     cvsAccessory.textSlotName = toggle.GetComponentInChildren<TextMeshProUGUI>();
 
                     CvsAccessoryArray = CvsAccessoryArray.Concat(cvsAccessory).ToArray();
 
-                    var cvscolor = CVSColor(index + 1);
                     cvsAccessory.colorKind = cvscolor;
                     foreach (var item in CvsAccessoryArray)
                     {
