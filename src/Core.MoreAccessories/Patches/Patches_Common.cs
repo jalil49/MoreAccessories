@@ -36,20 +36,7 @@ namespace MoreAccessoriesKOI.Patches
         {
             internal static void Prefix()
             {
-                MoreAccessories.CharaListIsLoading = true;
-            }
-            internal static void Postfix()
-            {
-                MoreAccessories.CharaListIsLoading = false;
-            }
-        }
-#endif 
-#if KKS
-        [HarmonyPatch(typeof(Localize.Translate.CustomFileListSelecter), nameof(Localize.Translate.CustomFileListSelecter.Initialize))]
-        internal class CustomFileListSelecter_patch
-        {
-            internal static void Prefix()
-            {
+                MoreAccessories.Print($"CharaViewer creating list", BepInEx.Logging.LogLevel.Message);
                 MoreAccessories.CharaListIsLoading = true;
             }
             internal static void Postfix()
@@ -58,7 +45,32 @@ namespace MoreAccessoriesKOI.Patches
             }
         }
 
-        [HarmonyPatch(typeof(Localize.Translate.CustomFileListSelecter), nameof(Localize.Translate.CustomFileListSelecter.Start))]
+        [HarmonyPatch(typeof(SaveData.CharaData), nameof(SaveData.CharaData.SetCharFile))]
+        internal class SetCharFilePatch
+        {
+            internal static void Prefix(ChaFileControl charFile)
+            {
+                MoreAccessories._self.OnActualCharaLoad(charFile);
+            }
+        }
+
+#endif 
+#if KKS
+        [HarmonyPatch(typeof(Localize.Translate.CustomFileListSelecter), nameof(Localize.Translate.CustomFileListSelecter.Initialize))]
+        internal class CustomFileListSelecter_patch
+        {
+            internal static void Prefix()
+            {
+                MoreAccessories.Print($"CustomFileListSelecter creating list", BepInEx.Logging.LogLevel.Message);
+                MoreAccessories.CharaListIsLoading = true;
+            }
+            internal static void Postfix()
+            {
+                MoreAccessories.CharaListIsLoading = false;
+            }
+        }
+
+        [HarmonyPatch(typeof(Localize.Translate.CustomFileListSelecter), nameof(Localize.Translate.CustomFileListSelecter.Awake))]
         internal class CustomFileListSelecterStart_patch
         {
             internal static void Postfix(Localize.Translate.CustomFileListSelecter __instance)

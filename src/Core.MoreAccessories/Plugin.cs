@@ -56,7 +56,7 @@ namespace MoreAccessoriesKOI
                 Print($"{item.ReflectedType}.{item.Name}");
             }
 #endif
-            ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
+            //ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
             ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
@@ -75,7 +75,7 @@ namespace MoreAccessoriesKOI
 #if !KK
         private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
         {
-            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return;
+            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
 
             var data = new CharAdditionalData();
             var doc = new XmlDocument();
@@ -133,6 +133,7 @@ namespace MoreAccessoriesKOI
 #endif
                                 if (_hasDarkness)
                                     part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
+                                Print($"Part shake? {part.noShake}");
                             }
                             parts.Add(part);
                         }
@@ -189,6 +190,7 @@ namespace MoreAccessoriesKOI
                 data.rawAccessoriesInfos[item.Key] = item.Value;
             }
 #endif
+
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
             {
@@ -262,7 +264,7 @@ namespace MoreAccessoriesKOI
 
                 xmlWriter.WriteEndElement();
 
-                pluginData.version = _saveVersion;
+                pluginData.version = 1;
                 pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
         }
@@ -278,6 +280,7 @@ namespace MoreAccessoriesKOI
             instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
 #endif
             MoreAccessories.Print($"loadmode {loadMode} index {scene.buildIndex} ");
+
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
@@ -315,7 +318,6 @@ namespace MoreAccessoriesKOI
                             case 11: //freeh select
                                 InFreeHSelect = true;
                                 break;
-                            case -1:
                             case 4: //menu
                                 AtMenu = true;
                                 break;
@@ -597,12 +599,18 @@ namespace MoreAccessoriesKOI
                 return;
             ChaControl control = null;
 #if KK || KKS   //start heroineheck
+            SaveData.Heroine heroine = null;
 #if KKS
-            var heroine = Game.HeroineList.Find(x => x.charFile == file);
+            if (Game.saveData != null)
+                heroine = Game.HeroineList.Find(x => x.charFile == file);
 #elif KK
-            var heroine = Game.instance.HeroineList.Find(x => x.charFile == file);
+            if (Game.instance.HeroineList!=null)
+            heroine = Game.instance.HeroineList.Find(x => x.charFile == file);
 #endif
+            Print($"Heroine Found? {heroine != null}");
             control = heroine?.chaCtrl;
+            Print($"control Found? {control != null}");
+
             if (InH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
 #endif          //end heroine check
 
@@ -616,21 +624,27 @@ namespace MoreAccessoriesKOI
                     LogSource.LogError($"ChaControl not found for {file.parameter.fullname}");
             }
 
+            Print($"control 2 Found? {control != null}");
+
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
+                Print($"{file.parameter.fullname} has an array larger than 20");
                 if (control != null)
                     ArraySync(control);
                 return;
             }
 #else
-
             if (file.coordinate.accessory.parts.Length > 20)
                 return;
-
 #endif
+            Print($"Loading Data for {file.parameter.fullname}");
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
-            if (pluginData == null) return;
+            if (pluginData == null)
+            {
+                Print("Plugin Data Null", LogLevel.Error);
+                return;
+            }
 
             var data = new CharAdditionalData();
 
@@ -701,11 +715,13 @@ namespace MoreAccessoriesKOI
                         default: break;
                     }
                 }
-
             }
+
+            Print($"Plugin Data has {data.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
 
             foreach (var item in data.rawAccessoriesInfos)
             {
+                Print($"raw data has key {item.Key}");
 #if KK || KKS
                 if (!(item.Key < file.coordinate.Length)) continue;
 
@@ -714,6 +730,7 @@ namespace MoreAccessoriesKOI
                 var accessory = file.coordinate.accessory;
 #endif
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
+                Print($"Settings coordinate {item.Key}");
             }
             if (control != null)
                 ArraySync(control);

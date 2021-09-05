@@ -14,10 +14,7 @@ namespace MoreAccessoriesKOI
 {
     public class MakerMode
     {
-        public MakerMode()
-        {
-            CustomBase.Instance.selectSlot = -1;
-        }
+        public MakerMode() { Plugin.StartCoroutine(WaitforMakerReady()); }
         internal static MoreAccessories Plugin => MoreAccessories._self;
         public Accessories AccessoriesWindow;
         internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
@@ -29,6 +26,21 @@ namespace MoreAccessoriesKOI
         public void UpdateMakerUI()
         {
             AccessoriesWindow.UpdateUI();
+        }
+
+        internal IEnumerator WaitforMakerReady()
+        {
+            yield return new WaitWhile(() =>
+            {
+                if (TransferWindow == null || AccessoriesWindow == null) return true;
+
+#if KK || KKS
+                if (CopyWindow == null) return true;
+#endif
+
+                return false;
+            });
+            UpdateMakerUI();
         }
 
         internal void RefreshToggles(int len)

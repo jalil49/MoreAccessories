@@ -315,6 +315,8 @@ namespace MoreAccessoriesKOI
 
                     cvsAccessory.textSlotName.text = $"スロット{index + 1:00}";
                     cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
+                    cvsAccessory.CalculateUI();//fixes copyng data over from original slot
+                    Plugin.ExecuteDelayed(cvsAccessory.CalculateUI);//fixes copyng data over from original slot
                     newSlot.name = "tglSlot" + (index + 1).ToString("00");
 
                     custombase.actUpdateCvsAccessory = custombase.actUpdateCvsAccessory.Concat(new System.Action(cvsAccessory.UpdateCustomUI)).ToArray();

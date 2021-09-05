@@ -26,13 +26,14 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             internal static void ChangeCoordPrefix(ChaControl __instance)
             {
                 PendingNowAccessories.Add(__instance);
+                MoreAccessories.Print("ChangeCoordinateType");
             }
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
             internal static void SetNowCoordinatePrefix(ChaControl __instance)
             {
-                MoreAccessories.Print("pre now coord change coord");
+                MoreAccessories.Print("SetNowCoordinatePrefix");
 
                 PendingNowAccessories.Add(__instance);
             }
@@ -40,13 +41,14 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             [HarmonyPostfix]
             [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadBytes))]
-            internal static void Nowcoordinatechange(ChaFileCoordinate __instance)
+            internal static void Nowcoordinatechange()
             {
                 if (PendingNowAccessories.Count == 0) return;
                 foreach (var item in PendingNowAccessories)
                 {
                     MoreAccessories.ArraySync(item);
                 }
+                MoreAccessories.Print("Nowcoordinatechange");
                 PendingNowAccessories.Clear();
                 if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories._self.MakerMode.UpdateMakerUI();
             }
@@ -284,6 +286,38 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
         internal class ChacontrolChangeAccessory_Patch
+        {
+            internal static void Prefix(ChaControl __instance)
+            {
+                if (__instance.nowCoordinate.accessory.parts.Length > __instance.infoAccessory.Length)
+                {
+                    MoreAccessories.ArraySync(__instance);
+                }
+            }
+
+            internal static void Postfix(ChaControl __instance)
+            {
+                var obj = __instance.objAccessory;
+                var info = __instance.infoAccessory;
+                var cusacscmp = __instance.cusAcsCmp;
+                var objAcsMove = __instance.objAcsMove;
+                for (int i = __instance.nowCoordinate.accessory.parts.Length, n = obj.Length; i < n; i++)
+                {
+                    if (obj[i])
+                    {
+                        __instance.SafeDestroy(obj[i]);
+                        info[i] = null;
+                        cusacscmp[i] = null;
+                        for (var j = 0; j < 2; j++)
+                        {
+                            objAcsMove[i, j] = null;
+                        }
+                    }
+                }
+            }
+        }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
+        internal class ChacontrolChangeAccessoryAsync_Patch
         {
             internal static void Prefix(ChaControl __instance)
             {

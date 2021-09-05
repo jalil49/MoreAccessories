@@ -11,6 +11,7 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPriority(Priority.First)]
         internal static void Prefix(ChaFile __instance, out ChaFileCoordinate[] __state)
         {
+            MoreAccessories.Print("Prefixing Save");
             var coord = __instance.coordinate;
             __state = coord.ToArray();
             for (int outfitnum = 0, n = coord.Length; outfitnum < n; outfitnum++)
@@ -28,6 +29,8 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPriority(Priority.First)]
         internal static void Postfix(ChaFile __instance, ChaFileCoordinate[] __state)
         {
+            MoreAccessories.Print("Postfix Save");
+
             __instance.coordinate = __state;
         }
     }
