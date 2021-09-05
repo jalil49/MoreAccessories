@@ -18,6 +18,7 @@ namespace MoreAccessoriesKOI
         internal static MoreAccessories Plugin => MoreAccessories._self;
         public Accessories AccessoriesWindow;
         internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
+        private bool ready;
 #if KK || KKS
         public Copy_Window CopyWindow { get; internal set; }
 #endif
@@ -25,10 +26,27 @@ namespace MoreAccessoriesKOI
 
         public void UpdateMakerUI()
         {
+            if (!ready) return;
             AccessoriesWindow.UpdateUI();
         }
 
         internal IEnumerator WaitforMakerReady()
+        {
+            yield return new WaitWhile(() =>
+            {
+                if (TransferWindow == null || AccessoriesWindow == null) return true;
+#if KK || KKS
+                if (CopyWindow == null) return true;
+#endif
+                if (CustomBase.Instance.chaCtrl == null) return true;
+
+                return false;
+            });
+            ready = true;
+            UpdateMakerUI();
+        }
+
+        internal IEnumerator RefreshTogglesWaitforMakerReady(int len)
         {
             yield return new WaitWhile(() =>
             {
@@ -41,11 +59,18 @@ namespace MoreAccessoriesKOI
 
                 return false;
             });
+            TransferWindow.RefreshToggles(len); //CharaMakerSlotData is added here 
+#if KK || KKS
+            CopyWindow.RefreshToggles(len);
+#endif
             UpdateMakerUI();
         }
 
+
         internal void RefreshToggles(int len)
         {
+            if (!ready) return;
+
             TransferWindow.RefreshToggles(len); //CharaMakerSlotData is added here 
 #if KK || KKS
             CopyWindow.RefreshToggles(len);

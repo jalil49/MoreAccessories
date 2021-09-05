@@ -15,7 +15,7 @@ namespace MoreAccessoriesKOI
         public CvsAccessoryChange ChangeWindow { get; private set; }
         public MoreAccessories Plugin => MoreAccessories._self;
 
-        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return Plugin.MakerMode._additionalCharaMakerSlots; } set { Plugin.MakerMode._additionalCharaMakerSlots = value; } }
+        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
 
         public Transfer_Window(CvsAccessoryChange _instance)
         {

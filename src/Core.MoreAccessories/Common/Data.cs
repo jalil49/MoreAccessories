@@ -23,21 +23,21 @@ namespace MoreAccessoriesKOI
         private const int _saveVersion = 2;
         private const string _extSaveKey = "moreAccessories";
 
-        internal bool _hasDarkness;
-        internal bool _isParty = false;
+        internal static bool _hasDarkness;
+        internal static bool _isParty = false;
         internal static ManualLogSource LogSource;
-        internal static bool CharaMaker => _self.MakerMode != null;
+        internal static bool CharaMaker => MakerMode != null;
         internal bool _loadAdditionalAccessories = true;
 
         public bool ImportingCards { get; private set; } = true;
         public static bool ClothesFileControlLoading { get; internal set; }
         public static bool CharaListIsLoading { get; internal set; }
 
-        public MakerMode MakerMode { get; private set; }
+        public static MakerMode MakerMode { get; private set; }
 #if KK || KKS
-        internal static bool InH => _self.HMode != null;
-        public HScene HMode;
-        public StudioClass StudioMode { get; private set; }
+        internal static bool InH => HMode != null;
+        public static HScene HMode;
+        public static StudioClass StudioMode { get; private set; }
 #elif EC
         private bool _inPlay;
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();

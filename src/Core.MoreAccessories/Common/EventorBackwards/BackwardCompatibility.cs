@@ -58,7 +58,7 @@ namespace MoreAccessoriesKOI
         {
             if (_cvsColor_Setup == null)
                 _cvsColor_Setup = self.GetType().GetMethod("Setup", AccessTools.all);
-            if (MoreAccessories._self._hasDarkness)
+            if (MoreAccessories._hasDarkness)
                 _cvsColor_Setup.Invoke(self, new object[] { winTitle, kind, color, _actUpdateColor, _useAlpha });
             else
                 _cvsColor_Setup.Invoke(self, new object[] { winTitle, kind, color, _actUpdateColor, _actUpdateHistory, _useAlpha });
@@ -66,7 +66,7 @@ namespace MoreAccessoriesKOI
 
         internal static Action UpdateAcsColorHistory(this CvsAccessory __instance)
         {
-            if (MoreAccessories._self._hasDarkness)
+            if (MoreAccessories._hasDarkness)
                 return null;
             var methodInfo = __instance.GetType().GetMethod("UpdateAcsColorHistory", AccessTools.all);
             if (methodInfo != null)

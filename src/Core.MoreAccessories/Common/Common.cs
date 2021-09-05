@@ -16,6 +16,7 @@ namespace MoreAccessoriesKOI
     {
         public static void ArraySync(ChaControl controller)
         {
+            Print($"Syncng {controller.chaFile.parameter.fullname}");
             var nowcoordinatevalid = controller.nowCoordinate != null;
             var parts = nowcoordinatevalid ? controller.nowCoordinate.accessory.parts : new ChaFileAccessory.PartsInfo[20];
             var len = parts.Length;
@@ -99,7 +100,7 @@ namespace MoreAccessoriesKOI
                     }
                 }
 #endif
-                _self.MakerMode.RefreshToggles(len);
+                MoreAccessories.MakerMode.RefreshToggles(len);
             }
         }
     }

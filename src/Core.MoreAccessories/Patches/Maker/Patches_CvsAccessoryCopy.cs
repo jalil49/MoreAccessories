@@ -9,7 +9,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
     {
         private static void Postfix(CvsAccessoryCopy __instance)
         {
-            MoreAccessories._self.MakerMode.CopyWindow = new Copy_Window(__instance);
+            MoreAccessories.MakerMode.CopyWindow = new Copy_Window(__instance);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         {
             private static void Postfix(CustomAcsParentWindow __instance)
             {
-                MoreAccessories._self.MakerMode.AccessoriesWindow.ParentWin = __instance;
+                MoreAccessories.MakerMode.AccessoriesWindow.ParentWin = __instance;
             }
         }
 

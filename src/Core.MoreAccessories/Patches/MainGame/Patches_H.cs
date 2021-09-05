@@ -31,7 +31,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 current++;
             }
 #endif
-
+#if KKS
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
                 var instructionsList = instructions.ToList();
@@ -69,19 +69,41 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     yield return inst;
                 }
             }
+#elif KK
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                var instructionsList = instructions.ToList();
+                var i = 0;
+                for (; i < instructionsList.Count; i++)
+                {
+                    var inst = instructionsList[i];
+                    if (inst.opcode == OpCodes.Ldc_I4_S && inst.operand.ToString() == "20")//female list
+                    {
+                        yield return new CodeInstruction(OpCodes.Ldarg_0);
+
+                        yield return new CodeInstruction(OpCodes.Ldfld, typeof(HSprite).GetField(nameof(HSprite.females), AccessTools.all));
+
+                        yield return new CodeInstruction(OpCodes.Ldloc_1);
+
+                        yield return new CodeInstruction(OpCodes.Call, typeof(HSpriteUpdate_patch).GetMethod(nameof(FemaleAccessoryCount), AccessTools.all));
+                        continue;
+                    }
+                    yield return inst;
+                }
+            }
+#endif
 
             private static int FemaleAccessoryCount(List<ChaControl> femaleList, int current)
             {
                 return femaleList[current].nowCoordinate.accessory.parts.Length;
             }
-
+#if KKS
             private static int MaleAccessoryCount(ChaControl male)
             {
                 return male.nowCoordinate.accessory.parts.Length;
             }
+#endif
         }
-
-
 
         [HarmonyPatch(typeof(HSprite), nameof(HSprite.AccessoryProc))]
         internal static class HSpriteAccessoryProc_patch
@@ -214,7 +236,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             private static void Postfix(List<ChaControl> ___lstFemale, HSprite ___sprite)
             {
                 MoreAccessories.Print("Hstarted");
-                MoreAccessories._self.HMode = new HScene(___lstFemale, new[] { ___sprite });
+                MoreAccessories.HMode = new HScene(___lstFemale, new[] { ___sprite });
             }
         }
     }

@@ -34,7 +34,7 @@ namespace MoreAccessoriesKOI
             MakeSlotsScrollable();
         }
 
-        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return Plugin.MakerMode._additionalCharaMakerSlots; } set { Plugin.MakerMode._additionalCharaMakerSlots = value; } }
+        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
 
         private ScrollRect ScrollView;
         private readonly float buttonwidth = .109375f * Screen.width;
@@ -266,12 +266,12 @@ namespace MoreAccessoriesKOI
                 if (info.AccessorySlot != null && slotindex < AdditionalCharaMakerSlots.Count)
                 {
                     info = AdditionalCharaMakerSlots[slotindex];
-                    info.AccessorySlot.SetActive(true);
+                    info.AccessorySlot?.SetActive(true);
                     if (slotindex + 20 == CustomBase.Instance.selectSlot)
                         Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
-                    info.transferSlotObject.SetActive(true);
+                    info.transferSlotObject?.SetActive(true);
 #if KK || KKS
-                    info.copySlotObject.SetActive(true);
+                    info.copySlotObject?.SetActive(true);
 #endif
                 }
                 else
@@ -364,15 +364,16 @@ namespace MoreAccessoriesKOI
         {
             var newarray = new int[rank, 4];
             var value = 124;
-            var print = "";
+            //var print = "";
             for (var i = 0; i < 20; i++)
             {
                 for (var j = 0; j < 4; j++, value++)
                 {
                     newarray[i, j] = value;
                 }
-                print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
+                //print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
             }
+            //there is a break here with KKS since they appended to end of enum
             value = 5000;
             for (var i = 20; i < rank; i++)
             {
@@ -380,9 +381,9 @@ namespace MoreAccessoriesKOI
                 {
                     newarray[i, j] = value;
                 }
-                print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
+                //print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
             }
-            MoreAccessories.Print(print);
+            //MoreAccessories.Print(print);
             return newarray;
         }
 
@@ -453,7 +454,7 @@ namespace MoreAccessoriesKOI
             }
             coordacc.parts = controller.nowCoordinate.accessory.parts = nowparts.Concat(newpart).ToArray();
             MoreAccessories.ArraySync(controller);
-            Plugin.MakerMode.UpdateMakerUI();
+            MoreAccessories.MakerMode.UpdateMakerUI();
             AddInProgress = false;
         }
     }

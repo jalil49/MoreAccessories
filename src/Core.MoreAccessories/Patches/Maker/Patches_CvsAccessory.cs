@@ -22,7 +22,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         {
             private static void Postfix()
             {
-                MoreAccessories._self.MakerMode.AccessoriesWindow.FixWindowScroll();
+                MoreAccessories.MakerMode?.AccessoriesWindow?.FixWindowScroll();
             }
         }
 
@@ -30,20 +30,22 @@ namespace MoreAccessoriesKOI.Patches.Maker
         [HarmonyPatch]
         internal static class CustomAcsChangeSlot_Patch
         {
-            static MethodBase methodbase;
-
             static MethodBase TargetMethod()
             {
+                MethodBase methodbase;
+#if KKS
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaCustom.CustomAcsChangeSlot+<>c__DisplayClass18_1, Assembly-CSharp"), "<Initialize>b__4");
+#elif KK
+                methodbase = AccessTools.Method(AccessTools.TypeByName("ChaCustom.CustomAcsChangeSlot+<Start>c__AnonStorey0+<Start>c__AnonStorey1, Assembly-CSharp"), "<>m__0");//insert disgust sounds
+#endif
                 return methodbase;
             }
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"{nameof(CustomAcsChangeSlot_Patch)} Method");
+                MoreAccessories.Print($"{nameof(CustomAcsChangeSlot_Patch)} Method");
                 var worked2 = false;
-
 #endif
                 var worked = false;
 

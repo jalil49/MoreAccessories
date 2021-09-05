@@ -6,7 +6,7 @@ namespace MoreAccessoriesKOI.Patches
 {
 #if KK || KKS
     [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetCoordinateBytes), new Type[0])]
-    internal class SavePatch
+    internal class CharaSavePatch
     {
         [HarmonyPriority(Priority.First)]
         internal static void Prefix(ChaFile __instance, out ChaFileCoordinate[] __state)
@@ -70,4 +70,29 @@ namespace MoreAccessoriesKOI.Patches
     }
 
 #endif
+    [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveFile))]
+    internal class CoordSavePatch
+    {
+        [HarmonyPriority(Priority.First)]
+        internal static void Prefix(ChaFileCoordinate __instance, out ChaFileAccessory.PartsInfo[] __state)
+        {
+            MoreAccessories.Print("Prefixing Save");
+            __state = __instance.accessory.parts.ToArray();
+            var accessories = __instance.accessory.parts.ToList();
+            for (var slot = accessories.Count - 1; accessories.Count > 20; slot--)
+            {
+                if (accessories[slot].type != 120) break;
+                accessories.RemoveAt(slot);
+            }
+            __instance.accessory.parts = accessories.ToArray();
+        }
+
+        [HarmonyPriority(Priority.First)]
+        internal static void Postfix(ChaFileCoordinate __instance, ChaFileAccessory.PartsInfo[] __state)
+        {
+            MoreAccessories.Print("Postfix Save");
+            __instance.accessory.parts = __state;
+        }
+    }
+
 }

@@ -2,7 +2,7 @@
 
 namespace MoreAccessoriesKOI
 {
-    [BepInProcess("Koikatsu")]
+    [BepInProcess("Koikatu")]
     [BepInProcess("KoikatuVR")]
     [BepInProcess("Koikatsu Party")]
     [BepInProcess("Koikatsu Party VR")]

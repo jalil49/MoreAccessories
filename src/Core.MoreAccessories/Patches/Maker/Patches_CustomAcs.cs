@@ -13,7 +13,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         {
             private static void Postfix(CustomAcsChangeSlot __instance)
             {
-                MoreAccessories._self.MakerMode.AccessoriesWindow = new Accessories(__instance);
+                MoreAccessories.MakerMode.AccessoriesWindow = new Accessories(__instance);
             }
         }
 #endif

@@ -29,7 +29,7 @@ namespace MoreAccessoriesKOI.Patches
 
         internal static void Postfix(List<ChaControl> ___lstFemale, HSprite[] ___sprites)
         {
-            MoreAccessories._self.HMode = new HScene(___lstFemale, ___sprites);
+            MoreAccessories.HMode = new HScene(___lstFemale, ___sprites);
         }
     }
 #elif EC

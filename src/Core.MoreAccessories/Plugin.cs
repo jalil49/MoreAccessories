@@ -38,13 +38,13 @@ namespace MoreAccessoriesKOI
         private void Awake()
         {
             _self = this;
-            LogSource = this.Logger;
+            LogSource = Logger;
 #if !KK
             ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
 #endif
             SceneManager.sceneLoaded += LevelLoaded;
 
-            _hasDarkness = true;
+            _hasDarkness = typeof(ChaControl).GetMethod("ChangeShakeAccessory", AccessTools.all) != null;
             _isParty = Application.productName == "Koikatsu Party";
 
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
@@ -56,7 +56,7 @@ namespace MoreAccessoriesKOI
                 Print($"{item.ReflectedType}.{item.Name}");
             }
 #endif
-            //ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
+            ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
             ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
@@ -73,7 +73,7 @@ namespace MoreAccessoriesKOI
         public bool AtMenu { get; private set; }
 
 #if !KK
-        private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
+        private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
         {
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
 
@@ -143,53 +143,12 @@ namespace MoreAccessoriesKOI
             }
 
             var dict = data.rawAccessoriesInfos;
-            var keylist = data.rawAccessoriesInfos.Keys.ToList();
-            for (var removeindex = 1; removeindex < 7; removeindex++)
-            {
-                dict.Remove(removeindex);
-            }
-
-#if false
-            //moreoutfits complete transfer
-            var size = keylist.Count;
-            keylist.Remove(5);
-            keylist.Remove(3);
-            var transferarray = new List<int[]> { new[] { 0, 5 }, new[] { 1, 3 } };
             var transferdict = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
-            foreach (var array in transferarray)
+            foreach (var item in coordinateMapping)
             {
-                if (dict.TryGetValue(array[1], out var list))
-                {
-                    transferdict[array[0]] = list;
-                }
+                if (!dict.TryGetValue(item.Key, out var list) || !item.Value.HasValue) continue;
+                transferdict[item.Value.Value] = list;
             }
-
-            for (int i = 2; i < 4; i++)
-            {
-                if (transferdict.TryGetValue(0, out var list))
-                {
-                    transferdict[i] = list.ToList();
-                }
-            }
-
-            int key = 4;
-            foreach (var item in keylist)
-            {
-                if (dict.TryGetValue(item, out var list))
-                {
-                    transferdict[key] = list;
-                    key++;
-                    continue;
-                }
-                transferdict[key] = new List<ChaFileAccessory.PartsInfo>();
-                key++;
-            }
-            data.rawAccessoriesInfos.Clear();
-            foreach (var item in transferdict)
-            {
-                data.rawAccessoriesInfos[item.Key] = item.Value;
-            }
-#endif
 
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
@@ -597,41 +556,11 @@ namespace MoreAccessoriesKOI
         {
             if (_loadAdditionalAccessories == false || CharaListIsLoading)
                 return;
-            ChaControl control = null;
-#if KK || KKS   //start heroineheck
-            SaveData.Heroine heroine = null;
-#if KKS
-            if (Game.saveData != null)
-                heroine = Game.HeroineList.Find(x => x.charFile == file);
-#elif KK
-            if (Game.instance.HeroineList!=null)
-            heroine = Game.instance.HeroineList.Find(x => x.charFile == file);
-#endif
-            Print($"Heroine Found? {heroine != null}");
-            control = heroine?.chaCtrl;
-            Print($"control Found? {control != null}");
-
-            if (InH && control == null) { control = HMode._hSceneFemales.Find(x => x.chaFile == file); }
-#endif          //end heroine check
-
-            if (CharaMaker) { control = CustomBase.instance.chaCtrl; }
-#if KKS
-            if (control == null) { control = Character.ChaControls.Find(x => x.chaFile == file); }
-#endif
-            if (control == null)
-            {
-                if (!(CharaMaker || InFreeHSelect || AtMenu || ImportingCards))
-                    LogSource.LogError($"ChaControl not found for {file.parameter.fullname}");
-            }
-
-            Print($"control 2 Found? {control != null}");
 
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
                 Print($"{file.parameter.fullname} has an array larger than 20");
-                if (control != null)
-                    ArraySync(control);
                 return;
             }
 #else
@@ -732,8 +661,6 @@ namespace MoreAccessoriesKOI
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
                 Print($"Settings coordinate {item.Key}");
             }
-            if (control != null)
-                ArraySync(control);
 
             if (
 #if KK || KKS
