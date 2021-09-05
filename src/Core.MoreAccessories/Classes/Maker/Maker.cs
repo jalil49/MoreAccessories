@@ -37,6 +37,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
                 if (CopyWindow == null) return true;
 #endif
+                if (CustomBase.Instance.chaCtrl == null) return true;
 
                 return false;
             });
