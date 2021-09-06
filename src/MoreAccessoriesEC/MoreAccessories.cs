@@ -1,6 +1,4 @@
-﻿using BepInEx;
-
-namespace MoreAccessoriesKOI
+﻿namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories { }
 }

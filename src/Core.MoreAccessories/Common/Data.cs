@@ -1,5 +1,4 @@
 ﻿using BepInEx.Logging;
-using ChaCustom;
 
 #if EC
 using HPlay;
@@ -36,7 +35,9 @@ namespace MoreAccessoriesKOI
         public static MakerMode MakerMode { get; private set; }
 #if KK || KKS
         internal static bool InH => HMode != null;
+        internal static bool InStudio => StudioMode != null;
         public static HScene HMode;
+
         public static StudioClass StudioMode { get; private set; }
 #elif EC
         private bool _inPlay;

@@ -58,7 +58,7 @@ namespace MoreAccessoriesKOI
 #if EC
         public List<int> advState = new List<int>();
 #endif
-        public readonly Dictionary<int, List<ChaFileAccessory.PartsInfo>> rawAccessoriesInfos = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
+        public Dictionary<int, List<ChaFileAccessory.PartsInfo>> rawAccessoriesInfos = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
     }
     public class CharaMakerSlotData
     {

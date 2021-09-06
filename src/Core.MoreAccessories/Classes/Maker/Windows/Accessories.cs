@@ -37,7 +37,7 @@ namespace MoreAccessoriesKOI
         internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
 
         private ScrollRect ScrollView;
-        private readonly float buttonwidth = .109375f * Screen.width;
+        private readonly float buttonwidth = 175f;
         private float height;
         private float _slotUIPositionY;
         private RectTransform _addButtonsGroup;
@@ -89,8 +89,6 @@ namespace MoreAccessoriesKOI
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
             ScrollView.scrollSensitivity = 18f;
-            ScrollView.verticalScrollbar.transform.position -= new Vector3(0.25f * Screen.width, 0, 0);
-            ScrollView.transform.position -= new Vector3(0.03125f * Screen.width, 0, 0);
             //if (ScrollView.verticalScrollbar != null)
             //    Object.Destroy(ScrollView.verticalScrollbar.gameObject);
             //Object.Destroy(ScrollView.content.GetComponent<Image>());
@@ -99,7 +97,12 @@ namespace MoreAccessoriesKOI
             var rootCanvas = (RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform;
             var element = ScrollView.gameObject.AddComponent<LayoutElement>();
             height = element.minHeight = rootCanvas.rect.height / 1.298076f;
-            element.minWidth = 0.425f * Screen.width;
+            element.minWidth = rootCanvas.rect.width * 0.35f;
+
+            //ScrollView.verticalScrollbar.transform.localPosition -= new Vector3(element.minWidth * 3 / 4 + 125, 0, 0);
+            ScrollView.verticalScrollbar.transform.localPosition -= new Vector3(element.minWidth / 2 + 125, 0, 0);
+            ScrollView.transform.position -= new Vector3(50, 0, 0);
+
             var vlg = ScrollView.content.gameObject.AddComponent<VerticalLayoutGroup>();
             parentGroup = container.GetComponent<VerticalLayoutGroup>();
 
@@ -129,17 +132,18 @@ namespace MoreAccessoriesKOI
             for (var i = 0; i < 20; i++)
             {
                 var child = container.GetChild(0);
+                //child.localScale = new Vector3(0.5f, 1, 0);
                 MakeWindowScrollable(child);
                 container.GetChild(0).SetParent(ScrollView.content);
             }
-
 
             ScrollView.transform.SetAsFirstSibling();
             var toggleChange = GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglChange").GetComponent<Toggle>();
             _addButtonsGroup = UIUtility.CreateNewUIObject("Add Buttons Group", ScrollView.content);
             element = _addButtonsGroup.gameObject.AddComponent<LayoutElement>();
+            var childreference = ScrollView.content.GetChild(0).GetComponent<LayoutElement>();
             element.preferredWidth = buttonwidth;
-            element.preferredHeight = 32f;
+            element.preferredHeight = 32;
             var textModel = toggleChange.transform.Find("imgOff").GetComponentInChildren<TextMeshProUGUI>().gameObject;
 
             var addOneButton = UIUtility.CreateButton("Add One Button", _addButtonsGroup, "+1");
@@ -266,12 +270,12 @@ namespace MoreAccessoriesKOI
                 if (info.AccessorySlot != null && slotindex < AdditionalCharaMakerSlots.Count)
                 {
                     info = AdditionalCharaMakerSlots[slotindex];
-                    info.AccessorySlot?.SetActive(true);
+                    info.AccessorySlot.SetActive(true);
                     if (slotindex + 20 == CustomBase.Instance.selectSlot)
                         Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
-                    info.transferSlotObject?.SetActive(true);
+                    info.transferSlotObject.SetActive(true);
 #if KK || KKS
-                    info.copySlotObject?.SetActive(true);
+                    info.copySlotObject.SetActive(true);
 #endif
                 }
                 else

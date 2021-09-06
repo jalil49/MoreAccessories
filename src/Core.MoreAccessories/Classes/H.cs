@@ -79,19 +79,20 @@ namespace MoreAccessoriesKOI
             scrollrect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
             scrolltemplate.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var element = scrolltemplate.AddComponent<LayoutElement>();
-            element.preferredHeight = element.minHeight = Screen.height / 2;
-            element.minWidth = element.minWidth = Screen.width / 10;
+            element.preferredHeight = element.minHeight = Screen.height / 4;
+            element.preferredWidth = element.minWidth = Screen.width / 10;
             if (scrollrect.horizontalScrollbar != null)
                 Object.DestroyImmediate(scrollrect.horizontalScrollbar.gameObject);
+            //scrollrect.rectTransform.localPosition -= new Vector3(0, 100, 0);
             //if (scrollrect.verticalScrollbar != null)
             //    Object.DestroyImmediate(scrollrect.verticalScrollbar.gameObject);
-            // Object.DestroyImmediate(scrollrect.transform.GetComponent<Image>());
+            Object.DestroyImmediate(scrollrect.transform.GetComponent<Image>());
 
             var vlg = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.childForceExpandHeight = true;
 
             scrollrect.transform.SetRect(container);
-            Object.Destroy(scrollrect.content.gameObject);
+            //Object.Destroy(scrollrect.content.gameObject);
             scrollrect.content = (RectTransform)container;
             scrollrect.transform.SetParent(container.parent, false);
         }

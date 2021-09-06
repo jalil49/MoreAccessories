@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Xml;
 using BepInEx;
 using BepInEx.Logging;
-using ChaCustom;
 using ExtensibleSaveFormat;
 using HarmonyLib;
 #if EC
@@ -19,12 +18,11 @@ using TMPro;
 #endif
 using Manager;
 #if KK || KKS
+using Studio;
 #endif
 using MoreAccessoriesKOI.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using MoreAccessoriesKOI.Patches;
-using MoreAccessoriesKOI.Patches.MainGame;
 using Scene = UnityEngine.SceneManagement.Scene;
 
 namespace MoreAccessoriesKOI
@@ -133,7 +131,6 @@ namespace MoreAccessoriesKOI
 #endif
                                 if (_hasDarkness)
                                     part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
-                                Print($"Part shake? {part.noShake}");
                             }
                             parts.Add(part);
                         }
@@ -149,7 +146,7 @@ namespace MoreAccessoriesKOI
                 if (!dict.TryGetValue(item.Key, out var list) || !item.Value.HasValue) continue;
                 transferdict[item.Value.Value] = list;
             }
-
+            data.rawAccessoriesInfos = transferdict;
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
             {
@@ -238,7 +235,7 @@ namespace MoreAccessoriesKOI
 #elif KKS
             instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
 #endif
-            MoreAccessories.Print($"loadmode {loadMode} index {scene.buildIndex} ");
+            Print($"loadmode {loadMode} index {scene.buildIndex} ");
 
             switch (loadMode)
             {
@@ -311,28 +308,27 @@ namespace MoreAccessoriesKOI
             }
         }
 
-        //        private void Update()
-        //        {
-        //#if KK || KKS
-        //            if (_inStudio)
-        //            {
-        //                var treeNodeObject = Studio.Studio.Instance.treeNodeCtrl.selectNode;
-        //                if (treeNodeObject != null)
-        //                {
-        //                    ObjectCtrlInfo info;
-        //                    if (Studio.Studio.Instance.dicInfo.TryGetValue(treeNodeObject, out info))
-        //                    {
-        //                        var selected = info as OCIChar;
-        //                        if (selected != _selectedStudioCharacter)
-        //                        {
-        //                            _selectedStudioCharacter = selected;
-        //                            UpdateStudioUI();
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //#endif
-        //        }
+        internal void Update()
+        {
+#if KK || KKS
+            if (InStudio)
+            {
+                var treeNodeObject = Studio.Studio.Instance.treeNodeCtrl.selectNode;
+                if (treeNodeObject != null)
+                {
+                    if (Studio.Studio.Instance.dicInfo.TryGetValue(treeNodeObject, out var info))
+                    {
+                        var selected = info as OCIChar;
+                        if (selected != StudioMode._selectedStudioCharacter)
+                        {
+                            StudioMode._selectedStudioCharacter = selected;
+                            StudioMode.UpdateStudioUI();
+                        }
+                    }
+                }
+            }
+#endif
+        }
 
         //private void LateUpdate()
         //{

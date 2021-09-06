@@ -27,10 +27,6 @@ namespace MoreAccessoriesKOI
         [Obsolete("No Purpose")]
         public int GetCvsAccessoryCount()
         {
-            //if (CharaMaker && (MakerMode == null || MakerMode.AccessoriesWindow == null))
-            //{
-            //    return 20;
-            //}
             if (CharaMaker)
                 return MakerMode.AccessoriesWindow.AdditionalCharaMakerSlots.Count + 20;
             return 0;

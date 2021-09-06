@@ -11,11 +11,12 @@ namespace MoreAccessoriesKOI
     {
         private StudioSlotData _studioToggleAll;
         private RectTransform _studioToggleTemplate;
-        private OCIChar _selectedStudioCharacter;
+        internal OCIChar _selectedStudioCharacter;
         private readonly List<StudioSlotData> _additionalStudioSlots = new List<StudioSlotData>();
         private StudioSlotData _studioToggleMain;
         private StudioSlotData _studioToggleSub;
 
+        internal StudioClass() { SpawnStudioUI(); }
         private void SpawnStudioUI()
         {
             var accList = GameObject.Find("StudioScene/Canvas Main Menu/02_Manipulate/00_Chara/01_State/Viewport/Content/Slot").transform;
@@ -36,14 +37,14 @@ namespace MoreAccessoriesKOI
             _studioToggleAll.onButton.onClick.AddListener(() =>
             {
                 _selectedStudioCharacter.charInfo.SetAccessoryStateAll(true);
-                ctrl.CallPrivate("UpdateInfo");
+                ctrl.UpdateInfo();
                 UpdateStudioUI();
             });
             _studioToggleAll.offButton.onClick = new Button.ButtonClickedEvent();
             _studioToggleAll.offButton.onClick.AddListener(() =>
             {
                 _selectedStudioCharacter.charInfo.SetAccessoryStateAll(false);
-                ctrl.CallPrivate("UpdateInfo");
+                ctrl.UpdateInfo();
                 UpdateStudioUI();
             });
             _studioToggleAll.slot.SetAsLastSibling();
@@ -61,14 +62,14 @@ namespace MoreAccessoriesKOI
             _studioToggleMain.onButton.onClick.AddListener(() =>
             {
                 _selectedStudioCharacter.charInfo.SetAccessoryStateCategory(0, true);
-                ctrl.CallPrivate("UpdateInfo");
+                ctrl.UpdateInfo();
                 UpdateStudioUI();
             });
             _studioToggleMain.offButton.onClick = new Button.ButtonClickedEvent();
             _studioToggleMain.offButton.onClick.AddListener(() =>
             {
                 _selectedStudioCharacter.charInfo.SetAccessoryStateCategory(0, false);
-                ctrl.CallPrivate("UpdateInfo");
+                ctrl.UpdateInfo();
                 UpdateStudioUI();
             });
             _studioToggleMain.slot.SetAsLastSibling();
@@ -86,14 +87,14 @@ namespace MoreAccessoriesKOI
             _studioToggleSub.onButton.onClick.AddListener(() =>
             {
                 _selectedStudioCharacter.charInfo.SetAccessoryStateCategory(1, true);
-                ctrl.CallPrivate("UpdateInfo");
+                ctrl.UpdateInfo();
                 UpdateStudioUI();
             });
             _studioToggleSub.offButton.onClick = new Button.ButtonClickedEvent();
             _studioToggleSub.offButton.onClick.AddListener(() =>
             {
                 _selectedStudioCharacter.charInfo.SetAccessoryStateCategory(1, false);
-                ctrl.CallPrivate("UpdateInfo");
+                ctrl.UpdateInfo();
                 UpdateStudioUI();
             });
             _studioToggleSub.slot.SetAsLastSibling();
@@ -104,57 +105,58 @@ namespace MoreAccessoriesKOI
         {
             if (_selectedStudioCharacter == null)
                 return;
-            //var additionalData = _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile];
-            //int i;
-            //for (i = 0; i < additionalData.nowAccessories.Count; i++)
-            //{
-            //    StudioSlotData slot;
-            //    var accessory = additionalData.nowAccessories[i];
-            //    if (i < _additionalStudioSlots.Count)
-            //    {
-            //        slot = _additionalStudioSlots[i];
-            //    }
-            //    else
-            //    {
-            //        slot = new StudioSlotData();
-            //        slot.slot = (RectTransform)Instantiate(_studioToggleTemplate.gameObject).transform;
-            //        slot.name = slot.slot.GetComponentInChildren<Text>();
-            //        slot.onButton = slot.slot.GetChild(1).GetComponent<Button>();
-            //        slot.offButton = slot.slot.GetChild(2).GetComponent<Button>();
-            //        slot.name.text = "スロット" + (21 + i);
-            //        slot.slot.SetParent(_studioToggleTemplate.parent);
-            //        slot.slot.localPosition = Vector3.zero;
-            //        slot.slot.localScale = Vector3.one;
-            //        var i1 = i;
-            //        slot.onButton.onClick = new Button.ButtonClickedEvent();
-            //        slot.onButton.onClick.AddListener(() =>
-            //        {
-            //            _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile].showAccessories[i1] = true;
-            //            slot.onButton.image.color = Color.green;
-            //            slot.offButton.image.color = Color.white;
-            //        });
-            //        slot.offButton.onClick = new Button.ButtonClickedEvent();
-            //        slot.offButton.onClick.AddListener(() =>
-            //        {
-            //            _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile].showAccessories[i1] = false;
-            //            slot.offButton.image.color = Color.green;
-            //            slot.onButton.image.color = Color.white;
-            //        });
-            //        _additionalStudioSlots.Add(slot);
-            //    }
-            //    slot.slot.gameObject.SetActive(true);
-            //    slot.onButton.interactable = accessory != null && accessory.type != 120;
-            //    slot.onButton.image.color = slot.onButton.interactable && additionalData.showAccessories[i] ? Color.green : Color.white;
-            //    slot.offButton.interactable = accessory != null && accessory.type != 120;
-            //    slot.offButton.image.color = slot.onButton.interactable && !additionalData.showAccessories[i] ? Color.green : Color.white;
-            //}
-            //for (; i < _additionalStudioSlots.Count; ++i)
-            //    _additionalStudioSlots[i].slot.gameObject.SetActive(false);
-            //_studioToggleSub.slot.SetAsFirstSibling();
-            //_studioToggleMain.slot.SetAsFirstSibling();
-            //_studioToggleAll.slot.SetAsFirstSibling();
+            var show = _selectedStudioCharacter.charInfo.fileStatus.showAccessory;
+            var parts = _selectedStudioCharacter.charInfo.nowCoordinate.accessory.parts;
+            var count = parts.Length - 20;
+            int i;
+            for (i = 0; i < count; i++)
+            {
+                StudioSlotData slot;
+                var accessory = parts[i + 20];
+                if (i < _additionalStudioSlots.Count)
+                {
+                    slot = _additionalStudioSlots[i];
+                }
+                else
+                {
+                    slot = new StudioSlotData();
+                    slot.slot = (RectTransform)Object.Instantiate(_studioToggleTemplate.gameObject).transform;
+                    slot.name = slot.slot.GetComponentInChildren<Text>();
+                    slot.onButton = slot.slot.GetChild(1).GetComponent<Button>();
+                    slot.offButton = slot.slot.GetChild(2).GetComponent<Button>();
+                    slot.name.text = "スロット" + (21 + i);
+                    slot.slot.SetParent(_studioToggleTemplate.parent);
+                    slot.slot.localPosition = Vector3.zero;
+                    slot.slot.localScale = Vector3.one;
+                    //var i1 = i;
+                    //slot.onButton.onClick = new Button.ButtonClickedEvent();
+                    //slot.onButton.onClick.AddListener(() =>
+                    //{
+                    //    _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile].showAccessories[i1] = true;
+                    //    slot.onButton.image.color = Color.green;
+                    //    slot.offButton.image.color = Color.white;
+                    //});
+                    //slot.offButton.onClick = new Button.ButtonClickedEvent();
+                    //slot.offButton.onClick.AddListener(() =>
+                    //{
+                    //    _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile].showAccessories[i1] = false;
+                    //    slot.offButton.image.color = Color.green;
+                    //    slot.onButton.image.color = Color.white;
+                    //});
+                    _additionalStudioSlots.Add(slot);
+                }
+                slot.slot.gameObject.SetActive(true);
+                slot.onButton.interactable = accessory != null && accessory.type != 120;
+                slot.onButton.image.color = slot.onButton.interactable && show[i] ? Color.green : Color.white;
+                slot.offButton.interactable = accessory != null && accessory.type != 120;
+                slot.offButton.image.color = slot.onButton.interactable && !show[i] ? Color.green : Color.white;
+            }
+            for (; i < _additionalStudioSlots.Count; ++i)
+                _additionalStudioSlots[i].slot.gameObject.SetActive(false);
+            _studioToggleSub.slot.SetAsFirstSibling();
+            _studioToggleMain.slot.SetAsFirstSibling();
+            _studioToggleAll.slot.SetAsFirstSibling();
         }
-
     }
 }
 #endif
