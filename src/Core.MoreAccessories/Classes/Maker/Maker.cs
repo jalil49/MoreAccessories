@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using ChaCustom;
+using MoreAccessoriesKOI.Extensions;
 #if EC
 using HPlay;
 using ADVPart.Manipulate;
@@ -18,7 +19,7 @@ namespace MoreAccessoriesKOI
         internal static MoreAccessories Plugin => MoreAccessories._self;
         public Accessories AccessoriesWindow;
         internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
-        private bool ready;
+        internal bool ready;
 #if KK || KKS
         public Copy_Window CopyWindow { get; internal set; }
 #endif
@@ -69,13 +70,17 @@ namespace MoreAccessoriesKOI
 
         internal void RefreshToggles(int len)
         {
-            if (!ready) return;
+            if (!ready)
+            {
+                Plugin.StartCoroutine(RefreshTogglesWaitforMakerReady(len));
+                return;
+            }
 
             TransferWindow.RefreshToggles(len); //CharaMakerSlotData is added here 
 #if KK || KKS
             CopyWindow.RefreshToggles(len);
 #endif
-            UpdateMakerUI();
+            Plugin.ExecuteDelayed(UpdateMakerUI);
         }
     }
 }

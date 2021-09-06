@@ -26,7 +26,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 current %= 300;
                 if (__exception != null && current == 0)
                 {
-                    MoreAccessories.LogSource.LogError($"Hsprite Update" + __exception);
+                    MoreAccessories.Print($"Hsprite Update" + __exception, BepInEx.Logging.LogLevel.Error);
                 }
                 current++;
             }

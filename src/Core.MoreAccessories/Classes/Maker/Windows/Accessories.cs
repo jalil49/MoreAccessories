@@ -18,7 +18,9 @@ namespace MoreAccessoriesKOI
 
         internal static MoreAccessories Plugin => MoreAccessories._self;
         internal GameObject scrolltemplate;
+
         #region Properties
+        private bool Ready => MoreAccessories.MakerMode.ready;
         internal CustomAcsParentWindow ParentWin { get { return _customAcsChangeSlot.customAcsParentWin; } set { _customAcsChangeSlot.customAcsParentWin = value; } }
         internal CustomAcsMoveWindow[] MoveWin { get { return _customAcsChangeSlot.customAcsMoveWin; } set { _customAcsChangeSlot.customAcsMoveWin = value; } }
         internal CustomAcsSelectKind[] SelectKind { get { return _customAcsChangeSlot.customAcsSelectKind; } set { _customAcsChangeSlot.customAcsSelectKind = value; } }
@@ -257,11 +259,15 @@ namespace MoreAccessoriesKOI
 
         public void UpdateUI()
         {
-            if (CustomBase.instance.chaCtrl == null)
+            if (!Ready)
             {
                 return;
             }
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
+            if (count > AdditionalCharaMakerSlots.Count)
+            {
+                return;
+            }
             var cvscolor = CVSColor(count + 21);//do once rather than every time slots are made in case of 10 batch
             var slotindex = 0;
             for (; slotindex < count; slotindex++)
@@ -273,26 +279,27 @@ namespace MoreAccessoriesKOI
                     info.AccessorySlot.SetActive(true);
                     if (slotindex + 20 == CustomBase.Instance.selectSlot)
                         Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
-                    info.transferSlotObject.SetActive(true);
+                    if (info.transferSlotObject) info.transferSlotObject.SetActive(true);
 #if KK || KKS
-                    info.copySlotObject.SetActive(true);
+                    if (info.copySlotObject) info.copySlotObject.SetActive(true);
 #endif
                 }
                 else
                 {
+                    MoreAccessories.Print("7");
                     var index = slotindex + 20;
                     var custombase = CustomBase.instance;
                     var newSlot = Object.Instantiate(ScrollView.content.GetChild(0), ScrollView.content);
-
+                    MoreAccessories.Print("8");
                     info.AccessorySlot = newSlot.gameObject;
                     var toggle = newSlot.GetComponent<Toggle>();
                     var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
-
+                    MoreAccessories.Print("9");
                     cvsAccessory.textSlotName = toggle.GetComponentInChildren<TextMeshProUGUI>();
 
                     CvsAccessoryArray = CvsAccessoryArray.Concat(cvsAccessory).ToArray();
-
+                    MoreAccessories.Print("10");
                     cvsAccessory.colorKind = cvscolor;
                     foreach (var item in CvsAccessoryArray)
                     {
@@ -300,7 +307,7 @@ namespace MoreAccessoriesKOI
                     }
 
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
-
+                    MoreAccessories.Print("11");
                     foreach (var _custom in SelectKind)
                     {
                         _custom.cvsAccessory = CvsAccessoryArray;
@@ -316,13 +323,13 @@ namespace MoreAccessoriesKOI
                     canvasGroup.Enable(false, false);
 
                     RestoreToggle(toggle, index);
-
+                    MoreAccessories.Print("12");
                     cvsAccessory.textSlotName.text = $"スロット{index + 1:00}";
                     cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
                     cvsAccessory.CalculateUI();//fixes copyng data over from original slot
                     Plugin.ExecuteDelayed(cvsAccessory.CalculateUI);//fixes copyng data over from original slot
                     newSlot.name = "tglSlot" + (index + 1).ToString("00");
-
+                    MoreAccessories.Print("13");
                     custombase.actUpdateCvsAccessory = custombase.actUpdateCvsAccessory.Concat(new System.Action(cvsAccessory.UpdateCustomUI)).ToArray();
                     custombase.actUpdateAcsSlotName = custombase.actUpdateAcsSlotName.Concat(new System.Action(delegate () { Plugin.ExecuteDelayed(cvsAccessory.UpdateSlotName); })).ToArray(); //delay to avoid an error when called early due to additional patches
                     var newreactive = new BoolReactiveProperty(false);
@@ -336,7 +343,7 @@ namespace MoreAccessoriesKOI
                         custombase.actUpdateAcsSlotName[index]?.Invoke();
                         custombase._updateCvsAccessory[index].Value = false;
                     });
-
+                    MoreAccessories.Print("14");
                     _addButtonsGroup.SetAsLastSibling();
                     var action = new System.Action(delegate () { cvsAccessory.Start(); });
 
@@ -349,16 +356,16 @@ namespace MoreAccessoriesKOI
                     {
                         MoreAccessories.Print(ex.ToString(), BepInEx.Logging.LogLevel.Error);
                     }
+                    MoreAccessories.Print("15");
                 }
             }
-
             for (; slotindex < AdditionalCharaMakerSlots.Count; slotindex++)
             {
                 var slot = AdditionalCharaMakerSlots[slotindex];
-                slot.AccessorySlot.SetActive(false);
-                slot.transferSlotObject.SetActive(false);
+                if (slot.AccessorySlot) slot.AccessorySlot.SetActive(false);
+                if (slot.transferSlotObject) slot.transferSlotObject.SetActive(false);
 #if KK || KKS
-                slot.copySlotObject.SetActive(false);
+                if (slot.copySlotObject) slot.copySlotObject.SetActive(false);
 #endif
             }
             _addButtonsGroup.SetAsLastSibling();

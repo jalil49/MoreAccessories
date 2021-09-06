@@ -18,7 +18,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         {
             if (__exception != null)
             {
-                MoreAccessories.LogSource.LogError(__exception);
+                MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
                 __exception = null;
             }
             return __exception;
@@ -57,7 +57,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         {
             var instructionsList = instructions.ToList();
 #if DEBUG
-            var work = false;
+            var worked = false;
             MoreAccessories.Print($"transpiler {count} started");
 #endif
             for (var i = 0; i < instructionsList.Count; i++)
@@ -67,7 +67,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 if (inst.opcode == OpCodes.Ldc_I4_S && inst.operand.ToString() == "20")
                 {
 #if DEBUG
-                    work = true;
+                    worked = true;
 #endif
                     yield return new CodeInstruction(OpCodes.Pop);//avoid label error
                     yield return new CodeInstruction(OpCodes.Call, typeof(Maker_Replace_20_Patch).GetMethod(nameof(AccessoryCount), AccessTools.all));
@@ -75,7 +75,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 }
             }
 #if DEBUG
-            MoreAccessories.LogSource.Log(work ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, $"transpiler {count++} finished");
+            MoreAccessories.Print($"transpiler {count++} finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
         }
 

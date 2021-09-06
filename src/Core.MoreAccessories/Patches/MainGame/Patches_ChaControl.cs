@@ -70,7 +70,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"ChaControl_ChangeAccessoryAsync_Patches\t\t{methodbase.ReflectedType}.{methodbase.Name}");
+                MoreAccessories.Print($"ChaControl_ChangeAccessoryAsync_Patches\t\t{methodbase.ReflectedType}.{methodbase.Name}");
 #endif
                 var instructionsList = instructions.ToList();
                 var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue || x.opcode == OpCodes.Brtrue_S); //work backwards from end
@@ -78,10 +78,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #if DEBUG
                 if (end == -1)
                 {
-                    MoreAccessories.LogSource.LogError($"Opcode not found Brtrue || Brtrue_s");
+                    MoreAccessories.Print($"Opcode not found Brtrue || Brtrue_s", BepInEx.Logging.LogLevel.Error);
                     for (var i = 0; i < instructionsList.Count; i++)
                     {
-                        MoreAccessories.LogSource.LogWarning($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        MoreAccessories.Print($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
                     }
                 }
 #endif
@@ -124,7 +124,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"Transpiler worked");
+                MoreAccessories.Print($"Transpiler worked");
 #endif
 
             }
@@ -153,7 +153,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"{nameof(ChaControl_ChangeAccessoryAsync_Replace20_Patches)} Method");
+                MoreAccessories.Print($"{nameof(ChaControl_ChangeAccessoryAsync_Replace20_Patches)} Method");
                 var worked = false;
 
 #endif
@@ -179,7 +179,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.LogSource.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
             }
 
@@ -198,7 +198,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 if (__exception != null)
                 {
-                    MoreAccessories.LogSource.LogError(__exception);
+                    MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
                 }
             }
 #endif
@@ -227,7 +227,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"ChaControl_CheckAdjuster_param_slot_0_Patches Method {count}");
+                MoreAccessories.Print($"ChaControl_CheckAdjuster_param_slot_0_Patches Method {count}");
                 var worked = false;
 
 #endif
@@ -236,10 +236,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #if DEBUG
                 if (end == -1)
                 {
-                    MoreAccessories.LogSource.LogError($"Opcode not found Brtrue || Brtrue_s");
+                    MoreAccessories.Print($"Opcode not found Brtrue || Brtrue_s", BepInEx.Logging.LogLevel.Error);
                     for (var i = 0; i < instructionsList.Count; i++)
                     {
-                        MoreAccessories.LogSource.LogWarning($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        MoreAccessories.Print($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
                     }
                 }
 #endif
@@ -283,7 +283,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.LogSource.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+                MoreAccessories.Print("Transpiler finished");
 #endif
 
                 count++;
@@ -363,7 +363,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
         }
 
-
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_1_Patches
         {
@@ -373,7 +372,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 if (__exception != null)
                 {
-                    MoreAccessories.LogSource.LogError(__exception);
+                    MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
                 }
             }
 #endif
@@ -390,7 +389,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"ChaControl_CheckAdjuster_param_slot_1_Patches Method {count}");
+                MoreAccessories.Print($"ChaControl_CheckAdjuster_param_slot_1_Patches Method {count}");
 #endif
                 var instructionsList = instructions.ToList();
                 var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue); //work backwards from end
@@ -399,10 +398,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 var worked = false;
                 if (end == -1)
                 {
-                    MoreAccessories.LogSource.LogError($"Opcode not found OpCodes.Brtrue_S");
+                    MoreAccessories.Print($"Opcode not found OpCodes.Brtrue_S", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
                     for (var i = 0; i < instructionsList.Count; i++)
                     {
-                        MoreAccessories.LogSource.LogWarning($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+                        MoreAccessories.Print($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
                     }
                 }
 #endif
@@ -444,7 +443,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     yield return inst;
                 }
 #if DEBUG
-                MoreAccessories.LogSource.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
                 count++;
 #endif
 
@@ -465,7 +464,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 if (__exception != null)
                 {
-                    MoreAccessories.LogSource.LogError(__exception);
+                    MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
                 }
             }
 #endif
@@ -486,7 +485,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.LogSource.LogWarning($"{nameof(ChaControl_Replace_20_Patch)} Method {count++}");
+                MoreAccessories.Print($"{nameof(ChaControl_Replace_20_Patch)} Method {count++}");
                 var worked = false;
 #endif
                 var instructionsList = instructions.ToList();
@@ -506,7 +505,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.LogSource.Log(worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
 
             }
@@ -514,6 +513,79 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             private static int AccessoryCount(ChaControl chara)
             {
                 return chara.nowCoordinate.accessory.parts.Length;
+            }
+        }
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryState))]
+        internal class SetAccessory_Patch
+        {
+            static bool Prefix(ChaControl __instance, int slotNo, bool show)
+            {
+                if (__instance.nowCoordinate.accessory.parts.Length <= slotNo)
+                {
+                    return false;
+                }
+                __instance.fileStatus.showAccessory[slotNo] = show;
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateAll))]
+        internal class SetAccessoryStateAll_Patch
+        {
+            static bool Prefix(ChaControl __instance, bool show)
+            {
+                var length = __instance.nowCoordinate.accessory.parts.Length;
+                for (var i = 0; i < length; i++)
+                {
+                    __instance.fileStatus.showAccessory[i] = show;
+                }
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateCategory))]
+        internal class SetAccessoryStateCategoryPatch
+        {
+            static bool Prefix(ChaControl __instance, int cateNo, bool show)
+            {
+                if (cateNo != 0 && 1 != cateNo)
+                {
+                    return false;
+                }
+                var length = __instance.nowCoordinate.accessory.parts.Length;
+                for (var i = 0; i < length; i++)
+                {
+                    if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
+                    {
+                        __instance.fileStatus.showAccessory[i] = show;
+                    }
+                }
+                return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.GetAccessoryCategoryCount))]
+        internal class GetAccessoryCategoryCountPatch
+        {
+            static bool Prefix(ChaControl __instance, int cateNo, ref int __result)
+            {
+                if (cateNo != 0 && 1 != cateNo)
+                {
+                    __result = -1;
+                    return false;
+                }
+                __result = 0;
+                var length = __instance.nowCoordinate.accessory.parts.Length;
+
+                for (var i = 0; i < length; i++)
+                {
+                    if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
+                    {
+                        __result++;
+                    }
+                }
+                return false;
             }
         }
     }

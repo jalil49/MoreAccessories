@@ -85,7 +85,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 }
 
 #if DEBUG
-                MoreAccessories.LogSource.Log(worked && worked2 ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error, "Transpiler finished");
+                MoreAccessories.Print("Transpiler finished", worked && worked2 ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
             }
 

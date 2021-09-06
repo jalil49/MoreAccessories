@@ -36,14 +36,14 @@ namespace MoreAccessoriesKOI
         private void Awake()
         {
             _self = this;
-            LogSource = Logger;
-#if !KK
-            ExtendedSave.CardBeingImported += ExtendedSave_CardBeingImported;
+#if KKS
+            ExtendedSave.CardBeingImported += MultiCoord_CardBeingImported;
+#elif EC
+            ExtendedSave.CardBeingImported += SingleCoord_CardBeingImported; ;
 #endif
             SceneManager.sceneLoaded += LevelLoaded;
 
             _hasDarkness = typeof(ChaControl).GetMethod("ChangeShakeAccessory", AccessTools.all) != null;
-            _isParty = Application.productName == "Koikatsu Party";
 
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
             var uarHooks = typeof(Sideloader.AutoResolver.UniversalAutoResolver).GetNestedType("Hooks", AccessTools.all);
@@ -60,18 +60,19 @@ namespace MoreAccessoriesKOI
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
         }
 
+
         internal static void Print(string text, LogLevel logLevel = LogLevel.Warning)
         {
 #if DEBUG
-            LogSource.Log(logLevel, text);
+            _self.Logger.Log(logLevel, text);
 #endif
         }
 
         public bool InFreeHSelect { get; private set; }
         public bool AtMenu { get; private set; }
 
-#if !KK
-        private void ExtendedSave_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
+#if KKS
+        private void MultiCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
         {
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
 
@@ -223,6 +224,143 @@ namespace MoreAccessoriesKOI
                 pluginData.version = 1;
                 pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
+        }
+#elif EC
+        private void SingleCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
+        {
+            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
+
+            var data = new CharAdditionalData();
+            var doc = new XmlDocument();
+            doc.LoadXml((string)xmlData);
+            var node = doc.FirstChild;
+
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                switch (childNode.Name)
+                {
+                    case "accessorySet":
+                        var coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
+                        List<ChaFileAccessory.PartsInfo> parts;
+
+                        if (data.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
+                        {
+                            parts = new List<ChaFileAccessory.PartsInfo>();
+                            data.rawAccessoriesInfos.Add(coordinateType, parts);
+                        }
+
+                        foreach (XmlNode accessoryNode in childNode.ChildNodes)
+                        {
+                            var part = new ChaFileAccessory.PartsInfo { type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value) };
+                            if (part.type != 120)
+                            {
+                                part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
+                                part.parentKey = accessoryNode.Attributes["parentKey"].Value;
+
+                                for (var i = 0; i < 2; i++)
+                                {
+                                    for (var j = 0; j < 3; j++)
+                                    {
+                                        part.addMove[i, j] = new Vector3
+                                        {
+                                            x = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}x"].Value),
+                                            y = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}y"].Value),
+                                            z = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}z"].Value)
+                                        };
+                                    }
+                                }
+                                for (var i = 0; i < 4; i++)
+                                {
+                                    part.color[i] = new Color
+                                    {
+                                        r = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}r"].Value),
+                                        g = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}g"].Value),
+                                        b = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}b"].Value),
+                                        a = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}a"].Value)
+                                    };
+                                }
+                                part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
+#if EC
+                                if (accessoryNode.Attributes["hideTiming"] != null)
+                                    part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
+#endif
+                                if (_hasDarkness)
+                                    part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
+                            }
+                            parts.Add(part);
+                        }
+                        break;
+                    default: break;
+                }
+            }
+
+            var dict = data.rawAccessoriesInfos;
+            var transferdict = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
+            if (dict.TryGetValue(0, out var list))
+            {
+                transferdict[0] = list;
+            }
+            data.rawAccessoriesInfos = transferdict;
+            using (var stringWriter = new StringWriter())
+            using (var xmlWriter = new XmlTextWriter(stringWriter))
+            {
+                var maxCount = 0;
+                xmlWriter.WriteStartElement("additionalAccessories");
+                xmlWriter.WriteAttributeString("version", versionNum);
+                foreach (var pair in data.rawAccessoriesInfos)
+                {
+                    if (pair.Value.Count == 0)
+                        continue;
+                    xmlWriter.WriteStartElement("accessorySet");
+                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString(pair.Key));
+                    if (maxCount < pair.Value.Count)
+                        maxCount = pair.Value.Count;
+
+                    for (var index = 0; index < pair.Value.Count; index++)
+                    {
+                        var part = pair.Value[index];
+                        xmlWriter.WriteStartElement("accessory");
+                        xmlWriter.WriteAttributeString("type", XmlConvert.ToString(part.type));
+
+                        if (part.type != 120)
+                        {
+                            xmlWriter.WriteAttributeString("id", XmlConvert.ToString(part.id));
+                            xmlWriter.WriteAttributeString("parentKey", part.parentKey);
+
+                            for (var i = 0; i < 2; i++)
+                            {
+                                for (var j = 0; j < 3; j++)
+                                {
+                                    var v = part.addMove[i, j];
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}x", XmlConvert.ToString(v.x));
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}y", XmlConvert.ToString(v.y));
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}z", XmlConvert.ToString(v.z));
+                                }
+                            }
+                            for (var i = 0; i < 4; i++)
+                            {
+                                var c = part.color[i];
+                                xmlWriter.WriteAttributeString($"color{i}r", XmlConvert.ToString(c.r));
+                                xmlWriter.WriteAttributeString($"color{i}g", XmlConvert.ToString(c.g));
+                                xmlWriter.WriteAttributeString($"color{i}b", XmlConvert.ToString(c.b));
+                                xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
+                            }
+                            xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
+                            xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
+                            if (_hasDarkness)
+                                xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString(part.noShake));
+                        }
+                        xmlWriter.WriteEndElement();
+                    }
+                    xmlWriter.WriteEndElement();
+
+                }
+                xmlWriter.WriteEndElement();
+
+                pluginData.version = 1;
+                pluginData.data["additionalAccessories"] = stringWriter.ToString();
+            }
+
         }
 #endif
 
@@ -550,7 +688,7 @@ namespace MoreAccessoriesKOI
         #region Saves
         internal void OnActualCharaLoad(ChaFile file)
         {
-            if (_loadAdditionalAccessories == false || CharaListIsLoading)
+            if (CharaListIsLoading)
                 return;
 
 #if KK || KKS
@@ -761,13 +899,6 @@ namespace MoreAccessoriesKOI
         {
             if (ClothesFileControlLoading) return;
 
-            if (_loadAdditionalAccessories == false) // This stuff is done this way because some user might want to change _loadAdditionalAccessories manually through reflection.
-            {
-                _loadAdditionalAccessories = true;
-                return;
-            }
-
-
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
             if (file.accessory.parts.Length > 20) //escape data is already saved directly on card 
@@ -830,63 +961,58 @@ namespace MoreAccessoriesKOI
                 }
             }
 
-#if EC
-            while (data.advState.Count < data.nowAccessories.Count)
-                data.advState.Add(-1);
-#endif
+            //#if KK || KKS
+            //#if KKS
+            //            var heroines = Game.HeroineList.Where(x => x.chaCtrl.nowCoordinate == file).Select(x => x.chaCtrl);
+            //#elif KK
+            //            var heroines = Game.instance.HeroineList.Where(x => x.chaCtrl.nowCoordinate == file).Select(x => x.chaCtrl);
+            //#endif
+            //            foreach (var controller in heroines)
+            //            {
+            //                var parts = controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Concat(data.nowAccessories).ToArray();
+            //                var show = controller.fileStatus.showAccessory;
+            //                var obj = controller.objAccessory;
+            //                var objmove = controller.objAcsMove;
+            //                var cusAcsCmp = controller.cusAcsCmp;
 
-#if KK || KKS
-#if KKS
-            var heroines = Game.HeroineList.Where(x => x.chaCtrl.nowCoordinate == file).Select(x => x.chaCtrl);
-#elif KK
-            var heroines = Game.instance.HeroineList.Where(x => x.chaCtrl.nowCoordinate == file).Select(x => x.chaCtrl);
-#endif
-            foreach (var controller in heroines)
-            {
-                var parts = controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Concat(data.nowAccessories).ToArray();
-                var show = controller.fileStatus.showAccessory;
-                var obj = controller.objAccessory;
-                var objmove = controller.objAcsMove;
-                var cusAcsCmp = controller.cusAcsCmp;
+            //                var len = parts.Length;
 
-                var len = parts.Length;
+            //                var count = len - show.Length;
+            //                if (count > 0)
+            //                {
+            //                    var newarray = new bool[count];
+            //                    for (var i = 0; i < count; i++) newarray[i] = true;
+            //                    controller.fileStatus.showAccessory = show.Concat(newarray).ToArray();
+            //                }
 
-                var count = len - show.Length;
-                if (count > 0)
-                {
-                    var newarray = new bool[count];
-                    for (var i = 0; i < count; i++) newarray[i] = true;
-                    controller.fileStatus.showAccessory = show.Concat(newarray).ToArray();
-                }
+            //                count = len - obj.Length;
+            //                if (count > 0)
+            //                {
+            //                    controller.objAccessory = obj.Concat(new GameObject[count]).ToArray();
+            //                }
 
-                count = len - obj.Length;
-                if (count > 0)
-                {
-                    controller.objAccessory = obj.Concat(new GameObject[count]).ToArray();
-                }
+            //                var movelen = objmove.GetLength(0);
+            //                count = len - movelen;
+            //                if (count > 0)
+            //                {
+            //                    var newarray = new GameObject[len, 2];
+            //                    for (var i = 0; i < movelen; i++)
+            //                    {
+            //                        for (var j = 0; j < 2; j++)
+            //                        {
+            //                            newarray[i, j] = objmove[i, j];
+            //                        }
+            //                    }
+            //                    controller.objAcsMove = newarray;
+            //                }
 
-                var movelen = objmove.GetLength(0);
-                count = len - movelen;
-                if (count > 0)
-                {
-                    var newarray = new GameObject[len, 2];
-                    for (var i = 0; i < movelen; i++)
-                    {
-                        for (var j = 0; j < 2; j++)
-                        {
-                            newarray[i, j] = objmove[i, j];
-                        }
-                    }
-                    controller.objAcsMove = newarray;
-                }
-
-                count = len - cusAcsCmp.Length;
-                if (count > 0)
-                {
-                    controller.objAccessory = obj.Concat(new GameObject[count]).ToArray();
-                }
-            }
-#endif
+            //                count = len - cusAcsCmp.Length;
+            //                if (count > 0)
+            //                {
+            //                    controller.objAccessory = obj.Concat(new GameObject[count]).ToArray();
+            //                }
+            //            }
+            //#endif
 
             if (
 #if KK || KKS
