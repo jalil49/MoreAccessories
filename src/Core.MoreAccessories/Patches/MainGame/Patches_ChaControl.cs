@@ -279,7 +279,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
+                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
 #endif
 
                 count++;
@@ -583,6 +583,61 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     }
                 }
                 return false;
+            }
+        }
+#endif
+
+#if KKS
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.UpdateVisible))]
+        internal class UpdateVisible_Patch
+        {
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+#if DEBUG
+                MoreAccessories.Print($"{nameof(UpdateVisible_Patch)} Method");
+                var worked = false;
+#endif
+                var instructionsList = instructions.ToList();
+                //var test = new List<CodeInstruction>() { instructionsList[1667], new CodeInstruction(OpCodes.Call, typeof(UpdateVisible_Patch).GetMethod(nameof(Print), AccessTools.all)) };
+                //instructionsList.InsertRange(1603, test);
+                var end = instructionsList.FindLastIndex(x => x.opcode == OpCodes.Conv_I4);
+                var start = end - 1;
+                while (instructionsList[start].opcode != OpCodes.Call)
+                {
+                    start--;
+                }
+                for (var i = 0; i < instructionsList.Count; i++)
+                {
+                    var inst = instructionsList[i];
+                    if (i == start)
+                    {
+#if DEBUG
+                        worked = true;
+#endif
+                        //yield return instructionsList[start - 2];
+                        yield return new CodeInstruction(OpCodes.Call, typeof(UpdateVisible_Patch).GetMethod(nameof(AccessoryCount), AccessTools.all));
+                        i = end;
+                        continue;
+                    }
+                    yield return inst;
+                }
+
+#if DEBUG
+                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
+#endif
+            }
+            //private static void Print(int k)
+            //{
+            //    MoreAccessories.Print(k.ToString());
+            //}
+            private static int AccessoryCount(ChaControl chara/*, int k*/)
+            {
+                //MoreAccessories.Print($"{k:00}/{chara.objAccessory.Length}  {chara.nowCoordinate.accessory.parts.Length} {chara.fileStatus.showAccessory.Length}");
+                var length = chara.nowCoordinate.accessory.parts.Length;
+                //if (chara.fileStatus.showAccessory.Length <= length)
+                //    MoreAccessories.ArraySync(chara);
+                return length;
             }
         }
 #endif
