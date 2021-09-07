@@ -15,4 +15,4 @@ Scroll bars have been added for accessory slots scroll and H accessory list
 
 MoreAccessory directly adds the scrolling to the accessory window (previously implemented in KKAPI)
 
-Excess slots are trimmed when saving, unfortunately I can't compress them since it would be breaking mods
+Excess slots are trimmed when saving, unfortunately I can't compress them since it would be breaking plugins.
