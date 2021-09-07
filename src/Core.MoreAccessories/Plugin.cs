@@ -47,6 +47,8 @@ namespace MoreAccessoriesKOI
 
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
             var uarHooks = typeof(Sideloader.AutoResolver.UniversalAutoResolver).GetNestedType("Hooks", AccessTools.all);
+            harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
+            harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordLoad_Prefix)));
 
 #if DEBUG
             foreach (var item in harmony.GetPatchedMethods())
@@ -54,8 +56,6 @@ namespace MoreAccessoriesKOI
                 Print($"{item.ReflectedType}.{item.Name}");
             }
 #endif
-            ExtendedSave.CardBeingLoaded += OnActualCharaLoad;
-            ExtendedSave.CoordinateBeingLoaded += OnActualCoordLoad;
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
         }
@@ -63,9 +63,7 @@ namespace MoreAccessoriesKOI
 
         internal static void Print(string text, LogLevel logLevel = LogLevel.Warning)
         {
-#if DEBUG
             _self.Logger.Log(logLevel, text);
-#endif
         }
 
         public bool InFreeHSelect { get; private set; }
@@ -685,12 +683,21 @@ namespace MoreAccessoriesKOI
 #endif
         #endregion
 
+        private static void UAR_ExtendedCardLoad_Prefix(ChaFile file)
+        {
+            _self.OnActualCharaLoad(file);
+        }
+
+        private static void UAR_ExtendedCoordLoad_Prefix(ChaFileCoordinate file)
+        {
+            _self.OnActualCoordLoad(file);
+        }
+
+
         #region Saves
         internal void OnActualCharaLoad(ChaFile file)
         {
-            if (CharaListIsLoading)
-                return;
-
+            PreviousMigratedData = null;
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
@@ -708,8 +715,7 @@ namespace MoreAccessoriesKOI
                 Print("Plugin Data Null", LogLevel.Error);
                 return;
             }
-
-            var data = new CharAdditionalData();
+            PreviousMigratedData = new CharAdditionalData();
 
             XmlNode node = null;
             if (pluginData != null && pluginData.data.TryGetValue("additionalAccessories", out var xmlData))
@@ -728,10 +734,10 @@ namespace MoreAccessoriesKOI
                             var coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
                             List<ChaFileAccessory.PartsInfo> parts;
 
-                            if (data.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
+                            if (PreviousMigratedData.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
                             {
                                 parts = new List<ChaFileAccessory.PartsInfo>();
-                                data.rawAccessoriesInfos.Add(coordinateType, parts);
+                                PreviousMigratedData.rawAccessoriesInfos.Add(coordinateType, parts);
                             }
 
                             foreach (XmlNode accessoryNode in childNode.ChildNodes)
@@ -780,9 +786,9 @@ namespace MoreAccessoriesKOI
                 }
             }
 
-            Print($"Plugin Data has {data.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
+            Print($"Plugin Data has {PreviousMigratedData.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
 
-            foreach (var item in data.rawAccessoriesInfos)
+            foreach (var item in PreviousMigratedData.rawAccessoriesInfos)
             {
                 Print($"raw data has key {item.Key}");
 #if KK || KKS
@@ -795,6 +801,7 @@ namespace MoreAccessoriesKOI
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
                 Print($"Settings coordinate {item.Key}");
             }
+
 
             if (
 #if KK || KKS
@@ -897,7 +904,7 @@ namespace MoreAccessoriesKOI
 
         internal void OnActualCoordLoad(ChaFileCoordinate file)
         {
-            if (ClothesFileControlLoading) return;
+            PreviousMigratedData = null;
 
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
@@ -906,7 +913,7 @@ namespace MoreAccessoriesKOI
                 return;
             }
 
-            var data = new CharAdditionalData();
+            PreviousMigratedData = new CharAdditionalData();
 
             XmlNode node = null;
             if (pluginData != null && pluginData.data.TryGetValue("additionalAccessories", out var xmlData))
@@ -958,61 +965,11 @@ namespace MoreAccessoriesKOI
                         if (_hasDarkness)
                             part.SetPrivateProperty("noShake", accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value));
                     }
+                    PreviousMigratedData.nowAccessories.Add(part);
                 }
             }
 
-            //#if KK || KKS
-            //#if KKS
-            //            var heroines = Game.HeroineList.Where(x => x.chaCtrl.nowCoordinate == file).Select(x => x.chaCtrl);
-            //#elif KK
-            //            var heroines = Game.instance.HeroineList.Where(x => x.chaCtrl.nowCoordinate == file).Select(x => x.chaCtrl);
-            //#endif
-            //            foreach (var controller in heroines)
-            //            {
-            //                var parts = controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Concat(data.nowAccessories).ToArray();
-            //                var show = controller.fileStatus.showAccessory;
-            //                var obj = controller.objAccessory;
-            //                var objmove = controller.objAcsMove;
-            //                var cusAcsCmp = controller.cusAcsCmp;
-
-            //                var len = parts.Length;
-
-            //                var count = len - show.Length;
-            //                if (count > 0)
-            //                {
-            //                    var newarray = new bool[count];
-            //                    for (var i = 0; i < count; i++) newarray[i] = true;
-            //                    controller.fileStatus.showAccessory = show.Concat(newarray).ToArray();
-            //                }
-
-            //                count = len - obj.Length;
-            //                if (count > 0)
-            //                {
-            //                    controller.objAccessory = obj.Concat(new GameObject[count]).ToArray();
-            //                }
-
-            //                var movelen = objmove.GetLength(0);
-            //                count = len - movelen;
-            //                if (count > 0)
-            //                {
-            //                    var newarray = new GameObject[len, 2];
-            //                    for (var i = 0; i < movelen; i++)
-            //                    {
-            //                        for (var j = 0; j < 2; j++)
-            //                        {
-            //                            newarray[i, j] = objmove[i, j];
-            //                        }
-            //                    }
-            //                    controller.objAcsMove = newarray;
-            //                }
-
-            //                count = len - cusAcsCmp.Length;
-            //                if (count > 0)
-            //                {
-            //                    controller.objAccessory = obj.Concat(new GameObject[count]).ToArray();
-            //                }
-            //            }
-            //#endif
+            file.accessory.parts = file.accessory.parts.Concat(PreviousMigratedData.nowAccessories).ToArray();
 
             if (
 #if KK || KKS

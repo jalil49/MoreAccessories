@@ -14,7 +14,6 @@ namespace MoreAccessoriesKOI
         public HScene(List<ChaControl> lstFemale, HSprite[] sprite)
         {
             _hSceneFemales = lstFemale;
-            MoreAccessories.Print($"started H with {lstFemale.Count}");
             _hSprite = sprite;
             SpawnHUI();
             Plugin.ExecuteDelayed(MakeSingleScrollable, 1);
@@ -28,14 +27,6 @@ namespace MoreAccessoriesKOI
 
         internal void SpawnHUI()
         {
-            //for (var i = 0; i < _hSceneFemales.Count; i++)
-            //    _additionalHSceneSlots.Add(new List<HSceneSlotData>());
-            //foreach (var item in _hSceneFemales)
-            //{
-            //    MoreAccessories.Print($"H Sync Syncing {item.chaFile.parameter.fullname}");
-            //    MoreAccessories.ArraySync(item);
-            //    MoreAccessories.Print($"H Sync Finished syncing {item.chaFile.parameter.fullname}");
-            //}
 
         }
         private void MakeSingleScrollable()

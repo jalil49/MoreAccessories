@@ -235,7 +235,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             private static void Postfix(List<ChaControl> ___lstFemale, HSprite ___sprite)
             {
-                MoreAccessories.Print("Hstarted");
                 MoreAccessories.HMode = new HScene(___lstFemale, new[] { ___sprite });
             }
         }

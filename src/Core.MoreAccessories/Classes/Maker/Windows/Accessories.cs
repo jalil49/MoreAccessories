@@ -286,20 +286,20 @@ namespace MoreAccessoriesKOI
                 }
                 else
                 {
-                    MoreAccessories.Print("7");
+
                     var index = slotindex + 20;
                     var custombase = CustomBase.instance;
                     var newSlot = Object.Instantiate(ScrollView.content.GetChild(0), ScrollView.content);
-                    MoreAccessories.Print("8");
+
                     info.AccessorySlot = newSlot.gameObject;
                     var toggle = newSlot.GetComponent<Toggle>();
                     var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
-                    MoreAccessories.Print("9");
+
                     cvsAccessory.textSlotName = toggle.GetComponentInChildren<TextMeshProUGUI>();
 
                     CvsAccessoryArray = CvsAccessoryArray.Concat(cvsAccessory).ToArray();
-                    MoreAccessories.Print("10");
+
                     cvsAccessory.colorKind = cvscolor;
                     foreach (var item in CvsAccessoryArray)
                     {
@@ -307,7 +307,7 @@ namespace MoreAccessoriesKOI
                     }
 
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
-                    MoreAccessories.Print("11");
+
                     foreach (var _custom in SelectKind)
                     {
                         _custom.cvsAccessory = CvsAccessoryArray;
@@ -323,13 +323,13 @@ namespace MoreAccessoriesKOI
                     canvasGroup.Enable(false, false);
 
                     RestoreToggle(toggle, index);
-                    MoreAccessories.Print("12");
+
                     cvsAccessory.textSlotName.text = $"スロット{index + 1:00}";
                     cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
                     cvsAccessory.CalculateUI();//fixes copyng data over from original slot
                     Plugin.ExecuteDelayed(cvsAccessory.CalculateUI);//fixes copyng data over from original slot
                     newSlot.name = "tglSlot" + (index + 1).ToString("00");
-                    MoreAccessories.Print("13");
+
                     custombase.actUpdateCvsAccessory = custombase.actUpdateCvsAccessory.Concat(new System.Action(cvsAccessory.UpdateCustomUI)).ToArray();
                     custombase.actUpdateAcsSlotName = custombase.actUpdateAcsSlotName.Concat(new System.Action(delegate () { Plugin.ExecuteDelayed(cvsAccessory.UpdateSlotName); })).ToArray(); //delay to avoid an error when called early due to additional patches
                     var newreactive = new BoolReactiveProperty(false);
@@ -343,7 +343,7 @@ namespace MoreAccessoriesKOI
                         custombase.actUpdateAcsSlotName[index]?.Invoke();
                         custombase._updateCvsAccessory[index].Value = false;
                     });
-                    MoreAccessories.Print("14");
+
                     _addButtonsGroup.SetAsLastSibling();
                     var action = new System.Action(delegate () { cvsAccessory.Start(); });
 
@@ -356,7 +356,7 @@ namespace MoreAccessoriesKOI
                     {
                         MoreAccessories.Print(ex.ToString(), BepInEx.Logging.LogLevel.Error);
                     }
-                    MoreAccessories.Print("15");
+
                 }
             }
             for (; slotindex < AdditionalCharaMakerSlots.Count; slotindex++)
@@ -375,14 +375,12 @@ namespace MoreAccessoriesKOI
         {
             var newarray = new int[rank, 4];
             var value = 124;
-            //var print = "";
             for (var i = 0; i < 20; i++)
             {
                 for (var j = 0; j < 4; j++, value++)
                 {
                     newarray[i, j] = value;
                 }
-                //print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
             }
             //there is a break here with KKS since they appended to end of enum
             value = 5000;
@@ -392,9 +390,7 @@ namespace MoreAccessoriesKOI
                 {
                     newarray[i, j] = value;
                 }
-                //print += $"slot {i:000} {newarray[i, 0]}, {newarray[i, 1]}, {newarray[i, 2]}, {newarray[i, 3]}\n";
             }
-            //MoreAccessories.Print(print);
             return newarray;
         }
 

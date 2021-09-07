@@ -2,6 +2,7 @@
 using HarmonyLib;
 using MessagePack;
 using Sideloader.AutoResolver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,8 +13,49 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPatch(typeof(UniversalAutoResolver), "IterateCoordinatePrefixes")]
         private static class SideloaderAutoresolverHooks_IterateCoordinatePrefixes_Patches
         {
+            private static object _sideLoaderChaFileAccessoryPartsInfoProperties;
+
             [HarmonyBefore("com.deathweasel.bepinex.guidmigration")]
             internal static void Prefix(ICollection<ResolveInfo> extInfo) => Outfit_Error_Fix(extInfo);
+            internal static void Postfix(object action, ChaFileCoordinate coordinate, object extInfo, string prefix)
+            {
+                var additionalData = MoreAccessories.PreviousMigratedData;
+
+                if (additionalData == null) return;
+
+                if (_sideLoaderChaFileAccessoryPartsInfoProperties == null)
+                {
+#if KK
+                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,Sideloader")
+#elif KKS
+                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,KKS_Sideloader")
+#elif EC
+                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,EC_Sideloader")
+#endif
+                                                                         .GetProperty("ChaFileAccessoryPartsInfoProperties", AccessTools.all).GetValue(null, null);
+                }
+
+
+                if (string.IsNullOrEmpty(prefix))
+                {
+                    for (var j = 0; j < additionalData.nowAccessories.Count; j++)
+                        ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, additionalData.nowAccessories[j], extInfo, $"{prefix}accessory{j + 20}.");
+                }
+                else
+                {
+#if KK || KKS
+                    var coordId = prefix.Replace("outfit", "").Replace(".", "");
+                    if (int.TryParse(coordId, out var result) == false)
+                        return;
+#elif EC
+                    int result = 0;
+#endif
+                    if (additionalData.rawAccessoriesInfos.TryGetValue(result, out var parts) == false)
+                        return;
+                    for (var j = 0; j < parts.Count; j++)
+                        ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, parts[j], extInfo, $"{prefix}accessory{j + 20}.");
+                }
+            }
         }
 #if KKS
         [HarmonyPatch(typeof(ExtendedSave), "CardImportEvent")]

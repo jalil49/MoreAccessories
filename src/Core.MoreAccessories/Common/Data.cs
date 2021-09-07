@@ -1,10 +1,9 @@
 ﻿using BepInEx.Logging;
-
+using System.Collections.Generic;
 #if EC
 using HPlay;
 using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
-using System.Collections.Generic;
 using UnityEngine;
 #endif
 #if KK || KKS
@@ -21,12 +20,10 @@ namespace MoreAccessoriesKOI
 
         private const int _saveVersion = 2;
         private const string _extSaveKey = "moreAccessories";
+        internal static CharAdditionalData PreviousMigratedData;
 
         internal static bool _hasDarkness;
         public bool ImportingCards { get; private set; } = true;
-        public static bool ClothesFileControlLoading { get; internal set; }
-        public static bool CharaListIsLoading { get; internal set; }
-
         internal static bool CharaMaker => MakerMode != null;
 
         public static MakerMode MakerMode { get; internal set; }

@@ -24,15 +24,12 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             internal static void ChangeCoordPrefix(ChaControl __instance)
             {
                 PendingNowAccessories.Add(__instance);
-                MoreAccessories.Print("ChangeCoordinateType");
             }
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
             internal static void SetNowCoordinatePrefix(ChaControl __instance)
             {
-                MoreAccessories.Print("SetNowCoordinatePrefix");
-
                 PendingNowAccessories.Add(__instance);
             }
 #endif
@@ -46,7 +43,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 {
                     MoreAccessories.ArraySync(item);
                 }
-                MoreAccessories.Print("Nowcoordinatechange");
                 PendingNowAccessories.Clear();
                 if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
             }
@@ -283,7 +279,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.Print("Transpiler finished");
+                MoreAccessories.Print("Transpiler finished", worked? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
 #endif
 
                 count++;
@@ -544,6 +540,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
         }
 
+#if KK || KKS
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateCategory))]
         internal class SetAccessoryStateCategoryPatch
         {
@@ -588,5 +585,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return false;
             }
         }
+#endif
     }
 }

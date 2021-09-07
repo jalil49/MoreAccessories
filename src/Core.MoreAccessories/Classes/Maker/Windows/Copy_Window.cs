@@ -51,7 +51,6 @@ namespace MoreAccessoriesKOI
                 copyToggle.name = "Slot" + index.ToString("00");
                 srcarray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
                 dstarray[i] = copyToggle.transform.Find("dstText00").GetComponent<TextMeshProUGUI>();
-                MoreAccessories.Print(index.ToString("00"));
                 var info = AdditionalCharaMakerSlots[index - 21];//21 since index starts at 1
                 info.copySlotObject = copyToggle;
             }
