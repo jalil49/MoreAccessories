@@ -72,7 +72,7 @@ namespace MoreAccessoriesKOI
 #if KKS
         private void MultiCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
         {
-            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
+            if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData) || xmlData == null) return; //new version doesn't have anything but version number
 
             var data = new CharAdditionalData();
             var doc = new XmlDocument();
@@ -142,7 +142,7 @@ namespace MoreAccessoriesKOI
             var transferdict = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
             foreach (var item in coordinateMapping)
             {
-                if (!dict.TryGetValue(item.Key, out var list) || !item.Value.HasValue) continue;
+                if (!dict.TryGetValue(item.Key, out var list) || list == null || !item.Value.HasValue) continue;
                 transferdict[item.Value.Value] = list;
             }
             data.rawAccessoriesInfos = transferdict;
@@ -219,7 +219,7 @@ namespace MoreAccessoriesKOI
 
                 xmlWriter.WriteEndElement();
 
-                pluginData.version = 1;
+                pluginData.version = 1;//use old version cause it is
                 pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
         }
@@ -371,8 +371,9 @@ namespace MoreAccessoriesKOI
 #elif KKS
             instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
 #endif
+#if DEBUG
             Print($"loadmode {loadMode} index {scene.buildIndex} ");
-
+#endif
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
@@ -701,18 +702,18 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
-                Print($"{file.parameter.fullname} has an array larger than 20");
+                //Print($"{file.parameter.fullname} has an array larger than 20");
                 return;
             }
 #else
             if (file.coordinate.accessory.parts.Length > 20)
                 return;
 #endif
-            Print($"Loading Data for {file.parameter.fullname}");
+            // Print($"Loading Data for {file.parameter.fullname}");
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
             if (pluginData == null)
             {
-                Print("Plugin Data Null", LogLevel.Error);
+                //Print("Plugin Data Null", LogLevel.Error);
                 return;
             }
             PreviousMigratedData = new CharAdditionalData();
@@ -786,11 +787,11 @@ namespace MoreAccessoriesKOI
                 }
             }
 
-            Print($"Plugin Data has {PreviousMigratedData.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
+            //Print($"Plugin Data has {PreviousMigratedData.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
 
             foreach (var item in PreviousMigratedData.rawAccessoriesInfos)
             {
-                Print($"raw data has key {item.Key}");
+                //Print($"raw data has key {item.Key}");
 #if KK || KKS
                 if (!(item.Key < file.coordinate.Length)) continue;
 
@@ -799,7 +800,7 @@ namespace MoreAccessoriesKOI
                 var accessory = file.coordinate.accessory;
 #endif
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
-                Print($"Settings coordinate {item.Key}");
+                //Print($"Settings coordinate {item.Key}");
             }
 
 

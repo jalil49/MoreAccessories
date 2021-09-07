@@ -25,6 +25,15 @@ namespace MoreAccessoriesKOI.Patches
                 }
             }
         }
+
+        [HarmonyPatch(typeof(ChaFileStatus), nameof(ChaFileStatus.Copy))]
+        private static class ChaFileControl_Copy_Patches
+        {
+            private static void Prefix(ChaFileStatus __instance, ChaFileStatus src)
+            {
+                __instance.showAccessory = new bool[src.showAccessory.Length];
+            }
+        }
     }
 
 }
