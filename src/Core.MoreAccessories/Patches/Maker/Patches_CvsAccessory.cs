@@ -26,7 +26,6 @@ namespace MoreAccessoriesKOI.Patches.Maker
             }
         }
 
-
         [HarmonyPatch]
         internal static class CustomAcsChangeSlot_Patch
         {
@@ -35,7 +34,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 MethodBase methodbase;
 #if KKS
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaCustom.CustomAcsChangeSlot+<>c__DisplayClass18_1, Assembly-CSharp"), "<Initialize>b__4");
-#elif KK
+#elif KK || EC
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaCustom.CustomAcsChangeSlot+<Start>c__AnonStorey0+<Start>c__AnonStorey1, Assembly-CSharp"), "<>m__0");//insert disgust sounds
 #endif
                 return methodbase;
@@ -46,6 +45,9 @@ namespace MoreAccessoriesKOI.Patches.Maker
 #if DEBUG
                 MoreAccessories.Print($"{nameof(CustomAcsChangeSlot_Patch)} Method");
                 var worked2 = false;
+#if EC
+                worked2 = true;
+#endif
 #endif
                 var worked = false;
 

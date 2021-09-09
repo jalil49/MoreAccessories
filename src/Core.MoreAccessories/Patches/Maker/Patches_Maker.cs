@@ -35,21 +35,15 @@ namespace MoreAccessoriesKOI.Patches.Maker
                         AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.ChangeColorWindow), new[] { typeof(int)}),
                         AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.UpdateSlotNames)),
                         AccessTools.Method(typeof(CvsAccessoryChange), nameof(CvsAccessoryChange.CalculateUI)),
+                        AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.LateUpdate)),
+                        AccessTools.Method(typeof(CustomControl), nameof(CustomControl.Update)),
             };
+
 #if KK || KKS
             list.Add(AccessTools.Method(typeof(CvsAccessoryCopy), nameof(CvsAccessoryCopy.ChangeDstDD)));
             list.Add(AccessTools.Method(typeof(CvsAccessoryCopy), nameof(CvsAccessoryCopy.ChangeSrcDD)));
             list.Add(AccessTools.Method(typeof(CvsAccessoryCopy), nameof(CvsAccessoryCopy.CopyAcs)));
 #endif
-
-#if KKS || EC || KK
-            list.Add(AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.LateUpdate)));
-            list.Add(AccessTools.Method(typeof(CustomControl), nameof(CustomControl.Update)));
-#endif
-#if EC
-            list.Add(AccessTools.Method(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Start))); // probably innerclass
-#endif
-
             return list;
         }
 
@@ -75,7 +69,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 }
             }
 #if DEBUG
-            MoreAccessories.Print($"transpiler {count++} finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
+            MoreAccessories.Print($"Maker_Replace_20_Patch transpiler {count++} finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
         }
 

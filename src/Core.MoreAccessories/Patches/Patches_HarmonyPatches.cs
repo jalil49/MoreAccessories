@@ -38,7 +38,7 @@ namespace MoreAccessoriesKOI.Patches
     {
         private static void Postfix(HPlayHPartAccessoryCategoryUI __instance)
         {
-            MoreAccessories._self.SpawnPlayUI(__instance);
+            MoreAccessories.PlayMode = new PlayMode(__instance);
         }
     }
 
@@ -47,7 +47,7 @@ namespace MoreAccessoriesKOI.Patches
     {
         private static void Postfix()
         {
-            MoreAccessories._self.ExecuteDelayed(MoreAccessories._self.UpdatePlayUI, 2);
+            MoreAccessories._self.ExecuteDelayed(MoreAccessories.PlayMode.UpdatePlayUI, 2);
         }
     }
 
@@ -86,7 +86,7 @@ namespace MoreAccessoriesKOI.Patches
     {
         private static void Postfix(AccessoryUICtrl __instance)
         {
-            MoreAccessories._self.SpawnADVUI(__instance);
+            MoreAccessories.ADVMode = new ADVMode(__instance);
         }
     }
 
@@ -95,7 +95,7 @@ namespace MoreAccessoriesKOI.Patches
     {
         private static void Postfix()
         {
-            MoreAccessories._self.UpdateADVUI();
+            MoreAccessories.ADVMode.UpdateADVUI();
         }
     }
 

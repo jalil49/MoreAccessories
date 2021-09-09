@@ -34,15 +34,10 @@ namespace MoreAccessoriesKOI
         internal static bool InStudio => StudioMode != null;
         public static StudioClass StudioMode { get; internal set; }
 #elif EC
-        private bool _inPlay;
-        private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
-        private RectTransform _playButtonTemplate;
-        private HPlayHPartAccessoryCategoryUI _playUI;
-        private Coroutine _updatePlayUIHandler;
-
-        private AccessoryUICtrl _advUI;
-        public readonly List<ADVSceneSlotData> _additionalADVSceneSlots = new List<ADVSceneSlotData>();
-        private RectTransform _advToggleTemplate;
+        internal bool InPlayMode => PlayMode != null;
+        public static PlayMode PlayMode;
+        internal bool InADVMode => ADVMode != null;
+        public static ADVMode ADVMode;
 #endif
     }
 }

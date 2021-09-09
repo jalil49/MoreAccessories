@@ -4,11 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-#if EC
-using ADVPart.Manipulate.Chara;
-using HEdit;
-using HPlay;
-#endif
 
 namespace MoreAccessoriesKOI.Patches.MainGame
 {
@@ -53,13 +48,12 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Patches
         {
-            static MethodBase methodbase;
-
             static MethodBase TargetMethod()
             {
+                MethodBase methodbase;
 #if KKS
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>d__483, Assembly-CSharp"), "MoveNext");
-#elif KK
+#elif KK || EC
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator12, Assembly-CSharp"), "MoveNext");
 #endif
                 return methodbase;
@@ -68,7 +62,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
 #if DEBUG
-                MoreAccessories.Print($"ChaControl_ChangeAccessoryAsync_Patches\t\t{methodbase.ReflectedType}.{methodbase.Name}");
+                MoreAccessories.Print($"ChaControl_ChangeAccessoryAsync_Patches");
 #endif
                 var instructionsList = instructions.ToList();
                 var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue || x.opcode == OpCodes.Brtrue_S); //work backwards from end
@@ -103,7 +97,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         i++;//skip pushing 0 to stack
 #if KKS
                         yield return new CodeInstruction(OpCodes.Ldloc_1); //ldarg_0  contains chacontrol don't use this.chacontrol parts array is null for a mysterious reason
-#elif KK
+#elif KK || EC
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator12, Assembly-CSharp").GetField("$this", AccessTools.all));
 #endif
@@ -142,7 +136,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 MethodBase methodbase;
 #if KKS
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>d__482, Assembly-CSharp"), "MoveNext");
-#elif KK
+#elif KK || EC
                 methodbase = AccessTools.Method(AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator11, Assembly-CSharp"), "MoveNext");
 #endif
                 return methodbase;
@@ -166,7 +160,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
 #if KKS
                         yield return new CodeInstruction(OpCodes.Ldloc_1);//feed chacontrol to method
-#elif KK
+#elif KK || EC
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator11, Assembly-CSharp").GetField("$this", AccessTools.all));
 #endif
@@ -601,7 +595,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
 
 #if KKS
-
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.UpdateVisible))]
         internal class UpdateVisible_Patch
         {

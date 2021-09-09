@@ -1,9 +1,4 @@
 ﻿using HarmonyLib;
-#if EC
-using ADVPart.Manipulate.Chara;
-using HEdit;
-using HPlay;
-#endif
 
 namespace MoreAccessoriesKOI.Patches
 {

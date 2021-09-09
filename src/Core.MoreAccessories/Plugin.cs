@@ -7,15 +7,6 @@ using BepInEx;
 using BepInEx.Logging;
 using ExtensibleSaveFormat;
 using HarmonyLib;
-#if EC
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
-
-using HPlay;
-using System.Collections;
-using UnityEngine.UI;
-using TMPro;
-#endif
 using Manager;
 #if KK || KKS
 using Studio;
@@ -124,10 +115,6 @@ namespace MoreAccessoriesKOI
                                     };
                                 }
                                 part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
-#if EC
-                                if (accessoryNode.Attributes["hideTiming"] != null)
-                                    part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
-#endif
                                 if (_hasDarkness)
                                     part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
                             }
@@ -191,9 +178,6 @@ namespace MoreAccessoriesKOI
                                 xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
                             }
                             xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
-#if EC
-                            xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
-#endif
                             if (_hasDarkness)
                                 xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString(part.noShake));
                         }
@@ -278,10 +262,8 @@ namespace MoreAccessoriesKOI
                                     };
                                 }
                                 part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
-#if EC
                                 if (accessoryNode.Attributes["hideTiming"] != null)
                                     part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
-#endif
                                 if (_hasDarkness)
                                     part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
                             }
@@ -361,7 +343,6 @@ namespace MoreAccessoriesKOI
 
         }
 #endif
-
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {
             var instudio = false;
@@ -384,7 +365,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
                         HMode = null;
 #elif EC
-                        _inPlay = false;
+                        PlayMode = null;
 #endif
                         switch (scene.buildIndex)
                         {
@@ -393,9 +374,9 @@ namespace MoreAccessoriesKOI
                                 break;
 
                             //Chara maker
-#if KK || EC
+#if KK
                             case 2:
-#elif KKS
+#elif KKS || EC
                             case 3: //sunshine uses 3 for chara
 #endif
                                 MakerMode = new MakerMode();
@@ -480,63 +461,6 @@ namespace MoreAccessoriesKOI
         #endregion
 
         #region Private Methods
-#if EC
-        //CharaUICtrl
-        internal void SpawnPlayUI(HPlayHPartAccessoryCategoryUI ui)
-        {
-            _playUI = ui;
-            _inPlay = true;
-            _additionalPlaySceneSlots.Clear();
-            var buttons = ui.accessoryCategoryUIs;
-            _playButtonTemplate = (RectTransform)buttons[0].btn.transform;
-            _playButtonTemplate.GetComponentInChildren<TextMeshProUGUI>().fontMaterial = new Material(_playButtonTemplate.GetComponentInChildren<TextMeshProUGUI>().fontMaterial);
-            var index = _playButtonTemplate.parent.GetSiblingIndex();
-
-            var scrollView = UIUtility.CreateScrollView("ScrollView", _playButtonTemplate.parent.parent);
-            scrollView.transform.SetSiblingIndex(index);
-            scrollView.transform.SetRect(_playButtonTemplate.parent);
-            ((RectTransform)scrollView.transform).offsetMax = new Vector2(_playButtonTemplate.offsetMin.x + 192f, -88f);
-            ((RectTransform)scrollView.transform).offsetMin = new Vector2(_playButtonTemplate.offsetMin.x, -640f - 88f);
-            scrollView.viewport.GetComponent<Image>().sprite = null;
-            scrollView.movementType = ScrollRect.MovementType.Clamped;
-            scrollView.horizontal = false;
-            scrollView.scrollSensitivity = 18f;
-            if (scrollView.horizontalScrollbar != null)
-                Destroy(scrollView.horizontalScrollbar.gameObject);
-            if (scrollView.verticalScrollbar != null)
-                Destroy(scrollView.verticalScrollbar.gameObject);
-            Destroy(scrollView.GetComponent<Image>());
-            Destroy(scrollView.content.gameObject);
-            scrollView.content = (RectTransform)_playButtonTemplate.parent;
-            _playButtonTemplate.parent.SetParent(scrollView.viewport, false);
-            _playButtonTemplate.parent.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            ((RectTransform)_playButtonTemplate.parent).anchoredPosition = Vector2.zero;
-            _playButtonTemplate.parent.GetComponent<VerticalLayoutGroup>().padding = new RectOffset(0, 0, 0, 0);
-            //foreach (HPlayHPartUI.SelectUITextMesh b in buttons)
-            //    ((RectTransform)b.btn.transform).anchoredPosition = Vector2.zero;
-        }
-
-        internal void SpawnADVUI(AccessoryUICtrl ui)
-        {
-            _advUI = ui;
-            _advToggleTemplate = (RectTransform)ui.toggles[19].toggles[0].transform.parent.parent;
-
-            var buttons = _advUI.buttonALL.buttons;
-            for (var i = 0; i < buttons.Length; i++)
-            {
-                var b = buttons[i];
-                var i1 = i;
-                b.onClick.AddListener(() =>
-                {
-                    //CharAdditionalData ad = _accessoriesByChar[_advUI.chaControl.chaFile];
-                    //for (var j = 0; j < ad.advState.Count; j++)
-                    //    ad.advState[j] = i1 - 1;
-                    UpdateADVUI();
-                });
-            }
-        }
-
-#endif
         internal void UpdateUI()
         {
             if (MakerMode != null)
@@ -547,139 +471,11 @@ namespace MoreAccessoriesKOI
             else if (InH)
                 this.ExecuteDelayed(HMode.UpdateHUI);
 #elif EC
-            else if (_inPlay)
-                UpdatePlayUI();
+            else if (InPlayMode)
+                PlayMode.UpdatePlayUI();
 #endif
         }
 
-#if EC
-        internal void UpdatePlayUI()
-        {
-            if (_playUI == null || _playButtonTemplate == null || _playUI.selectChara == null)
-                return;
-            if (_updatePlayUIHandler == null)
-                _updatePlayUIHandler = StartCoroutine(UpdatePlayUI_Routine());
-        }
-
-        // So, this thing is actually a coroutine because if I don't do the following, TextMeshPro start disappearing because their material is destroyed.
-        // IDK, fuck you unity I guess
-        private IEnumerator UpdatePlayUI_Routine()
-        {
-            while (_playButtonTemplate.gameObject.activeInHierarchy == false)
-                yield return null;
-            //var character = _playUI.selectChara;
-
-            //CharAdditionalData additionalData = _accessoriesByChar[character.chaFile];
-            //int j;
-            //for (j = 0; j < additionalData.nowAccessories.Count; j++)
-            //{
-            //    PlaySceneSlotData slot;
-            //    if (j < _additionalPlaySceneSlots.Count)
-            //        slot = _additionalPlaySceneSlots[j];
-            //    else
-            //    {
-            //        slot = new PlaySceneSlotData();
-            //        slot.slot = (RectTransform)Instantiate(_playButtonTemplate.gameObject).transform;
-            //        slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
-            //        slot.text.fontMaterial = new Material(slot.text.fontMaterial);
-            //        slot.button = slot.slot.GetComponentInChildren<Button>(true);
-            //        slot.slot.SetParent(_playButtonTemplate.parent);
-            //        slot.slot.localPosition = Vector3.zero;
-            //        slot.slot.localScale = Vector3.one;
-            //        var i1 = j;
-            //        slot.button.onClick = new Button.ButtonClickedEvent();
-            //        slot.button.onClick.AddListener(() =>
-            //        {
-            //            additionalData.showAccessories[i1] = !additionalData.showAccessories[i1];
-            //        });
-            //        _additionalPlaySceneSlots.Add(slot);
-            //    }
-            //    GameObject objAccessory = additionalData.objAccessory[j];
-            //    if (objAccessory == null)
-            //        slot.slot.gameObject.SetActive(false);
-            //    else
-            //    {
-            //        slot.slot.gameObject.SetActive(true);
-            //        var component = objAccessory.GetComponent<ListInfoComponent>();
-            //        slot.text.text = component.data.Name;
-            //    }
-            //}
-
-            //for (; j < _additionalPlaySceneSlots.Count; ++j)
-            //    _additionalPlaySceneSlots[j].slot.gameObject.SetActive(false);
-            _updatePlayUIHandler = null;
-        }
-
-        internal void UpdateADVUI()
-        {
-            if (_advUI == null)
-                return;
-
-            //CharAdditionalData additionalData = _accessoriesByChar[_advUI.chaControl.chaFile];
-            //var i = 0;
-            //for (; i < additionalData.nowAccessories.Count; ++i)
-            //{
-            //    ADVSceneSlotData slot;
-            //    if (i < _additionalADVSceneSlots.Count)
-            //        slot = _additionalADVSceneSlots[i];
-            //    else
-            //    {
-            //        slot = new ADVSceneSlotData();
-            //        slot.slot = (RectTransform)Instantiate(_advToggleTemplate.gameObject).transform;
-            //        slot.slot.SetParent(_advToggleTemplate.parent);
-            //        slot.slot.localPosition = Vector3.zero;
-            //        slot.slot.localRotation = Quaternion.identity;
-            //        slot.slot.localScale = Vector3.one;
-            //        slot.text = slot.slot.Find("TextMeshPro").GetComponent<TextMeshProUGUI>();
-            //        slot.keep = slot.slot.Find("Root/Button -1").GetComponent<Toggle>();
-            //        slot.wear = slot.slot.Find("Root/Button 0").GetComponent<Toggle>();
-            //        slot.takeOff = slot.slot.Find("Root/Button 1").GetComponent<Toggle>();
-            //        slot.text.text = "スロット" + (21 + i);
-
-            //        slot.keep.onValueChanged = new Toggle.ToggleEvent();
-            //        var i1 = i;
-            //        slot.keep.onValueChanged.AddListener(b =>
-            //        {
-            //            CharAdditionalData ad = _accessoriesByChar[_advUI.chaControl.chaFile];
-            //            ad.advState[i1] = -1;
-            //        });
-            //        slot.wear.onValueChanged = new Toggle.ToggleEvent();
-            //        slot.wear.onValueChanged.AddListener(b =>
-            //        {
-            //            CharAdditionalData ad = _accessoriesByChar[_advUI.chaControl.chaFile];
-            //            ad.advState[i1] = 0;
-            //            _advUI.chaControl.SetAccessoryState(i1 + 20, true);
-            //        });
-            //        slot.takeOff.onValueChanged = new Toggle.ToggleEvent();
-            //        slot.takeOff.onValueChanged.AddListener(b =>
-            //        {
-            //            CharAdditionalData ad = _accessoriesByChar[_advUI.chaControl.chaFile];
-            //            ad.advState[i1] = 1;
-            //            _advUI.chaControl.SetAccessoryState(i1 + 20, false);
-            //        });
-
-            //        _additionalADVSceneSlots.Add(slot);
-            //    }
-            //    slot.slot.gameObject.SetActive(true);
-            //    slot.keep.SetIsOnNoCallback(additionalData.advState[i] == -1);
-            //    slot.keep.interactable = additionalData.objAccessory[i] != null;
-            //    slot.wear.SetIsOnNoCallback(additionalData.advState[i] == 0);
-            //    slot.wear.interactable = additionalData.objAccessory[i] != null;
-            //    slot.takeOff.SetIsOnNoCallback(additionalData.advState[i] == 1);
-            //    slot.takeOff.interactable = additionalData.objAccessory[i] != null;
-            //}
-            //for (; i < _additionalADVSceneSlots.Count; i++)
-            //    _additionalADVSceneSlots[i].slot.gameObject.SetActive(false);
-            //var parent = (RectTransform)_advToggleTemplate.parent.parent;
-            //parent.offsetMin = new Vector2(0, parent.offsetMax.y - 66 - 34 * (additionalData.nowAccessories.Count + 21));
-            //ExecuteDelayed(() =>
-            //{
-            //    //Fuck you I'm going to bed
-            //    LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent);
-            //    LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent.parent);
-            //});
-        }
-#endif
         #endregion
 
         private static void UAR_ExtendedCardLoad_Prefix(ChaFile file)
