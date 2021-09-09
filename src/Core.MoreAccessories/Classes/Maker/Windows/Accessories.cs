@@ -34,6 +34,7 @@ namespace MoreAccessoriesKOI
             _customAcsChangeSlot = _instance;
             PrepareScroll();
             MakeSlotsScrollable();
+            Plugin.ExecuteDelayed(InitilaizeSlotNames, 60);
         }
 
         internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
@@ -71,7 +72,6 @@ namespace MoreAccessoriesKOI
         {
 
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop").transform;
-
 
             foreach (var slotTransform in container.Cast<Transform>())
             {
@@ -253,7 +253,13 @@ namespace MoreAccessoriesKOI
 
 
             foreach (var item in elements)
+            {
+                var itemLayout = item.GetComponent<LayoutElement>();
+                itemLayout.flexibleWidth = 1;
                 item.SetParent(scroll.content);
+            }
+
+
             slotTransform.SetParent(scroll.content);
         }
 
@@ -463,6 +469,14 @@ namespace MoreAccessoriesKOI
             MoreAccessories.ArraySync(controller);
             MoreAccessories.MakerMode.UpdateMakerUI();
             AddInProgress = false;
+        }
+
+        private void InitilaizeSlotNames()
+        {
+            foreach (var item in CvsAccessoryArray)
+            {
+                item.UpdateSlotName();
+            }
         }
     }
 }
