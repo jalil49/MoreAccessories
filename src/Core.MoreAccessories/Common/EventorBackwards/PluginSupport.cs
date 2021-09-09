@@ -49,7 +49,7 @@ namespace MoreAccessoriesKOI
             return CustomBase.Instance.chaCtrl.nowCoordinate.accessory.parts[index];
         }
 
-        internal CvsAccessory GetCvsAccessory(int index)
+        public CvsAccessory GetCvsAccessory(int index)
         {
             return MakerMode.AccessoriesWindow.CvsAccessoryArray[index];
         }

@@ -41,7 +41,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 if (PendingNowAccessories.Count == 0) return;
                 foreach (var item in PendingNowAccessories)
                 {
-                    MoreAccessories.ArraySync(item);
+                    var len = item.nowCoordinate.accessory.parts.Length;
+                    if (len > item.objAccessory.Length || len > item.fileStatus.showAccessory.Length)
+                        MoreAccessories.ArraySync(item);
                 }
                 PendingNowAccessories.Clear();
                 if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
@@ -179,6 +181,15 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
             }
 
+            internal static void Prefix(ChaControl __instance)
+            {
+                var len = __instance.nowCoordinate.accessory.parts.Length;
+                if (len > __instance.objAccessory.Length || len > __instance.fileStatus.showAccessory.Length)
+                {
+                    MoreAccessories.ArraySync(__instance);
+                }
+            }
+
             private static int AccessoryCount(ChaControl chara)
             {
                 return chara.nowCoordinate.accessory.parts.Length;
@@ -299,7 +310,8 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             internal static void Prefix(ChaControl __instance)
             {
-                if (__instance.nowCoordinate.accessory.parts.Length > __instance.infoAccessory.Length)
+                var len = __instance.nowCoordinate.accessory.parts.Length;
+                if (len > __instance.objAccessory.Length || len > __instance.fileStatus.showAccessory.Length)
                 {
                     MoreAccessories.ArraySync(__instance);
                 }
@@ -331,7 +343,8 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             internal static void Prefix(ChaControl __instance)
             {
-                if (__instance.nowCoordinate.accessory.parts.Length > __instance.infoAccessory.Length)
+                var len = __instance.nowCoordinate.accessory.parts.Length;
+                if (len > __instance.objAccessory.Length || len > __instance.fileStatus.showAccessory.Length)
                 {
                     MoreAccessories.ArraySync(__instance);
                 }

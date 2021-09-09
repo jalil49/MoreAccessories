@@ -34,6 +34,18 @@ namespace MoreAccessoriesKOI.Patches
                 __instance.showAccessory = new bool[src.showAccessory.Length];
             }
         }
+#if KK || KKS
+        [HarmonyPatch(typeof(ActionGame.Chara.Base), nameof(ActionGame.Chara.Base.Replace))]
+        private static class Replace_Patches
+        {
+            private static void Postfix(ActionGame.Chara.Base __instance)
+            {
+                if (__instance.chaCtrl != null)
+                {
+                    MoreAccessories.ArraySync(__instance.chaCtrl);
+                }
+            }
+        }
+#endif
     }
-
 }
