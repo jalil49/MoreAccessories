@@ -1,7 +1,4 @@
-﻿using ChaCustom;
-using HarmonyLib;
-
-namespace MoreAccessoriesKOI.Patches
+﻿namespace MoreAccessoriesKOI.Patches
 {
     public class Common_Patches
     {

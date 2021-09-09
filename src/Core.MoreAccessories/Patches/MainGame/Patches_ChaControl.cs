@@ -594,7 +594,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 #endif
 
-#if KKS
+
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.UpdateVisible))]
         internal class UpdateVisible_Patch
         {
@@ -605,9 +605,26 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 var worked = false;
 #endif
                 var instructionsList = instructions.ToList();
-                //var test = new List<CodeInstruction>() { instructionsList[1667], new CodeInstruction(OpCodes.Call, typeof(UpdateVisible_Patch).GetMethod(nameof(Print), AccessTools.all)) };
-                //instructionsList.InsertRange(1603, test);
-                var end = instructionsList.FindLastIndex(x => x.opcode == OpCodes.Conv_I4);
+                //var end = instructionsList.FindLastIndex(x => x.opcode == OpCodes.Conv_I4);
+                var end = instructionsList.Count - 1;
+
+                var endcount = 0;
+#if EC
+                endcount = 1;
+#endif
+
+                var findcount = 0;
+                for (; end > 0; end--)
+                {
+                    if (instructionsList[end].opcode == OpCodes.Conv_I4)
+                    {
+                        if (findcount++ == endcount)
+                        {
+                            break;
+                        }
+                    }
+                }
+
                 var start = end - 1;
                 while (instructionsList[start].opcode != OpCodes.Call)
                 {
@@ -646,6 +663,5 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return length;
             }
         }
-#endif
     }
 }

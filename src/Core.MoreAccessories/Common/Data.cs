@@ -1,9 +1,7 @@
-﻿using BepInEx.Logging;
-using System.Collections.Generic;
-#if EC
-using HPlay;
+﻿#if EC
 using ADVPart.Manipulate;
 using ADVPart.Manipulate.Chara;
+using HPlay;
 using UnityEngine;
 #endif
 #if KK || KKS
@@ -36,8 +34,10 @@ namespace MoreAccessoriesKOI
 #elif EC
         internal bool InPlayMode => PlayMode != null;
         public static PlayMode PlayMode;
+#if false
         internal bool InADVMode => ADVMode != null;
         public static ADVMode ADVMode;
+#endif
 #endif
     }
 }

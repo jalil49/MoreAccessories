@@ -1,11 +1,6 @@
-﻿using ADVPart.Manipulate.Chara;
-using HPlay;
-using MoreAccessoriesKOI.Extensions;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿#if false
+using ADVPart.Manipulate.Chara;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {
@@ -110,3 +105,4 @@ namespace MoreAccessoriesKOI
 
     }
 }
+#endif

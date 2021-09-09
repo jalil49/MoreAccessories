@@ -1,21 +1,10 @@
-﻿using ADVPart.Manipulate.Chara;
+﻿#if false
+using ADVPart.Manipulate.Chara;
 using HarmonyLib;
-using HarmonyLib;
-using HEdit;
-using HPlay;
-using MoreAccessoriesKOI.Extensions;
-using System;
-using System;
-using System.Collections.Generic;
-using System.Collections.Generic;
-using System.Text;
-using System.Text;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI.Patches
 {
-    internal class ADVUI_Patches
+    internal class ADVUI_Patches//no idea if there is anything for me to do here
     {
         [HarmonyPatch(typeof(AccessoryUICtrl), "Init")]
         internal static class AccessoryUICtrl_Init_Patches
@@ -36,3 +25,4 @@ namespace MoreAccessoriesKOI.Patches
         }
     }
 }
+#endif
