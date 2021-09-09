@@ -28,7 +28,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\KK_MoreAccessories\BepInEx\plugins\</OutputPath>
+    <OutputPath>..\..\bin\KK_MoreAccessories\BepInEx\plugins\</OutputPath>
     <DefineConstants>KK</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -111,7 +111,7 @@
   <Import Project="..\packages\IllusionLibs.Koikatu.UnityEngine.UI.5.6.2.4\build\IllusionLibs.Koikatu.UnityEngine.UI.targets" Condition="Exists('..\packages\IllusionLibs.Koikatu.UnityEngine.UI.5.6.2.4\build\IllusionLibs.Koikatu.UnityEngine.UI.targets')" />
   <Import Project="..\packages\IllusionLibs.Koikatu.TextMeshPro.2019.4.27.4\build\IllusionLibs.Koikatu.TextMeshPro.targets" Condition="Exists('..\packages\IllusionLibs.Koikatu.TextMeshPro.2019.4.27.4\build\IllusionLibs.Koikatu.TextMeshPro.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "F:\Satisfactory\Outfit Selection Expansion\bin\BepInEx\plugins" (
+    <PostBuildEvent>IF EXIST "F:\[ScrewThisNoise] Koikatsu BetterRepack R9.2\BepInEx\plugins" (
 xcopy "$(TargetFileName)" "F:\[ScrewThisNoise] Koikatsu BetterRepack R9.2\BepInEx\plugins" /S /Y /D
 )</PostBuildEvent>
   </PropertyGroup>

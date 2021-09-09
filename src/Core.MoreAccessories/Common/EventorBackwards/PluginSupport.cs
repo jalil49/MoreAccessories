@@ -9,7 +9,7 @@ namespace MoreAccessoriesKOI
         [Obsolete("Data is now stored directly on Chacontrol.cusAcsCmp")]
         public ChaAccessoryComponent GetChaAccessoryComponent(ChaControl character, int index)
         {
-            //Print($"looking for index {index} out of total {character.cusAcsCmp.Length}");
+            if (index >= character.cusAcsCmp.Length) return null;
             return character.cusAcsCmp[index];
         }
 
@@ -53,6 +53,5 @@ namespace MoreAccessoriesKOI
         {
             return MakerMode.AccessoriesWindow.CvsAccessoryArray[index];
         }
-
     }
 }
