@@ -46,7 +46,7 @@ namespace MoreAccessoriesKOI
             controller.objAccessory = obj.ArrayExpansion(len - obj.Length);
             controller.cusAcsCmp = cusAcsCmp.ArrayExpansion(len - cusAcsCmp.Length);
             controller.hideHairAcs = hideHairAcs.ArrayExpansion(len - hideHairAcs.Length);
-            delta = parts.Length - listinfo.Length;
+            delta = len - listinfo.Length;
             if (delta > 0)
             {
                 controller.infoAccessory = listinfo.Concat(new ListInfoBase[delta]).ToArray();
