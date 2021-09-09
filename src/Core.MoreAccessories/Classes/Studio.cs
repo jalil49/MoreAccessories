@@ -11,7 +11,7 @@ namespace MoreAccessoriesKOI
         private StudioSlotData _studioToggleAll;
         private RectTransform _studioToggleTemplate;
         internal OCIChar _selectedStudioCharacter;
-        private readonly List<StudioSlotData> _additionalStudioSlots = new List<StudioSlotData>();
+        public readonly List<StudioSlotData> _additionalStudioSlots = new List<StudioSlotData>();
         private StudioSlotData _studioToggleMain;
         private StudioSlotData _studioToggleSub;
 
@@ -127,21 +127,21 @@ namespace MoreAccessoriesKOI
                     slot.slot.SetParent(_studioToggleTemplate.parent);
                     slot.slot.localPosition = Vector3.zero;
                     slot.slot.localScale = Vector3.one;
-                    //var i1 = i;
-                    //slot.onButton.onClick = new Button.ButtonClickedEvent();
-                    //slot.onButton.onClick.AddListener(() =>
-                    //{
-                    //    _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile].showAccessories[i1] = true;
-                    //    slot.onButton.image.color = Color.green;
-                    //    slot.offButton.image.color = Color.white;
-                    //});
-                    //slot.offButton.onClick = new Button.ButtonClickedEvent();
-                    //slot.offButton.onClick.AddListener(() =>
-                    //{
-                    //    _accessoriesByChar[_selectedStudioCharacter.charInfo.chaFile].showAccessories[i1] = false;
-                    //    slot.offButton.image.color = Color.green;
-                    //    slot.onButton.image.color = Color.white;
-                    //});
+                    var i1 = i + 20;
+                    slot.onButton.onClick = new Button.ButtonClickedEvent();
+                    slot.onButton.onClick.AddListener(() =>
+                    {
+                        _selectedStudioCharacter.charInfo.chaFile.status.showAccessory[i1] = true;
+                        slot.onButton.image.color = Color.green;
+                        slot.offButton.image.color = Color.white;
+                    });
+                    slot.offButton.onClick = new Button.ButtonClickedEvent();
+                    slot.offButton.onClick.AddListener(() =>
+                    {
+                        _selectedStudioCharacter.charInfo.chaFile.status.showAccessory[i1] = false;
+                        slot.offButton.image.color = Color.green;
+                        slot.onButton.image.color = Color.white;
+                    });
                     _additionalStudioSlots.Add(slot);
                 }
                 slot.slot.gameObject.SetActive(true);

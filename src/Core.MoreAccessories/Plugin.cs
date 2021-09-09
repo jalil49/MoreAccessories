@@ -366,10 +366,8 @@ namespace MoreAccessoriesKOI
         {
             var instudio = false;
 
-#if KK
-            instudio = Application.productName.StartsWith("KoikatsuStudio");
-#elif KKS
-            instudio = Application.productName.StartsWith("KoikatsuSunshineStudio");
+#if KK || KKS
+            instudio = Application.productName.StartsWith("CharaStudio");
 #endif
 #if DEBUG
             Print($"loadmode {loadMode} index {scene.buildIndex} ");
