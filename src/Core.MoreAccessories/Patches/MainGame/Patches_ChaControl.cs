@@ -663,5 +663,17 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return length;
             }
         }
+#if KK || KKS
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
+#elif EC
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), new Type[0])]
+#endif
+        internal class AssignCoordinate_Patch
+        {
+            internal static void Prefix(ChaControl __instance)
+            {
+                MoreAccessories.ArraySync(__instance);
+            }
+        }
     }
 }

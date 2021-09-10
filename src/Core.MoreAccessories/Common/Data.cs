@@ -11,7 +11,7 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-        public const string versionNum = "2.0.0";
+        public const string versionNum = "2.0.2";
         public const string GUID = "com.joan6694.illusionplugins.moreaccessories";
 
         public static MoreAccessories _self;

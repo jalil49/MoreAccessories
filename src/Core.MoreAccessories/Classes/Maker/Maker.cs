@@ -80,7 +80,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             CopyWindow.RefreshToggles(len);
 #endif
-            Plugin.ExecuteDelayed(UpdateMakerUI);
+            UpdateMakerUI();
         }
     }
 }
