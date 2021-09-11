@@ -47,6 +47,7 @@ namespace MoreAccessoriesKOI
             {
                 var copyToggle = Object.Instantiate(gameobject, ScrollView.content);
                 tglarray[i] = copyToggle.GetComponentInChildren<Toggle>();
+                tglarray[i].graphic.raycastTarget = true;
                 tglarray[i].transform.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
                 copyToggle.name = "Slot" + index.ToString("00");
                 srcarray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
@@ -79,6 +80,10 @@ namespace MoreAccessoriesKOI
             ScrollView.content = content;
             ScrollView.transform.SetAsFirstSibling();
             ScrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -570f), new Vector2(-16f, -80f));
+        }
+        internal void WindowRefresh()
+        {
+            CopyWindow.UpdateCustomUI();
         }
     }
 }

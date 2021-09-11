@@ -8,7 +8,8 @@ namespace MoreAccessoriesKOI.Patches.Maker
     {
         private static void Postfix(CvsAccessoryChange __instance)
         {
-            MoreAccessories.MakerMode.TransferWindow = new Transfer_Window(__instance);
+            if (MoreAccessories.MakerMode.TransferWindow == null)
+                MoreAccessories.MakerMode.TransferWindow = new Transfer_Window(__instance);
         }
     }
 }

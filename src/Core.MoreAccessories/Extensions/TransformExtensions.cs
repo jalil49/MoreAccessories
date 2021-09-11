@@ -139,12 +139,12 @@ namespace MoreAccessoriesKOI.Extensions
             return res;
         }
 
-#if !AI && !HS2 && !KKS
-        public static IEnumerable<Transform> Children(this Transform self)
-        {
-            foreach (Transform t in self)
-                yield return t;
-        }
-#endif
+        //#if !AI && !HS2 && !KKS
+        //        public static IEnumerable<Transform> Children(this Transform self)
+        //        {
+        //            foreach (Transform t in self)
+        //                yield return t;
+        //        }
+        //#endif
     }
 }

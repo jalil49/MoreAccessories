@@ -65,7 +65,7 @@ namespace MoreAccessoriesKOI
             if (delta < 1) return;
 
             var index = 1;
-            foreach (var item in ChangeWindow.tglSrcKind)
+            foreach (var item in ScrollView.content.Children())
             {
                 item.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
                 index++;
@@ -79,13 +79,30 @@ namespace MoreAccessoriesKOI
             for (var i = 0; i < delta; i++, index++)
             {
                 var Transfer = Object.Instantiate(gameobject, ScrollView.content);
-                tglSrcKindarray[i] = Transfer.GetChild(1).GetComponentInChildren<Toggle>();
-                srcarray[i] = tglSrcKindarray[i].GetComponentInChildren<TextMeshProUGUI>();
+                Transfer.GetComponentInChildren<TextMeshProUGUI>().text = index.ToString("00");
+                var srctoggle = tglSrcKindarray[i] = Transfer.GetChild(1).GetComponentInChildren<Toggle>();
+                var tempindex = index - 1;
+                srctoggle.isOn = false;
+                srctoggle.onValueChanged = new Toggle.ToggleEvent();
+                srctoggle.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
+                {
+                    ChangeWindow.selSrc = tempindex;
+                });
+                srcarray[i] = srctoggle.GetComponentInChildren<TextMeshProUGUI>();
 
-                tglDstKindarray[i] = Transfer.GetChild(2).GetComponentInChildren<Toggle>();
-                dstarray[i] = tglDstKindarray[i].GetComponentInChildren<TextMeshProUGUI>();
+                var dsttoggle = tglDstKindarray[i] = Transfer.GetChild(2).GetComponentInChildren<Toggle>();
+                dsttoggle.isOn = false;
+                dsttoggle.onValueChanged = new Toggle.ToggleEvent();
+                dsttoggle.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
+                {
+                    ChangeWindow.selDst = tempindex;
+                });
+                dstarray[i] = dsttoggle.GetComponentInChildren<TextMeshProUGUI>();
 
-                Transfer.name = "Slot" + index.ToString("00");
+                Transfer.name = $"kind{tempindex}";
+
+                srctoggle.graphic.raycastTarget = true;
+                dsttoggle.graphic.raycastTarget = true;
 
                 var info = new CharaMakerSlotData { transferSlotObject = Transfer.gameObject };
                 AdditionalCharaMakerSlots.Add(info);
@@ -124,6 +141,11 @@ namespace MoreAccessoriesKOI
             transferDestinationToggle.isOn = false;
             transferSourceToggle.graphic.raycastTarget = true;
             transferDestinationToggle.graphic.raycastTarget = true;
+        }
+
+        internal void WindowRefresh()
+        {
+            ChangeWindow.UpdateCustomUI();
         }
     }
 }

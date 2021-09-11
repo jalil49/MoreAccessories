@@ -70,7 +70,6 @@ namespace MoreAccessoriesKOI
 
         private void MakeSlotsScrollable()
         {
-
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop").transform;
 
             foreach (var slotTransform in container.Cast<Transform>())
@@ -170,12 +169,27 @@ namespace MoreAccessoriesKOI
             text.text = "+10";
             addTenButton.onClick.AddListener(delegate () { AddSlot(10); });
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
-
+            MoreAccessories.Print(_customAcsChangeSlot.items.Length.ToString());
+#if KK || KKS
             for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 2; j--, i++)
+#else
+            for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 1; j--, i++)
+#endif
             {
                 var data = _customAcsChangeSlot.items[j];
+                var temp = i;
                 data.tglItem.onValueChanged.AddListener(b =>
                 {
+                    if (temp == 0)
+                    {
+                        MoreAccessories.MakerMode.TransferWindow.WindowRefresh();
+                    }
+#if KK || KKS
+                    if (temp == 1)
+                    {
+                        MoreAccessories.MakerMode.CopyWindow.WindowRefresh();
+                    }
+#endif
                     var t = data.cgItem.transform;
                     t.position = new Vector3(t.position.x, _slotUIPositionY);
                 });
@@ -251,14 +265,12 @@ namespace MoreAccessoriesKOI
             scroll.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             //scroll.viewport.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-
             foreach (var item in elements)
             {
                 var itemLayout = item.GetComponent<LayoutElement>();
                 itemLayout.flexibleWidth = 1;
                 item.SetParent(scroll.content);
             }
-
 
             slotTransform.SetParent(scroll.content);
         }
@@ -340,6 +352,7 @@ namespace MoreAccessoriesKOI
                     custombase.actUpdateAcsSlotName = custombase.actUpdateAcsSlotName.Concat(new System.Action(delegate () { Plugin.ExecuteDelayed(cvsAccessory.UpdateSlotName); })).ToArray(); //delay to avoid an error when called early due to additional patches
                     var newreactive = new BoolReactiveProperty(false);
                     custombase._updateCvsAccessory = custombase._updateCvsAccessory.Concat(newreactive).ToArray();
+                    _customAcsChangeSlot.textSlotNames = _customAcsChangeSlot.textSlotNames.Concat(cvsAccessory.textSlotName).ToArray();
                     newreactive.Subscribe(delegate (bool f)
                     {
                         if (index == custombase.selectSlot)
