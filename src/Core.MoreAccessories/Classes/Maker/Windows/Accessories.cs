@@ -169,7 +169,6 @@ namespace MoreAccessoriesKOI
             text.text = "+10";
             addTenButton.onClick.AddListener(delegate () { AddSlot(10); });
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
-            MoreAccessories.Print(_customAcsChangeSlot.items.Length.ToString());
 #if KK || KKS
             for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 2; j--, i++)
 #else
