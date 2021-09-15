@@ -110,10 +110,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MoreAccessories.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="..\Core.MoreAccessories\Core.MoreAccessories.projitems" Label="Shared" />
   <Import Project="..\EmotionCreators\EmotionCreators.projitems" Label="Shared" />

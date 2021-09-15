@@ -21,19 +21,16 @@ namespace MoreAccessoriesKOI
             var len = parts.Length;
             var nowlength = len;
 #if KK || KKS
+            //Print($"Nowlength is {nowlength}");
+
             foreach (var item in controller.chaFile.coordinate)
             {
                 len = Math.Max(len, item.accessory.parts.Length);
+                //Print($"coordinate length is {item.accessory.parts.Length}");
             }
 #endif
-            var show = controller.fileStatus.showAccessory;
-            var obj = controller.objAccessory;
-            var objmove = controller.objAcsMove;
-            var cusAcsCmp = controller.cusAcsCmp;
-            var hideHairAcs = controller.hideHairAcs;
-            var listinfo = controller.infoAccessory;
-
-            var delta = len - show.Length;
+            //Print($"Max size in sync is {len}");
+            var delta = len - controller.fileStatus.showAccessory.Length;
             if (delta > 0)
             {
                 var newarray = new bool[delta];
@@ -43,15 +40,75 @@ namespace MoreAccessoriesKOI
                 }
                 controller.fileStatus.showAccessory = controller.fileStatus.showAccessory.Concat(newarray).ToArray();
             }
-            controller.objAccessory = obj.ArrayExpansion(len - obj.Length);
-            controller.cusAcsCmp = cusAcsCmp.ArrayExpansion(len - cusAcsCmp.Length);
-            controller.hideHairAcs = hideHairAcs.ArrayExpansion(len - hideHairAcs.Length);
-            delta = len - listinfo.Length;
+            else if (delta < 0)
+            {
+                var newarray = new bool[len];
+                Array.Copy(controller.fileStatus.showAccessory, newarray, len);
+                controller.fileStatus.showAccessory = newarray;
+            }
+
+
+            delta = len - controller.objAccessory.Length;
             if (delta > 0)
             {
-                controller.infoAccessory = listinfo.Concat(new ListInfoBase[delta]).ToArray();
+                var newarray = new GameObject[delta];
+                controller.objAccessory = controller.objAccessory.Concat(newarray).ToArray();
             }
-            var movelen = objmove.GetLength(0);
+            else if (delta < 0)
+            {
+                var newarray = new GameObject[len];
+                for (var i = len; i < controller.objAccessory.Length; i++)
+                {
+                    var obj = controller.objAccessory[i];
+                    if (obj)
+                    {
+                        controller.SafeDestroy(obj);
+                    }
+                }
+                Array.Copy(controller.objAccessory, newarray, len);
+                controller.objAccessory = newarray;
+            }
+
+            delta = len - controller.cusAcsCmp.Length;
+            if (delta > 0)
+            {
+                var newarray = new ChaAccessoryComponent[delta];
+                controller.cusAcsCmp = controller.cusAcsCmp.Concat(newarray).ToArray();
+            }
+            else if (delta < 0)
+            {
+                var newarray = new ChaAccessoryComponent[len];
+                Array.Copy(controller.cusAcsCmp, newarray, len);
+                controller.cusAcsCmp = newarray;
+            }
+
+            delta = len - controller.hideHairAcs.Length;
+            if (delta > 0)
+            {
+                var newarray = new bool[delta];
+                controller.hideHairAcs = controller.hideHairAcs.Concat(newarray).ToArray();
+            }
+            else if (delta < 0)
+            {
+                var newarray = new bool[len];
+                Array.Copy(controller.hideHairAcs, newarray, len);
+                controller.hideHairAcs = newarray;
+            }
+
+
+            delta = len - controller.infoAccessory.Length;
+            if (delta > 0)
+            {
+                controller.infoAccessory = controller.infoAccessory.Concat(new ListInfoBase[delta]).ToArray();
+            }
+            else if (delta < 0)
+            {
+                var newarray = new ListInfoBase[len];
+                Array.Copy(controller.infoAccessory, newarray, len);
+                controller.infoAccessory = newarray;
+            }
+
+            var movelen = controller.objAcsMove.GetLength(0);
             delta = len - movelen;
             if (delta > 0)
             {
@@ -60,11 +117,24 @@ namespace MoreAccessoriesKOI
                 {
                     for (var j = 0; j < 2; j++)
                     {
-                        newarray[i, j] = objmove[i, j];
+                        newarray[i, j] = controller.objAcsMove[i, j];
                     }
                 }
                 controller.objAcsMove = newarray;
             }
+            else if (delta < 0)
+            {
+                var newarray = new GameObject[len, 2];
+                for (var i = 0; i < len; i++)
+                {
+                    for (var j = 0; j < 2; j++)
+                    {
+                        newarray[i, j] = controller.objAcsMove[i, j];
+                    }
+                }
+                controller.objAcsMove = newarray;
+            }
+
             if (CharaMaker)
             {
                 for (var i = 0; i < nowlength; i++)
@@ -87,6 +157,13 @@ namespace MoreAccessoriesKOI
                     for (var i = 0; i < delta; i++) { partsarray[i] = new ChaFileAccessory.PartsInfo(); }
                     controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Concat(partsarray).ToArray();
                 }
+                else if (delta < 0)
+                {
+                    var newarray = new ChaFileAccessory.PartsInfo[delta];
+                    Array.Copy(controller.nowCoordinate.accessory.parts, newarray, len);
+                    controller.nowCoordinate.accessory.parts = newarray;
+                }
+
 #if KK || KKS
                 foreach (var item in controller.chaFile.coordinate)
                 {

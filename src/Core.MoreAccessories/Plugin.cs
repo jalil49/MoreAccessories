@@ -40,7 +40,7 @@ namespace MoreAccessoriesKOI
             var uarHooks = typeof(Sideloader.AutoResolver.UniversalAutoResolver).GetNestedType("Hooks", AccessTools.all);
             harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));
             harmony.Patch(uarHooks.GetMethod("ExtendedCoordinateLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCoordLoad_Prefix)));
-
+            SceneManager.sceneUnloaded += SceneManager_sceneUnloaded;
 #if DEBUG
             foreach (var item in harmony.GetPatchedMethods())
             {
@@ -51,6 +51,17 @@ namespace MoreAccessoriesKOI
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
         }
 
+        private void SceneManager_sceneUnloaded(Scene arg0)
+        {
+            switch (arg0.name)
+            {
+                case "CustomScene":
+                    MakerMode = null;
+                    break;
+                default:
+                    break;
+            }
+        }
 
         internal static void Print(string text, LogLevel logLevel = LogLevel.Warning)
         {
@@ -410,17 +421,23 @@ namespace MoreAccessoriesKOI
                     }
 #endif
                     break;
+#if !EC
                 case LoadSceneMode.Additive:
 
 #if KKS
                     if (Game.initialized && scene.buildIndex == 3) //Class chara maker
-#elif EC || KK
+#elif KK
                     if (Game.IsInstance() && scene.buildIndex == 2) //Class chara maker
 #endif
                     {
                         MakerMode = new MakerMode();
                     }
+                    else
+                    {
+                        MakerMode = null;
+                    }
                     break;
+#endif
             }
         }
 

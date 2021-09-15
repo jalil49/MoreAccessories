@@ -50,12 +50,6 @@ namespace MoreAccessoriesKOI
             return indexlist;
         }
 
-        public static T[] ArrayExpansion<T>(this T[] array, int count = 1)
-        {
-            if (count < 1) return array;
-            return array.Concat(new T[count]).ToArray();
-        }
-
         public static T[] ConcatNearEnd<T>(this T[] array, T second, int subtractindex = 2)
         {
             var list = array.ToList();

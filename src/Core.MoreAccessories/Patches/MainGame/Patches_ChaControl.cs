@@ -37,7 +37,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 foreach (var item in PendingNowAccessories)
                 {
                     var len = item.nowCoordinate.accessory.parts.Length;
-                    if (len > item.objAccessory.Length || len > item.fileStatus.showAccessory.Length)
+                    if (len > item.objAccessory.Length || len > item.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
                         MoreAccessories.ArraySync(item);
                 }
                 PendingNowAccessories.Clear();

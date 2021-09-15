@@ -280,7 +280,11 @@ namespace MoreAccessoriesKOI
             {
                 return;
             }
+#if KK || KKS
+            var count = CustomBase.instance.chaCtrl.chaFile.coordinate.Max(x => x.accessory.parts.Length) - 20;
+#elif EC
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
+#endif
             if (count > AdditionalCharaMakerSlots.Count)
             {
                 return;
@@ -296,6 +300,7 @@ namespace MoreAccessoriesKOI
                     info.AccessorySlot.SetActive(true);
                     if (slotindex + 20 == CustomBase.Instance.selectSlot)
                         Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
+                    CvsAccessoryArray[slotindex + 20].UpdateSlotName();
                     if (info.transferSlotObject) info.transferSlotObject.SetActive(true);
 #if KK || KKS
                     if (info.copySlotObject) info.copySlotObject.SetActive(true);
@@ -303,7 +308,6 @@ namespace MoreAccessoriesKOI
                 }
                 else
                 {
-
                     var index = slotindex + 20;
                     var custombase = CustomBase.instance;
                     var newSlot = Object.Instantiate(ScrollView.content.GetChild(0), ScrollView.content);
