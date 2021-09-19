@@ -175,15 +175,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
             }
 
-            internal static void Prefix(ChaControl __instance)
-            {
-                var len = __instance.nowCoordinate.accessory.parts.Length;
-                if (len > __instance.objAccessory.Length || len > __instance.fileStatus.showAccessory.Length)
-                {
-                    MoreAccessories.ArraySync(__instance);
-                }
-            }
-
             private static int AccessoryCount(ChaControl chara)
             {
                 return chara.nowCoordinate.accessory.parts.Length;

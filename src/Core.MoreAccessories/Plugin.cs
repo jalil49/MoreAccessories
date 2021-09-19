@@ -35,7 +35,6 @@ namespace MoreAccessoriesKOI
             SceneManager.sceneLoaded += LevelLoaded;
 
             _hasDarkness = typeof(ChaControl).GetMethod("ChangeShakeAccessory", AccessTools.all) != null;
-
             var harmony = Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly());
             var uarHooks = typeof(Sideloader.AutoResolver.UniversalAutoResolver).GetNestedType("Hooks", AccessTools.all);
             harmony.Patch(uarHooks.GetMethod("ExtendedCardLoad", AccessTools.all), new HarmonyMethod(typeof(MoreAccessories), nameof(UAR_ExtendedCardLoad_Prefix)));

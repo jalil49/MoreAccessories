@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using HPlay;
 using MoreAccessoriesKOI.Extensions;
-using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI.Patches
 {

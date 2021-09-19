@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using ChaCustom;
-using MoreAccessoriesKOI.Extensions;
 #if EC
 using HPlay;
 using ADVPart.Manipulate;
