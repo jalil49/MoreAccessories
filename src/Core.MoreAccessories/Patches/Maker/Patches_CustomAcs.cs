@@ -7,7 +7,6 @@ namespace MoreAccessoriesKOI.Patches.Maker
     {
         #region CustomAcsChangeSlot
 
-#if KK || EC || KKS
         [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Start))]
         internal static class CustomAcsChangeSlot_KKS_Start_Patches
         {
@@ -16,7 +15,6 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 MoreAccessories.MakerMode.AccessoriesWindow = new Accessories(__instance);
             }
         }
-#endif
 
 
         //[HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.LateUpdate))]

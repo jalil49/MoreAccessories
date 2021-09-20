@@ -179,5 +179,35 @@ namespace MoreAccessoriesKOI
                 MoreAccessories.MakerMode.RefreshToggles(len);
             }
         }
+        internal static void ArraySync(ChaFile file)
+        {
+            var len = 20;
+#if KK || KKS
+            //Print($"Nowlength is {nowlength}");
+
+            foreach (var item in file.coordinate)
+            {
+                len = Math.Max(len, item.accessory.parts.Length);
+                //Print($"coordinate length is {item.accessory.parts.Length}");
+            }
+#endif
+            //Print($"Max size in sync is {len}");
+            var delta = len - file.status.showAccessory.Length;
+            if (delta > 0)
+            {
+                var newarray = new bool[delta];
+                for (var i = 0; i < delta; i++)
+                {
+                    newarray[i] = true;
+                }
+                file.status.showAccessory = file.status.showAccessory.Concat(newarray).ToArray();
+            }
+            else if (delta < 0)
+            {
+                var newarray = new bool[len];
+                Array.Copy(file.status.showAccessory, newarray, len);
+                file.status.showAccessory = newarray;
+            }
+        }
     }
 }

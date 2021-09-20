@@ -9,40 +9,38 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 {
     public class ChaControl_Patches
     {
-        [HarmonyPatch]
-        public class ChangeCoordinate_Patch
-        {
-            static readonly List<ChaControl> PendingNowAccessories = new List<ChaControl>();
 #if KK || KKS
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
-            internal static void ChangeCoordPrefix(ChaControl __instance)
-            {
-                PendingNowAccessories.Add(__instance);
-            }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
+        internal class ChangeCoordinateTypePostFix
+        {
+            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
 
-            [HarmonyPrefix]
-            [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
-            internal static void SetNowCoordinatePrefix(ChaControl __instance)
-            {
-                PendingNowAccessories.Add(__instance);
-            }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
+        internal class SetNowCoordinatePostFix
+        {
+            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
+#elif EC
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), new[] { typeof(ChaFileCoordinate), typeof(bool), typeof(bool) })]
+        internal class ChangeCoordinateTypePostFix
+        {
+            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
 #endif
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Load))]
+        internal class ChaControlLoadPatch
+        {
+            static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
 
-            [HarmonyPostfix]
-            [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.LoadBytes))]
-            internal static void Nowcoordinatechange()
-            {
-                if (PendingNowAccessories.Count == 0) return;
-                foreach (var item in PendingNowAccessories)
-                {
-                    var len = item.nowCoordinate.accessory.parts.Length;
-                    if (len > item.objAccessory.Length || len > item.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
-                        MoreAccessories.ArraySync(item);
-                }
-                PendingNowAccessories.Clear();
-                if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
-            }
+        internal static void ArraySyncCheck(ChaControl chara)
+        {
+            var len = chara.nowCoordinate.accessory.parts.Length;
+            if (len > chara.objAccessory.Length || len > chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
+                MoreAccessories.ArraySync(chara);
+
+            if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
         }
 
         [HarmonyPatch]
@@ -125,7 +123,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
             }
-
         }
 
         [HarmonyPatch]
@@ -323,6 +320,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
             }
         }
+
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
         internal class ChacontrolChangeAccessoryAsync_Patch
         {
@@ -585,7 +583,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 #endif
 
-
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.UpdateVisible))]
         internal class UpdateVisible_Patch
         {
@@ -647,12 +644,18 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             //}
             private static int AccessoryCount(ChaControl chara/*, int k*/)
             {
-                //MoreAccessories.Print($"{k:00}/{chara.objAccessory.Length}  {chara.nowCoordinate.accessory.parts.Length} {chara.fileStatus.showAccessory.Length}");
                 var length = chara.nowCoordinate.accessory.parts.Length;
                 //if (chara.fileStatus.showAccessory.Length <= length)
                 //    MoreAccessories.ArraySync(chara);
                 return length;
             }
+#if DEBUG
+            private static void Prefix(ChaControl __instance)
+            {
+                if (__instance.objAccessory.Length != __instance.fileStatus.showAccessory.Length)
+                    MoreAccessories.Print($"{__instance.fileParam.fullname } {__instance.objAccessory.Length}  {__instance.nowCoordinate.accessory.parts.Length} {__instance.fileStatus.showAccessory.Length}");
+            }
+#endif
         }
 #if KK || KKS
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]

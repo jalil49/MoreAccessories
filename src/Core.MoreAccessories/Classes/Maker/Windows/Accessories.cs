@@ -326,9 +326,11 @@ namespace MoreAccessoriesKOI
                     {
                         item.colorKind = cvscolor;
                     }
-
+#if KK || KKS
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
-
+#elif EC
+                    var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup }, 1);
+#endif
                     foreach (var _custom in SelectKind)
                     {
                         _custom.cvsAccessory = CvsAccessoryArray;

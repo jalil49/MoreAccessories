@@ -43,13 +43,9 @@ namespace MoreAccessoriesKOI.Patches
                 }
                 else
                 {
-#if KK || KKS
                     var coordId = prefix.Replace("outfit", "").Replace(".", "");
                     if (int.TryParse(coordId, out var result) == false)
                         return;
-#elif EC
-                    int result = 0;
-#endif
                     if (additionalData.rawAccessoriesInfos.TryGetValue(result, out var parts) == false)
                         return;
                     for (var j = 0; j < parts.Count; j++)
@@ -57,7 +53,7 @@ namespace MoreAccessoriesKOI.Patches
                 }
             }
         }
-#if KKS
+#if KKS || EC
         [HarmonyPatch(typeof(ExtendedSave), "CardImportEvent")]
         private static class SideloaderAutoresolverHooks_Import_Patches
         {
