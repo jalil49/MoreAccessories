@@ -37,7 +37,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         internal static void ArraySyncCheck(ChaControl chara)
         {
             var len = chara.nowCoordinate.accessory.parts.Length;
-            if (len > chara.objAccessory.Length || len > chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
+            if (len > chara.objAccessory.Length || len > chara.fileStatus.showAccessory.Length || chara.objAccessory.Length != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
                 MoreAccessories.ArraySync(chara);
 
             if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
@@ -290,15 +290,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
         internal class ChacontrolChangeAccessory_Patch
         {
-            internal static void Prefix(ChaControl __instance)
-            {
-                var len = __instance.nowCoordinate.accessory.parts.Length;
-                if (len > __instance.objAccessory.Length || len > __instance.fileStatus.showAccessory.Length)
-                {
-                    MoreAccessories.ArraySync(__instance);
-                }
-            }
-
+            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
             internal static void Postfix(ChaControl __instance)
             {
                 var obj = __instance.objAccessory;
@@ -324,14 +316,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
         internal class ChacontrolChangeAccessoryAsync_Patch
         {
-            internal static void Prefix(ChaControl __instance)
-            {
-                var len = __instance.nowCoordinate.accessory.parts.Length;
-                if (len > __instance.objAccessory.Length || len > __instance.fileStatus.showAccessory.Length)
-                {
-                    MoreAccessories.ArraySync(__instance);
-                }
-            }
+            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
 
             internal static void Postfix(ChaControl __instance)
             {
