@@ -29,6 +29,15 @@ namespace MoreAccessoriesKOI.Patches
                 __instance.showAccessory = new bool[src.showAccessory.Length];
             }
         }
+
+        [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.CopyAll))]
+        private static class ChaFileCopyAllPatch
+        {
+            private static void Postfix(ChaFile __instance)
+            {
+                MoreAccessories.ArraySync(__instance);
+            }
+        }
 #if KK || KKS
         [HarmonyPatch(typeof(ActionGame.Chara.Base), nameof(ActionGame.Chara.Base.Replace))]
         private static class Replace_Patches
