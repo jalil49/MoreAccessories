@@ -15,7 +15,6 @@ namespace MoreAccessoriesKOI
         {
             _hSceneFemales = lstFemale;
             _hSprite = sprite;
-            SpawnHUI();
             Plugin.ExecuteDelayed(MakeSingleScrollable, 1);
             Plugin.ExecuteDelayed(MakeMultiScrollable, 1);
         }
@@ -25,10 +24,6 @@ namespace MoreAccessoriesKOI
         public List<ChaControl> LstFemale { get; }
         public HSprite Sprite { get; }
 
-        internal void SpawnHUI()
-        {
-
-        }
         private void MakeSingleScrollable()
         {
             foreach (var sprite in _hSprite)
