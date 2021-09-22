@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace MoreAccessoriesKOI.Patches
 {
-    public class Common_Patches
+    public class VR_Patches
     {
 #if KK || KKS
         [HarmonyPatch]
