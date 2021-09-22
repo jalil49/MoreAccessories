@@ -5,13 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using UniRx;
-#if DEBUG
-
-#endif
-#if KKS
-
-#endif
-
 
 namespace MoreAccessoriesKOI.Patches.Maker
 {

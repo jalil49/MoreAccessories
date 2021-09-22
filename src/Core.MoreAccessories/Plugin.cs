@@ -411,7 +411,11 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
                     else
                     {
+#if KK
                         if (scene.buildIndex == 1) //Studio
+#elif KKS
+                        if (scene.buildIndex == 2) //Studio
+#endif
                         {
                             StudioMode = new StudioClass();
                         }

@@ -69,6 +69,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     yield return inst;
                 }
             }
+            private static int MaleAccessoryCount(ChaControl male)
+            {
+                return male.nowCoordinate.accessory.parts.Length;
+            }
 #elif KK
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
@@ -97,12 +101,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 return femaleList[current].nowCoordinate.accessory.parts.Length;
             }
-#if KKS
-            private static int MaleAccessoryCount(ChaControl male)
-            {
-                return male.nowCoordinate.accessory.parts.Length;
-            }
-#endif
         }
 
         [HarmonyPatch(typeof(HSprite), nameof(HSprite.AccessoryProc))]
