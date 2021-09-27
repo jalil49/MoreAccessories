@@ -185,8 +185,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 var show = female.IsAccessory(i);
                 accessorycategory.SetActive(show, i);
-                MoreAccessories.Print($"{female.fileParam.fullname} slot {i} {show}");
-
                 if (show)
                 {
                     var component = female.objAccessory[i].GetComponent<ListInfoComponent>();
