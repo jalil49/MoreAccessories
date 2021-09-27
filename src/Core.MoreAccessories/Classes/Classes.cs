@@ -20,36 +20,33 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
         public CharAdditionalData(ChaControl chactrl)
         {
-            nowAccessories = chactrl.nowCoordinate.accessory.parts.ToList();
-            nowAccessories.RemoveRange(0, 20);
+            nowAccessories = chactrl.nowCoordinate.accessory.parts.Skip(20).ToList();
             for (var i = 0; i < chactrl.chaFile.coordinate.Length; i++)
             {
-                rawAccessoriesInfos[i] = chactrl.chaFile.coordinate[i].accessory.parts.ToList();
-                rawAccessoriesInfos[i].RemoveRange(0, 20);
+                rawAccessoriesInfos[i] = chactrl.chaFile.coordinate[i].accessory.parts.Skip(20).ToList();
             }
         }
         public CharAdditionalData(ChaFile file)
         {
             for (var i = 0; i < file.coordinate.Length; i++)
             {
-                rawAccessoriesInfos[i] = file.coordinate[i].accessory.parts.ToList();
-                rawAccessoriesInfos[i].RemoveRange(0, 20);
+                rawAccessoriesInfos[i] = file.coordinate[i].accessory.parts.Skip(20).ToList();
             }
         }
 #elif EC
         public CharAdditionalData(ChaControl chactrl)
         {
-            nowAccessories = chactrl.nowCoordinate.accessory.parts.ToList();
-            nowAccessories.RemoveRange(0, 20);
-
-            rawAccessoriesInfos[0] = chactrl.chaFile.coordinate.accessory.parts.ToList();
-            rawAccessoriesInfos[0].RemoveRange(0, 20);
+            nowAccessories = chactrl.nowCoordinate.accessory.parts.Skip(20).ToList();
+            rawAccessoriesInfos[0] = chactrl.chaFile.coordinate.accessory.parts.Skip(20).ToList();
+        }
+        public CharAdditionalData(ChaFile file)
+        {
+            rawAccessoriesInfos[0] = file.coordinate.accessory.parts.Skip(20).ToList();
         }
 #endif
         public CharAdditionalData(ChaFileAccessory.PartsInfo[] parts)
         {
-            nowAccessories = parts.ToList();
-            nowAccessories.RemoveRange(0, 20);
+            nowAccessories = parts.Skip(20).ToList();
         }
 
         public List<ChaFileAccessory.PartsInfo> nowAccessories = new List<ChaFileAccessory.PartsInfo>();

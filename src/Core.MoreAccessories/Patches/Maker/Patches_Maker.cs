@@ -75,7 +75,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
 
         private static int AccessoryCount()//works fine for copybutton since it is equal
         {
-            if (CustomBase.instance.chaCtrl == null) return 20;
+            if (CustomBase.instance.chaCtrl == null || MoreAccessories.MakerMode == null || MoreAccessories.MakerMode.AccessoriesWindow == null) return 20;
             return Math.Min(CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length, MoreAccessories.MakerMode.AccessoriesWindow.CvsAccessoryArray.Length);
         }
     }

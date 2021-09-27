@@ -34,15 +34,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
-        internal static void ArraySyncCheck(ChaControl chara)
-        {
-            var len = chara.nowCoordinate.accessory.parts.Length;
-            if (len > chara.objAccessory.Length || len > chara.fileStatus.showAccessory.Length || chara.objAccessory.Length != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
-                MoreAccessories.ArraySync(chara);
-
-            if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
-        }
-
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Patches
         {
@@ -105,7 +96,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
                         //var test = new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
                         //MoreAccessories._self.Logger.LogWarning($"{j++:00} {test.opcode} {test.operand}");
-                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessorySlotBoolCheck), AccessTools.all));
                         i += 2;//skip 19 insert and call range
                     }
                     //if (i < 35)
@@ -117,11 +108,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 MoreAccessories.Print($"Transpiler worked");
 #endif
 
-            }
-
-            private static bool AccessoryCheck(ChaControl chara, int slot)
-            {
-                return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
             }
         }
 
@@ -161,7 +147,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator11, Assembly-CSharp").GetField("$this", AccessTools.all));
 #endif
-                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Replace20_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
                         continue;
                     }
                     yield return inst;
@@ -171,18 +157,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
             }
-
-            private static int AccessoryCount(ChaControl chara)
-            {
-                return chara.nowCoordinate.accessory.parts.Length;
-            }
         }
 
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches
         {
-            static int count = 0;
 #if DEBUG
+            static int count = 0;
             static void Finalizer(Exception __exception)
             {
                 if (__exception != null)
@@ -263,7 +244,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldarg_1);
 
-                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_CheckAdjuster_param_slot_0_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(ChaControl_Patches.AccessorySlotBoolCheck), AccessTools.all));
                         i = end;
                         inst = instructionsList[i];
                     }
@@ -273,14 +254,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
 #if DEBUG
                 MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
+                                count++;
 #endif
 
-                count++;
-            }
-
-            private static bool AccessoryCheck(ChaControl chara, int slot)
-            {
-                return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
             }
         }
 #if KKS
@@ -291,26 +267,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         internal class ChacontrolChangeAccessory_Patch
         {
             internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
-            internal static void Postfix(ChaControl __instance)
-            {
-                var obj = __instance.objAccessory;
-                var info = __instance.infoAccessory;
-                var cusacscmp = __instance.cusAcsCmp;
-                var objAcsMove = __instance.objAcsMove;
-                for (int i = __instance.nowCoordinate.accessory.parts.Length, n = obj.Length; i < n; i++)
-                {
-                    if (obj[i])
-                    {
-                        __instance.SafeDestroy(obj[i]);
-                        info[i] = null;
-                        cusacscmp[i] = null;
-                        for (var j = 0; j < 2; j++)
-                        {
-                            objAcsMove[i, j] = null;
-                        }
-                    }
-                }
-            }
+            internal static void Postfix(ChaControl __instance) => RemoveExcessObjects(__instance);
         }
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
@@ -318,26 +275,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
 
-            internal static void Postfix(ChaControl __instance)
-            {
-                var obj = __instance.objAccessory;
-                var info = __instance.infoAccessory;
-                var cusacscmp = __instance.cusAcsCmp;
-                var objAcsMove = __instance.objAcsMove;
-                for (int i = __instance.nowCoordinate.accessory.parts.Length, n = obj.Length; i < n; i++)
-                {
-                    if (obj[i])
-                    {
-                        __instance.SafeDestroy(obj[i]);
-                        info[i] = null;
-                        cusacscmp[i] = null;
-                        for (var j = 0; j < 2; j++)
-                        {
-                            objAcsMove[i, j] = null;
-                        }
-                    }
-                }
-            }
+            internal static void Postfix(ChaControl __instance) => RemoveExcessObjects(__instance);
         }
 
         [HarmonyPatch]
@@ -412,7 +350,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldarg_2);
-                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_CheckAdjuster_param_slot_1_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessorySlotBoolCheck), AccessTools.all));
                         i = end;
                         inst = instructionsList[i];
                     }
@@ -424,11 +362,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 count++;
 #endif
 
-            }
-
-            private static bool AccessoryCheck(ChaControl chara, int slot)
-            {
-                return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
             }
         }
 
@@ -475,7 +408,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         worked = true;
 #endif
                         yield return new CodeInstruction(OpCodes.Ldarg_0);//feed chacontrol to method
-                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Replace_20_Patch).GetMethod(nameof(AccessoryCount), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
                         continue;
                     }
                     yield return inst;
@@ -486,11 +419,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
 
             }
-
-            private static int AccessoryCount(ChaControl chara)
-            {
-                return chara.nowCoordinate.accessory.parts.Length;
-            }
         }
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryState))]
@@ -498,12 +426,20 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             static bool Prefix(ChaControl __instance, int slotNo, bool show)
             {
-                if (__instance.nowCoordinate.accessory.parts.Length <= slotNo)
+                try
                 {
+                    if (__instance.nowCoordinate.accessory.parts.Length <= slotNo)
+                    {
+                        return false;
+                    }
+                    __instance.fileStatus.showAccessory[slotNo] = show;
                     return false;
                 }
-                __instance.fileStatus.showAccessory[slotNo] = show;
-                return false;
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
+                }
             }
         }
 
@@ -512,12 +448,20 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             static bool Prefix(ChaControl __instance, bool show)
             {
-                var length = __instance.nowCoordinate.accessory.parts.Length;
-                for (var i = 0; i < length; i++)
+                try
                 {
-                    __instance.fileStatus.showAccessory[i] = show;
+                    var length = __instance.nowCoordinate.accessory.parts.Length;
+                    for (var i = 0; i < length; i++)
+                    {
+                        __instance.fileStatus.showAccessory[i] = show;
+                    }
+                    return false;
                 }
-                return false;
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
+                }
             }
         }
 
@@ -527,19 +471,27 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             static bool Prefix(ChaControl __instance, int cateNo, bool show)
             {
-                if (cateNo != 0 && 1 != cateNo)
+                try
                 {
+                    if (cateNo != 0 && 1 != cateNo)
+                    {
+                        return false;
+                    }
+                    var length = __instance.nowCoordinate.accessory.parts.Length;
+                    for (var i = 0; i < length; i++)
+                    {
+                        if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
+                        {
+                            __instance.fileStatus.showAccessory[i] = show;
+                        }
+                    }
                     return false;
                 }
-                var length = __instance.nowCoordinate.accessory.parts.Length;
-                for (var i = 0; i < length; i++)
+                catch (Exception ex)
                 {
-                    if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
-                    {
-                        __instance.fileStatus.showAccessory[i] = show;
-                    }
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
                 }
-                return false;
             }
         }
 
@@ -548,22 +500,30 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             static bool Prefix(ChaControl __instance, int cateNo, ref int __result)
             {
-                if (cateNo != 0 && 1 != cateNo)
+                try
                 {
-                    __result = -1;
+                    if (cateNo != 0 && 1 != cateNo)
+                    {
+                        __result = -1;
+                        return false;
+                    }
+                    __result = 0;
+                    var length = __instance.nowCoordinate.accessory.parts.Length;
+
+                    for (var i = 0; i < length; i++)
+                    {
+                        if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
+                        {
+                            __result++;
+                        }
+                    }
                     return false;
                 }
-                __result = 0;
-                var length = __instance.nowCoordinate.accessory.parts.Length;
-
-                for (var i = 0; i < length; i++)
+                catch (Exception ex)
                 {
-                    if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
-                    {
-                        __result++;
-                    }
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
                 }
-                return false;
             }
         }
 #endif
@@ -612,7 +572,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         worked = true;
 #endif
                         //yield return instructionsList[start - 2];
-                        yield return new CodeInstruction(OpCodes.Call, typeof(UpdateVisible_Patch).GetMethod(nameof(AccessoryCount), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
                         i = end;
                         continue;
                     }
@@ -622,17 +582,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #if DEBUG
                 MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
 #endif
-            }
-            //private static void Print(int k)
-            //{
-            //    MoreAccessories.Print(k.ToString());
-            //}
-            private static int AccessoryCount(ChaControl chara/*, int k*/)
-            {
-                var length = chara.nowCoordinate.accessory.parts.Length;
-                //if (chara.fileStatus.showAccessory.Length <= length)
-                //    MoreAccessories.ArraySync(chara);
-                return length;
             }
 #if DEBUG
             private static void Prefix(ChaControl __instance)
@@ -649,9 +598,76 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
         internal class AssignCoordinate_Patch
         {
-            internal static void Prefix(ChaControl __instance)
+            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
+
+        internal static void ArraySyncCheck(ChaControl chara)
+        {
+            try
             {
-                MoreAccessories.ArraySync(__instance);
+                var len = chara.nowCoordinate.accessory.parts.Length;
+                if (len > chara.objAccessory.Length || len > chara.fileStatus.showAccessory.Length || chara.objAccessory.Length != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
+                    MoreAccessories.ArraySync(chara);
+
+                if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
+            }
+            catch (Exception ex)
+            {
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+            }
+        }
+
+
+        private static bool AccessorySlotBoolCheck(ChaControl chara, int slot)
+        {
+            try
+            {
+                return MathfEx.RangeEqualOn(0, slot, chara.nowCoordinate.accessory.parts.Length - 1);
+            }
+            catch (Exception ex)
+            {
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                return MathfEx.RangeEqualOn(0, slot, 19);
+            }
+        }
+        private static void RemoveExcessObjects(ChaControl chara)
+        {
+            try
+            {
+                var obj = chara.objAccessory;
+                var info = chara.infoAccessory;
+                var cusacscmp = chara.cusAcsCmp;
+                var objAcsMove = chara.objAcsMove;
+                for (int i = chara.nowCoordinate.accessory.parts.Length, n = obj.Length; i < n; i++)
+                {
+                    if (obj[i])
+                    {
+                        chara.SafeDestroy(obj[i]);
+                        info[i] = null;
+                        cusacscmp[i] = null;
+                        for (var j = 0; j < 2; j++)
+                        {
+                            objAcsMove[i, j] = null;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+            }
+        }
+
+        private static int AccessoryCount(ChaControl chara)
+        {
+            try
+            {
+                return chara.nowCoordinate.accessory.parts.Length;
+            }
+            catch (Exception ex)
+            {
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                return 20;
             }
         }
     }

@@ -90,4 +90,18 @@ namespace MoreAccessoriesKOI.Patches
         }
     }
 
+    [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetStatusBytes), typeof(ChaFileStatus))]
+    internal static class ChaFileStatusPatch
+    {
+        private static void Prefix(ChaFileStatus _status, out bool[] __state)
+        {
+            __state = _status.showAccessory;
+            _status.showAccessory = __state.Take(20).ToArray();
+        }
+        private static void Postfix(ChaFileStatus _status, bool[] __state)
+        {
+            _status.showAccessory = __state;
+        }
+    }
+
 }

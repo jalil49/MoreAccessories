@@ -1,9 +1,5 @@
 ﻿#if !EC
 using HarmonyLib;
-using Illusion.Extensions;
-using Illusion.Game;
-using IllusionUtility;
-using MoreAccessoriesKOI.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -106,62 +102,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch(typeof(HSprite), nameof(HSprite.AccessoryProc))]
         internal static class HSpriteAccessoryProc_patch
         {
-            internal static void Prefix(HSprite __instance, HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females)
-            {
-                var list = ___categoryAccessory.lstButton;
-                var slot = list[0].transform;
-                var parent = slot.parent;
-                var delta = ___females[0].nowCoordinate.accessory.parts.Length - list.Count;
-                if (delta > 0)
-                {
-                    for (var i = 0; i < delta; i++)
-                    {
-                        var transform = UnityEngine.Object.Instantiate(slot, parent);
-                        transform.name = $"{list.Count}";
-                        var button = transform.GetComponent<Button>();
-                        button.onClick = new Button.ButtonClickedEvent();
-                        MakeButton(__instance, button, list.Count);
-                        transform.gameObject.SetActive(true);
-                        ___categoryAccessory.lstButton.Add(button);
-                    }
-                    MoreAccessories._self.ExecuteDelayed(__instance.AccessoryProc, 5);
-                }
-            }
-            private static void MakeButton(HSprite sprite, Button button, int slot)
-            {
-                button.onClick.AddListener(() =>
-                {
-                    sprite.OnClickAccessory(slot);
-                });
-            }
-
+            internal static void Prefix(HSprite __instance, HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females) => AddAccessoryButtons(__instance, ___categoryAccessory, ___females, 0);
             public static void Postfix(HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females)
             {
-                var female = ___females[0];
-                var accessorycount = female.nowCoordinate.accessory.parts.Length;
-                var i = 20;
-                for (; i < accessorycount; i++)
+                try { HideExcessButtons(___categoryAccessory, ___females[0]); }
+                catch (Exception ex)
                 {
-                    var flag = female.IsAccessory(i);
-                    ___categoryAccessory.SetActive(flag, i);
-                    if (flag)
-                    {
-                        var component = female.objAccessory[i].GetComponent<ListInfoComponent>();
-                        var @object = ___categoryAccessory.GetObject(i);
-                        TextMeshProUGUI textMeshProUGUI = null;
-                        if (@object)
-                        {
-                            textMeshProUGUI = @object.GetComponentInChildren<TextMeshProUGUI>(true);
-                        }
-                        if (component && textMeshProUGUI)
-                        {
-                            textMeshProUGUI.text = component.data.Name;
-                        }
-                    }
-                }
-                for (var n = ___categoryAccessory.lstButton.Count; i < n; i++)
-                {
-                    ___categoryAccessory.SetActive(false, i);
+                    MoreAccessories.Print($"Failed to hide buttons to H #{0} {ex}");
                 }
             }
         }
@@ -171,59 +118,25 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             internal static void Prefix(HSprite __instance, List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
             {
-                var list = ___lstMultipleFemaleDressButton[_female].accessory.lstButton;
-                var slot = list[0].transform;
-                var parent = slot.parent;
-                var delta = ___females[_female].nowCoordinate.accessory.parts.Length - list.Count;
-                if (delta > 0)
+                MoreAccessories.Print($"female {_female} FemaleDressSubMenuAccessoryProc prefix");
+
+                try
                 {
-                    for (var i = 0; i < delta; i++)
-                    {
-                        var transform = UnityEngine.Object.Instantiate(slot, parent);
-                        transform.name = $"{list.Count}";
-                        var button = transform.GetComponent<Button>();
-                        button.onClick = new Button.ButtonClickedEvent();
-                        MakeButton(__instance, button, _female, list.Count);
-                        list.Add(button);
-                    }
+                    AddAccessoryButtons(__instance, ___lstMultipleFemaleDressButton[_female].accessory, ___females, _female);
+                }
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"Failed to make Multiple H #{_female} AddAccessoryButtons {ex}");
                 }
             }
 
-            private static void MakeButton(HSprite sprite, Button button, int _female, int slot)
+            public static void Postfix(List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
             {
-                button.onClick.AddListener(() =>
+                MoreAccessories.Print($"female {_female} FemaleDressSubMenuAccessoryProc postfix");
+                try { HideExcessButtons(___lstMultipleFemaleDressButton[_female].accessory, ___females[_female]); }
+                catch (Exception ex)
                 {
-                    sprite.OnClickAccessory(_female, slot);
-                });
-            }
-
-            public static void Postfix(HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females)
-            {
-                var female = ___females[0];
-                var accessorycount = female.nowCoordinate.accessory.parts.Length;
-                var i = 20;
-                for (; i < accessorycount; i++)
-                {
-                    var flag = female.IsAccessory(i);
-                    ___categoryAccessory.SetActive(flag, i);
-                    if (flag)
-                    {
-                        var component = female.objAccessory[i].GetComponent<ListInfoComponent>();
-                        var @object = ___categoryAccessory.GetObject(i);
-                        TextMeshProUGUI textMeshProUGUI = null;
-                        if (@object)
-                        {
-                            textMeshProUGUI = @object.GetComponentInChildren<TextMeshProUGUI>(true);
-                        }
-                        if (component && textMeshProUGUI)
-                        {
-                            textMeshProUGUI.text = component.data.Name;
-                        }
-                    }
-                }
-                for (var n = ___categoryAccessory.lstButton.Count; i < n; i++)
-                {
-                    ___categoryAccessory.SetActive(false, i);
+                    MoreAccessories.Print($"Failed to hide excess buttons to H #{_female} {ex}");
                 }
             }
         }
@@ -235,6 +148,72 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             {
                 MoreAccessories.HMode = new HScene(___lstFemale, new[] { ___sprite });
             }
+        }
+
+        internal static void AddAccessoryButtons(HSprite sprite, HSceneSpriteCategory accessorycategory, List<ChaControl> ___females, int femalenum)
+        {
+            try
+            {
+                var list = accessorycategory.lstButton;
+                var slot = list[0].transform;
+                var parent = slot.parent;
+                var delta = ___females[femalenum].nowCoordinate.accessory.parts.Length - list.Count;
+                if (delta > 0)
+                {
+                    for (var i = 0; i < delta; i++)
+                    {
+                        var transform = UnityEngine.Object.Instantiate(slot, parent);
+                        transform.name = $"{list.Count}";
+                        var button = transform.GetComponent<Button>();
+                        button.onClick = new Button.ButtonClickedEvent();
+                        MakeButton(sprite, button, femalenum, list.Count);
+                        list.Add(button);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MoreAccessories.Print($"Failed to add buttons to H #{femalenum} {ex}");
+            }
+        }
+
+        private static void HideExcessButtons(HSceneSpriteCategory accessorycategory, ChaControl female)
+        {
+            var accessorycount = female.nowCoordinate.accessory.parts.Length;
+            var i = 20;
+            for (; i < accessorycount && i < accessorycategory.lstButton.Count; i++)
+            {
+                var show = female.IsAccessory(i);
+                accessorycategory.SetActive(show, i);
+                MoreAccessories.Print($"{female.fileParam.fullname} slot {i} {show}");
+
+                if (show)
+                {
+                    var component = female.objAccessory[i].GetComponent<ListInfoComponent>();
+                    var accslot = accessorycategory.GetObject(i);
+                    TextMeshProUGUI textMeshProUGUI = null;
+                    if (accslot)
+                    {
+                        textMeshProUGUI = accslot.GetComponentInChildren<TextMeshProUGUI>(true);
+                    }
+                    if (component && textMeshProUGUI)
+                    {
+                        textMeshProUGUI.text = component.data.Name;
+                    }
+                }
+            }
+            for (var n = accessorycategory.lstButton.Count; i < n; i++)
+            {
+                accessorycategory.SetActive(false, i);
+            }
+        }
+
+        private static void MakeButton(HSprite sprite, Button button, int _female, int slot)
+        {
+            button.onClick.AddListener(() =>
+            {
+                sprite.OnClickAccessory(_female, slot);
+            });
         }
     }
 }

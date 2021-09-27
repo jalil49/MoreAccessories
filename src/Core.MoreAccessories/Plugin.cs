@@ -213,7 +213,6 @@ namespace MoreAccessoriesKOI
 
                 xmlWriter.WriteEndElement();
 
-                pluginData.version = 1;//use old version cause it is
                 pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
         }
@@ -347,7 +346,6 @@ namespace MoreAccessoriesKOI
                 }
                 xmlWriter.WriteEndElement();
 
-                pluginData.version = 1;
                 pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
 
@@ -363,12 +361,16 @@ namespace MoreAccessoriesKOI
 #if DEBUG
             Print($"loadmode {loadMode} index {scene.buildIndex} ");
 #endif
+#if KK
+            if (scene.buildIndex == 6) return;
+#elif EC
+            if (scene.buildIndex == 7) return;
+#endif
             switch (loadMode)
             {
                 case LoadSceneMode.Single:
                     if (!instudio)
                     {
-                        MakerMode = null;
                         ImportingCards = false;
                         InFreeHSelect = false;
                         AtMenu = false;
@@ -434,10 +436,6 @@ namespace MoreAccessoriesKOI
 #endif
                     {
                         MakerMode = new MakerMode();
-                    }
-                    else
-                    {
-                        MakerMode = null;
                     }
                     break;
 #endif
@@ -633,7 +631,7 @@ namespace MoreAccessoriesKOI
         {
             if (ImportingCards) return;
             var pluginData = new PluginData { version = _saveVersion };
-#if false
+#if true
 
             var data = new CharAdditionalData(file);
             using (var stringWriter = new StringWriter())
@@ -685,7 +683,7 @@ namespace MoreAccessoriesKOI
                             xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
 #endif
                             if (_hasDarkness)
-                                xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString(part.noShake));
+                                xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
                         }
                         xmlWriter.WriteEndElement();
                     }
@@ -799,8 +797,8 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCoordSave(ChaFileCoordinate file)
         {
-#if false
-            var data = new CharAdditionalData(CustomBase.instance.chaCtrl);
+#if true
+            var data = new CharAdditionalData(ChaCustom.CustomBase.instance.chaCtrl);
 
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
@@ -838,7 +836,7 @@ namespace MoreAccessoriesKOI
                         xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
 #endif
                         if (_hasDarkness)
-                            xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString(part.noShake));
+                            xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
                     }
                     xmlWriter.WriteEndElement();
                 }
@@ -848,12 +846,13 @@ namespace MoreAccessoriesKOI
                 pluginData.data.Add("additionalAccessories", stringWriter.ToString());
                 ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
             }
-#endif
+#else
             var pluginData = new PluginData
             {
                 version = _saveVersion
             };
             ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
+#endif
         }
         #endregion
     }
