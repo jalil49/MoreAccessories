@@ -442,9 +442,9 @@ namespace MoreAccessoriesKOI
             }
         }
 
+#if KK || KKS
         internal void Update()
         {
-#if KK || KKS
             if (InStudio)
             {
                 var treeNodeObject = Studio.Studio.Instance.treeNodeCtrl.selectNode;
@@ -461,8 +461,8 @@ namespace MoreAccessoriesKOI
                     }
                 }
             }
-#endif
         }
+#endif
 
         //private void LateUpdate()
         //{
@@ -631,88 +631,89 @@ namespace MoreAccessoriesKOI
         {
             if (ImportingCards) return;
             var pluginData = new PluginData { version = _saveVersion };
-#if true
 
-            var data = new CharAdditionalData(file);
-            using (var stringWriter = new StringWriter())
-            using (var xmlWriter = new XmlTextWriter(stringWriter))
+            if (BackwardCompatibility)
             {
-                var maxCount = 0;
-                xmlWriter.WriteStartElement("additionalAccessories");
-                xmlWriter.WriteAttributeString("version", versionNum);
-                foreach (var pair in data.rawAccessoriesInfos)
+                var data = new CharAdditionalData(file);
+                using (var stringWriter = new StringWriter())
+                using (var xmlWriter = new XmlTextWriter(stringWriter))
                 {
-                    if (pair.Value.Count == 0)
-                        continue;
-                    xmlWriter.WriteStartElement("accessorySet");
-                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString(pair.Key));
-                    if (maxCount < pair.Value.Count)
-                        maxCount = pair.Value.Count;
-
-                    for (var index = 0; index < pair.Value.Count; index++)
+                    var maxCount = 0;
+                    xmlWriter.WriteStartElement("additionalAccessories");
+                    xmlWriter.WriteAttributeString("version", versionNum);
+                    foreach (var pair in data.rawAccessoriesInfos)
                     {
-                        var part = pair.Value[index];
-                        xmlWriter.WriteStartElement("accessory");
-                        xmlWriter.WriteAttributeString("type", XmlConvert.ToString(part.type));
+                        if (pair.Value.Count == 0)
+                            continue;
+                        xmlWriter.WriteStartElement("accessorySet");
+                        xmlWriter.WriteAttributeString("type", XmlConvert.ToString(pair.Key));
+                        if (maxCount < pair.Value.Count)
+                            maxCount = pair.Value.Count;
 
-                        if (part.type != 120)
+                        for (var index = 0; index < pair.Value.Count; index++)
                         {
-                            xmlWriter.WriteAttributeString("id", XmlConvert.ToString(part.id));
-                            xmlWriter.WriteAttributeString("parentKey", part.parentKey);
+                            var part = pair.Value[index];
+                            xmlWriter.WriteStartElement("accessory");
+                            xmlWriter.WriteAttributeString("type", XmlConvert.ToString(part.type));
 
-                            for (var i = 0; i < 2; i++)
+                            if (part.type != 120)
                             {
-                                for (var j = 0; j < 3; j++)
+                                xmlWriter.WriteAttributeString("id", XmlConvert.ToString(part.id));
+                                xmlWriter.WriteAttributeString("parentKey", part.parentKey);
+
+                                for (var i = 0; i < 2; i++)
                                 {
-                                    var v = part.addMove[i, j];
-                                    xmlWriter.WriteAttributeString($"addMove{i}{j}x", XmlConvert.ToString(v.x));
-                                    xmlWriter.WriteAttributeString($"addMove{i}{j}y", XmlConvert.ToString(v.y));
-                                    xmlWriter.WriteAttributeString($"addMove{i}{j}z", XmlConvert.ToString(v.z));
+                                    for (var j = 0; j < 3; j++)
+                                    {
+                                        var v = part.addMove[i, j];
+                                        xmlWriter.WriteAttributeString($"addMove{i}{j}x", XmlConvert.ToString(v.x));
+                                        xmlWriter.WriteAttributeString($"addMove{i}{j}y", XmlConvert.ToString(v.y));
+                                        xmlWriter.WriteAttributeString($"addMove{i}{j}z", XmlConvert.ToString(v.z));
+                                    }
                                 }
-                            }
-                            for (var i = 0; i < 4; i++)
-                            {
-                                var c = part.color[i];
-                                xmlWriter.WriteAttributeString($"color{i}r", XmlConvert.ToString(c.r));
-                                xmlWriter.WriteAttributeString($"color{i}g", XmlConvert.ToString(c.g));
-                                xmlWriter.WriteAttributeString($"color{i}b", XmlConvert.ToString(c.b));
-                                xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
-                            }
-                            xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
+                                for (var i = 0; i < 4; i++)
+                                {
+                                    var c = part.color[i];
+                                    xmlWriter.WriteAttributeString($"color{i}r", XmlConvert.ToString(c.r));
+                                    xmlWriter.WriteAttributeString($"color{i}g", XmlConvert.ToString(c.g));
+                                    xmlWriter.WriteAttributeString($"color{i}b", XmlConvert.ToString(c.b));
+                                    xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
+                                }
+                                xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
 #if EC
                             xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
 #endif
-                            if (_hasDarkness)
-                                xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
+                                if (_hasDarkness)
+                                    xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
+                            }
+                            xmlWriter.WriteEndElement();
+                        }
+                        xmlWriter.WriteEndElement();
+
+                    }
+
+#if KK || KKS
+                    if (StudioMode != null)
+                    {
+                        xmlWriter.WriteStartElement("visibility");
+                        for (var i = 0; i < maxCount && i < data.showAccessories.Count; i++)
+                        {
+                            xmlWriter.WriteStartElement("visible");
+                            xmlWriter.WriteAttributeString("value", XmlConvert.ToString(data.showAccessories[i]));
+                            xmlWriter.WriteEndElement();
                         }
                         xmlWriter.WriteEndElement();
                     }
-                    xmlWriter.WriteEndElement();
-
-                }
-
-#if KK || KKS
-                if (StudioMode != null)
-                {
-                    xmlWriter.WriteStartElement("visibility");
-                    for (var i = 0; i < maxCount && i < data.showAccessories.Count; i++)
-                    {
-                        xmlWriter.WriteStartElement("visible");
-                        xmlWriter.WriteAttributeString("value", XmlConvert.ToString(data.showAccessories[i]));
-                        xmlWriter.WriteEndElement();
-                    }
-                    xmlWriter.WriteEndElement();
-                }
 #endif
 
-                xmlWriter.WriteEndElement();
+                    xmlWriter.WriteEndElement();
 
-                pluginData.data.Add("additionalAccessories", stringWriter.ToString());
-                ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
+                    pluginData.data.Add("additionalAccessories", stringWriter.ToString());
+                    ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
+                }
+                return;
             }
-#else
             ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
-#endif
         }
 
         internal void OnActualCoordLoad(ChaFileCoordinate file)
@@ -797,62 +798,63 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCoordSave(ChaFileCoordinate file)
         {
-#if true
-            var data = new CharAdditionalData(ChaCustom.CustomBase.instance.chaCtrl);
-
-            using (var stringWriter = new StringWriter())
-            using (var xmlWriter = new XmlTextWriter(stringWriter))
+            if (BackwardCompatibility)
             {
-                xmlWriter.WriteStartElement("additionalAccessories");
-                xmlWriter.WriteAttributeString("version", versionNum);
-                foreach (var part in data.nowAccessories)
+                var data = new CharAdditionalData(ChaCustom.CustomBase.instance.chaCtrl);
+
+                using (var stringWriter = new StringWriter())
+                using (var xmlWriter = new XmlTextWriter(stringWriter))
                 {
-                    xmlWriter.WriteStartElement("accessory");
-                    xmlWriter.WriteAttributeString("type", XmlConvert.ToString(part.type));
-                    if (part.type != 120)
+                    xmlWriter.WriteStartElement("additionalAccessories");
+                    xmlWriter.WriteAttributeString("version", versionNum);
+                    foreach (var part in data.nowAccessories)
                     {
-                        xmlWriter.WriteAttributeString("id", XmlConvert.ToString(part.id));
-                        xmlWriter.WriteAttributeString("parentKey", part.parentKey);
-                        for (var i = 0; i < 2; i++)
+                        xmlWriter.WriteStartElement("accessory");
+                        xmlWriter.WriteAttributeString("type", XmlConvert.ToString(part.type));
+                        if (part.type != 120)
                         {
-                            for (var j = 0; j < 3; j++)
+                            xmlWriter.WriteAttributeString("id", XmlConvert.ToString(part.id));
+                            xmlWriter.WriteAttributeString("parentKey", part.parentKey);
+                            for (var i = 0; i < 2; i++)
                             {
-                                var v = part.addMove[i, j];
-                                xmlWriter.WriteAttributeString($"addMove{i}{j}x", XmlConvert.ToString(v.x));
-                                xmlWriter.WriteAttributeString($"addMove{i}{j}y", XmlConvert.ToString(v.y));
-                                xmlWriter.WriteAttributeString($"addMove{i}{j}z", XmlConvert.ToString(v.z));
+                                for (var j = 0; j < 3; j++)
+                                {
+                                    var v = part.addMove[i, j];
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}x", XmlConvert.ToString(v.x));
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}y", XmlConvert.ToString(v.y));
+                                    xmlWriter.WriteAttributeString($"addMove{i}{j}z", XmlConvert.ToString(v.z));
+                                }
                             }
-                        }
-                        for (var i = 0; i < 4; i++)
-                        {
-                            var c = part.color[i];
-                            xmlWriter.WriteAttributeString($"color{i}r", XmlConvert.ToString(c.r));
-                            xmlWriter.WriteAttributeString($"color{i}g", XmlConvert.ToString(c.g));
-                            xmlWriter.WriteAttributeString($"color{i}b", XmlConvert.ToString(c.b));
-                            xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
-                        }
-                        xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
+                            for (var i = 0; i < 4; i++)
+                            {
+                                var c = part.color[i];
+                                xmlWriter.WriteAttributeString($"color{i}r", XmlConvert.ToString(c.r));
+                                xmlWriter.WriteAttributeString($"color{i}g", XmlConvert.ToString(c.g));
+                                xmlWriter.WriteAttributeString($"color{i}b", XmlConvert.ToString(c.b));
+                                xmlWriter.WriteAttributeString($"color{i}a", XmlConvert.ToString(c.a));
+                            }
+                            xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
 #if EC
                         xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
 #endif
-                        if (_hasDarkness)
-                            xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
+                            if (_hasDarkness)
+                                xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
+                        }
+                        xmlWriter.WriteEndElement();
                     }
                     xmlWriter.WriteEndElement();
-                }
-                xmlWriter.WriteEndElement();
 
-                var pluginData = new PluginData { version = _saveVersion };
-                pluginData.data.Add("additionalAccessories", stringWriter.ToString());
-                ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
+                    var backwardspluginData = new PluginData { version = _saveVersion };
+                    backwardspluginData.data.Add("additionalAccessories", stringWriter.ToString());
+                    ExtendedSave.SetExtendedDataById(file, _extSaveKey, backwardspluginData);
+                }
+                return;
             }
-#else
             var pluginData = new PluginData
             {
                 version = _saveVersion
             };
             ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
-#endif
         }
         #endregion
     }

@@ -24,6 +24,8 @@ namespace MoreAccessoriesKOI
         public bool ImportingCards { get; private set; } = true;
         internal static bool CharaMaker => MakerMode != null;
 
+        private static bool BackwardCompatibility = true; //Do not turn back on once off.
+
         public static MakerMode MakerMode { get; internal set; }
 #if KK || KKS
         internal static bool InH => HMode != null;

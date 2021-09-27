@@ -209,5 +209,10 @@ namespace MoreAccessoriesKOI
                 file.status.showAccessory = newarray;
             }
         }
+
+        public static void TurnOffBackwardsCompatibility()
+        {
+            BackwardCompatibility = false;
+        }
     }
 }
