@@ -11,9 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Common\AssemblyInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\BackwardCompatibility.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\H.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Maker\Maker.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\Studio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\PluginSupport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Classes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
@@ -34,9 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\TransformExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\VariousExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\XmlExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\MainGame\Patches_H.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_Common.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\MainGame\Patches_VRH.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_CustomAcs.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_CustomAcsParentWindow.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_Blank.cs" />
@@ -45,12 +41,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_CvsAccessory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Maker\Windows\Accessories.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Maker\Windows\Transfer_Window.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Classes\Maker\Windows\Copy_Window.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="$(MSBuildThisFileDirectory)Classes\Maker\" />
     <Folder Include="$(MSBuildThisFileDirectory)Common\EventorBackwards\" />
     <Folder Include="$(MSBuildThisFileDirectory)Patches\MainGame\" />
-    <Folder Include="$(MSBuildThisFileDirectory)Patches\Studio\" />
   </ItemGroup>
 </Project>

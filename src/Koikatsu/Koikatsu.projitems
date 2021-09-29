@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>7b1a016d-5d9f-42ca-8858-53bb0666b0b4</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Koikatsu</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Maker\Copy_Window.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MainGame\H.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_H.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_VRH.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Studio\Studio.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)Maker\" />
+    <Folder Include="$(MSBuildThisFileDirectory)MainGame\" />
+    <Folder Include="$(MSBuildThisFileDirectory)Studio\" />
+  </ItemGroup>
+</Project>

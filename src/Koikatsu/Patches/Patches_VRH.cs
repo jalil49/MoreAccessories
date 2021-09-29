@@ -1,5 +1,4 @@
-﻿#if KK || KKS
-using HarmonyLib;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -34,4 +33,3 @@ namespace MoreAccessoriesKOI.Patches
         }
     }
 }
-#endif

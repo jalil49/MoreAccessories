@@ -1,5 +1,4 @@
-﻿#if KK || KKS
-using ChaCustom;
+﻿using ChaCustom;
 using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
@@ -87,4 +86,3 @@ namespace MoreAccessoriesKOI
         }
     }
 }
-#endif

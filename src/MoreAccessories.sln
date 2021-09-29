@@ -19,11 +19,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreAccessoriesEC", "MoreAc
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "EmotionCreators", "EmotionCreators\EmotionCreators.shproj", "{7ED9BFF9-D1DC-48C6-851E-79F59805AED1}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Koikatsu", "Koikatsu\Koikatsu.shproj", "{7B1A016D-5D9F-42CA-8858-53BB0666B0B4}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Core.MoreAccessories\Core.MoreAccessories.projitems*{55827e06-0285-4e96-9ce9-53ce310c382b}*SharedItemsImports = 13
 		Core.MoreAccessories\Core.MoreAccessories.projitems*{675f51e5-166d-49ad-8b01-45e8959629d7}*SharedItemsImports = 4
+		Koikatsu\Koikatsu.projitems*{675f51e5-166d-49ad-8b01-45e8959629d7}*SharedItemsImports = 4
 		Core.MoreAccessories\Core.MoreAccessories.projitems*{799e8918-d6e9-47af-9218-466d328960fc}*SharedItemsImports = 4
+		Koikatsu\Koikatsu.projitems*{799e8918-d6e9-47af-9218-466d328960fc}*SharedItemsImports = 4
+		Koikatsu\Koikatsu.projitems*{7b1a016d-5d9f-42ca-8858-53bb0666b0b4}*SharedItemsImports = 13
 		EmotionCreators\EmotionCreators.projitems*{7ed9bff9-d1dc-48c6-851e-79f59805aed1}*SharedItemsImports = 13
 		Core.MoreAccessories\Core.MoreAccessories.projitems*{94578e6d-ecc4-4427-b5ed-2896eaccf25c}*SharedItemsImports = 4
 		EmotionCreators\EmotionCreators.projitems*{94578e6d-ecc4-4427-b5ed-2896eaccf25c}*SharedItemsImports = 4

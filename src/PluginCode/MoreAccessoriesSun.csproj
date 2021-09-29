@@ -170,6 +170,7 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="..\Core.MoreAccessories\Core.MoreAccessories.projitems" Label="Shared" />
+  <Import Project="..\Koikatsu\Koikatsu.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
