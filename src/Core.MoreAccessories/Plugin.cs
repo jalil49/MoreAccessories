@@ -430,9 +430,9 @@ namespace MoreAccessoriesKOI
                 case LoadSceneMode.Additive:
 
 #if KKS
-                    if (Game.initialized && scene.buildIndex == 3) //Class chara maker
+                    if (!instudio && Game.initialized && scene.buildIndex == 3) //Class chara maker
 #elif KK
-                    if (Game.IsInstance() && scene.buildIndex == 2) //Class chara maker
+                    if (!instudio && Game.IsInstance() && scene.buildIndex == 2) //Class chara maker
 #endif
                     {
                         MakerMode = new MakerMode();
