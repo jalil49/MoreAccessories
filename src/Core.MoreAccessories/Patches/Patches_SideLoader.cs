@@ -14,9 +14,10 @@ namespace MoreAccessoriesKOI.Patches
         private static class SideloaderAutoresolverHooks_IterateCoordinatePrefixes_Patches
         {
             private static object _sideLoaderChaFileAccessoryPartsInfoProperties;
-
+#if !EC
             [HarmonyBefore("com.deathweasel.bepinex.guidmigration")]
             internal static void Prefix(ICollection<ResolveInfo> extInfo) => Outfit_Error_Fix(extInfo);
+#endif
             internal static void Postfix(object action, ChaFileCoordinate coordinate, object extInfo, string prefix)
             {
                 var additionalData = MoreAccessories.PreviousMigratedData;
@@ -35,21 +36,29 @@ namespace MoreAccessoriesKOI.Patches
                                                                          .GetProperty("ChaFileAccessoryPartsInfoProperties", AccessTools.all).GetValue(null, null);
                 }
 
-
                 if (string.IsNullOrEmpty(prefix))
                 {
                     for (var j = 0; j < additionalData.nowAccessories.Count; j++)
-                        ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, additionalData.nowAccessories[j], extInfo, $"{prefix}accessory{j + 20}.");
+                        ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, additionalData.nowAccessories[j], extInfo, $"accessory{j + 20}.");
                 }
                 else
                 {
                     var coordId = prefix.Replace("outfit", "").Replace(".", "");
+
+#if !EC
                     if (int.TryParse(coordId, out var result) == false)
                         return;
+#else
+                    if (int.TryParse(coordId, out var result) == false)
+                        result = 0;
+#endif
                     if (additionalData.rawAccessoriesInfos.TryGetValue(result, out var parts) == false)
                         return;
+
                     for (var j = 0; j < parts.Count; j++)
+                    {
                         ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, parts[j], extInfo, $"{prefix}accessory{j + 20}.");
+                    }
                 }
             }
         }
