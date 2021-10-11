@@ -393,6 +393,7 @@ namespace MoreAccessoriesKOI
 #endif
             }
             _addButtonsGroup.SetAsLastSibling();
+            FixWindowScroll();
         }
 
         private int[,] CVSColor(int rank)

@@ -117,8 +117,10 @@ namespace MoreAccessoriesKOI
                 }
                 else
                 {
-                    slot = new StudioSlotData();
-                    slot.slot = (RectTransform)Object.Instantiate(_studioToggleTemplate.gameObject).transform;
+                    slot = new StudioSlotData
+                    {
+                        slot = (RectTransform)Object.Instantiate(_studioToggleTemplate.gameObject).transform
+                    };
                     slot.name = slot.slot.GetComponentInChildren<Text>();
                     slot.onButton = slot.slot.GetChild(1).GetComponent<Button>();
                     slot.offButton = slot.slot.GetChild(2).GetComponent<Button>();
@@ -149,8 +151,10 @@ namespace MoreAccessoriesKOI
                 slot.offButton.interactable = accessory != null && accessory.type != 120;
                 slot.offButton.image.color = slot.onButton.interactable && !show[i] ? Color.green : Color.white;
             }
+
             for (; i < _additionalStudioSlots.Count; ++i)
                 _additionalStudioSlots[i].slot.gameObject.SetActive(false);
+
             _studioToggleSub.slot.SetAsFirstSibling();
             _studioToggleMain.slot.SetAsFirstSibling();
             _studioToggleAll.slot.SetAsFirstSibling();

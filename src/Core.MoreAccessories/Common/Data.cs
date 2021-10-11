@@ -1,17 +1,8 @@
-﻿#if EC
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
-using HPlay;
-using UnityEngine;
-#endif
-#if KK || KKS
-#endif
-
-namespace MoreAccessoriesKOI
+﻿namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
-        public const string versionNum = "2.0.10";
+        public const string versionNum = "2.0.11";
         public const string GUID = "com.joan6694.illusionplugins.moreaccessories";
 
         public static MoreAccessories _self;
@@ -36,10 +27,6 @@ namespace MoreAccessoriesKOI
 #elif EC
         internal bool InPlayMode => PlayMode != null;
         public static PlayMode PlayMode;
-#if false
-        internal bool InADVMode => ADVMode != null;
-        public static ADVMode ADVMode;
-#endif
 #endif
     }
 }

@@ -486,8 +486,6 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             else if (StudioMode != null)
                 StudioMode.UpdateStudioUI();
-            else if (InH)
-                this.ExecuteDelayed(HMode.UpdateHUI);
 #elif EC
             else if (InPlayMode)
                 PlayMode.UpdatePlayUI();
@@ -681,7 +679,7 @@ namespace MoreAccessoriesKOI
                                 }
                                 xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
 #if EC
-                            xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
+                                xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
 #endif
                                 if (_hasDarkness)
                                     xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));
@@ -835,7 +833,7 @@ namespace MoreAccessoriesKOI
                             }
                             xmlWriter.WriteAttributeString("hideCategory", XmlConvert.ToString(part.hideCategory));
 #if EC
-                        xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
+                            xmlWriter.WriteAttributeString("hideTiming", XmlConvert.ToString(part.hideTiming));
 #endif
                             if (_hasDarkness)
                                 xmlWriter.WriteAttributeString("noShake", XmlConvert.ToString((bool)part.GetPrivateProperty("noShake")));

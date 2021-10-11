@@ -17,7 +17,6 @@ namespace MoreAccessoriesKOI
             Plugin.ExecuteDelayed(MakeSingleScrollable, 1);
             Plugin.ExecuteDelayed(MakeMultiScrollable, 1);
         }
-
         private MoreAccessories Plugin => MoreAccessories._self;
 
         public List<ChaControl> LstFemale { get; }
@@ -30,6 +29,7 @@ namespace MoreAccessoriesKOI
                 Scrollingwork(sprite, sprite.categoryAccessory.transform);
             }
         }
+
         private void MakeMultiScrollable()
         {
             foreach (var sprite in _hSprite)
@@ -40,6 +40,7 @@ namespace MoreAccessoriesKOI
                 }
             }
         }
+
         public void MakeMultiScrollable(int female)//in case adding multiple heroines
         {
             foreach (var sprite in _hSprite)
@@ -47,6 +48,7 @@ namespace MoreAccessoriesKOI
                 Scrollingwork(sprite, sprite.lstMultipleFemaleDressButton[female].accessory.transform);
             }
         }
+
         private void Scrollingwork(HSprite sprite, Transform container)//Its a miracle that this works
         {
             var original_scroll = sprite.clothCusutomCtrl.transform.GetComponentInChildren<ScrollRect>();
@@ -80,61 +82,6 @@ namespace MoreAccessoriesKOI
             //Object.Destroy(scrollrect.content.gameObject);
             scrollrect.content = (RectTransform)container;
             scrollrect.transform.SetParent(container.parent, false);
-        }
-        internal void UpdateHUI()
-        {
-            if (_hSprite == null)
-                return;
-            //for (var i = 0; i < _hSceneFemales.Count; i++)
-            //{
-            //    var female = _hSceneFemales[i];
-
-            //    var additionalData = _accessoriesByChar[female.chaFile];
-            //    var additionalSlots = _additionalHSceneSlots[i];
-            //    var buttonsParent = _hSceneFemales.Count == 1 ? _hSceneSoloFemaleAccessoryButton.transform : _hSceneMultipleFemaleButtons[i].accessory.transform;
-
-            //    var j = 0;
-            //    for (; j < additionalData.nowAccessories.Count; j++)
-            //    {
-            //        HSceneSlotData slot;
-            //        if (j < additionalSlots.Count)
-            //            slot = additionalSlots[j];
-            //        else
-            //        {
-            //            slot = new HSceneSlotData();
-            //            slot.slot = (RectTransform)Instantiate(buttonsParent.GetChild(0).gameObject).transform;
-            //            slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
-            //            slot.button = slot.slot.GetComponentInChildren<Button>(true);
-            //            slot.slot.SetParent(buttonsParent);
-            //            slot.slot.localPosition = Vector3.zero;
-            //            slot.slot.localScale = Vector3.one;
-            //            var i1 = j;
-            //            slot.button.onClick = new Button.ButtonClickedEvent();
-            //            slot.button.onClick.AddListener(() =>
-            //            {
-            //                if (!Input.GetMouseButtonUp(0))
-            //                    return;
-            //                if (!_hSprite.IsSpriteAciotn())
-            //                    return;
-            //                additionalData.showAccessories[i1] = !additionalData.showAccessories[i1];
-            //                Utils.Sound.Play(SystemSE.sel);
-            //            });
-            //            additionalSlots.Add(slot);
-            //        }
-            //        var objAccessory = additionalData.objAccessory[j];
-            //        if (objAccessory == null)
-            //            slot.slot.gameObject.SetActive(false);
-            //        else
-            //        {
-            //            slot.slot.gameObject.SetActive(true);
-            //            var component = objAccessory.GetComponent<ListInfoComponent>();
-            //            slot.text.text = component.data.Name;
-            //        }
-            //    }
-
-            //    for (; j < additionalSlots.Count; ++j)
-            //        additionalSlots[j].slot.gameObject.SetActive(false);
-            //}
         }
     }
 }
