@@ -280,11 +280,8 @@ namespace MoreAccessoriesKOI
             {
                 return;
             }
-#if KK || KKS
-            var count = CustomBase.instance.chaCtrl.chaFile.coordinate.Max(x => x.accessory.parts.Length) - 20;
-#elif EC
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
-#endif
+
             if (count > AdditionalCharaMakerSlots.Count)
             {
                 return;

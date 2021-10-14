@@ -9,21 +9,18 @@ namespace MoreAccessoriesKOI.Patches
     internal class CharaSavePatch
     {
         [HarmonyPriority(Priority.First)]
-        internal static void Prefix(ChaFile __instance, out ChaFileCoordinate[] __state)
+        internal static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[][] __state)
         {
             try
             {
                 var coord = __instance.coordinate;
-                __state = coord.ToArray();
+                __state = new ChaFileAccessory.PartsInfo[coord.Length][];
                 for (int outfitnum = 0, n = coord.Length; outfitnum < n; outfitnum++)
                 {
-                    var accessories = coord[outfitnum].accessory.parts.ToList();
-                    for (var slot = accessories.Count - 1; accessories.Count > 20; slot--)
-                    {
-                        if (accessories[slot].type != 120) break;
-                        accessories.RemoveAt(slot);
-                    }
-                    coord[outfitnum].accessory.parts = accessories.ToArray();
+                    __state[outfitnum] = coord[outfitnum].accessory.parts;
+                    var lastvalidslot = Array.FindLastIndex(coord[outfitnum].accessory.parts, x => x.type != 120);
+                    if (lastvalidslot < 20) continue;
+                    coord[outfitnum].accessory.parts = coord[outfitnum].accessory.parts.Take(lastvalidslot + 1).ToArray();
                 }
             }
             catch (Exception ex)
@@ -34,10 +31,14 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPriority(Priority.First)]
-        internal static void Postfix(ChaFile __instance, ChaFileCoordinate[] __state)
+        internal static void Postfix(ChaFile __instance, ChaFileAccessory.PartsInfo[][] __state)
         {
-            if (__state != null)
-                __instance.coordinate = __state;
+            if (__state == null) return;
+
+            for (var i = 0; i < __state.Length; i++)
+            {
+                __instance.coordinate[i].accessory.parts = __state[i];
+            }
         }
     }
 #else
@@ -85,13 +86,10 @@ namespace MoreAccessoriesKOI.Patches
             try
             {
                 __state = __instance.accessory.parts.ToArray();
-                var accessories = __instance.accessory.parts.ToList();
-                for (var slot = accessories.Count - 1; accessories.Count > 20; slot--)
-                {
-                    if (accessories[slot].type != 120) break;
-                    accessories.RemoveAt(slot);
-                }
-                __instance.accessory.parts = accessories.ToArray();
+
+                var lastvalidslot = Array.FindLastIndex(__instance.accessory.parts, x => x.type != 120);
+                if (lastvalidslot < 20) return;
+                __instance.accessory.parts = __instance.accessory.parts.Take(lastvalidslot + 1).ToArray();
             }
             catch (Exception ex)
             {
@@ -112,7 +110,6 @@ namespace MoreAccessoriesKOI.Patches
     internal static class ChaFileStatusPatch
     {
         [HarmonyPriority(Priority.First)]
-
         private static void Prefix(ChaFileStatus _status, out bool[] __state)
         {
             try

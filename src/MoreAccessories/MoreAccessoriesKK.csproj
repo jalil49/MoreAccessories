@@ -116,6 +116,7 @@
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "F:\[ScrewThisNoise] Koikatsu BetterRepack R9.2\BepInEx\plugins" (
 xcopy "$(TargetFileName)" "F:\[ScrewThisNoise] Koikatsu BetterRepack R9.2\BepInEx\plugins" /S /Y /D
+xcopy "$(TargetFileName)" "C:\Program Files (x86)\Steam\steamapps\common\Koikatsu Party\BepInEx\plugins" /S /Y /D
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

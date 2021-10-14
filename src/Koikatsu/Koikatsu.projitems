@@ -11,12 +11,12 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Maker\Copy_Window.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MainGame\H.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_CvsAccessoryCopy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_H.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_VRH.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Studio\Studio.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Maker\" />
     <Folder Include="$(MSBuildThisFileDirectory)MainGame\" />
     <Folder Include="$(MSBuildThisFileDirectory)Studio\" />
   </ItemGroup>

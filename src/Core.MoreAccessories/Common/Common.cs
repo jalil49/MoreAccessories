@@ -16,8 +16,11 @@ namespace MoreAccessoriesKOI
         public static void ArraySync(ChaControl controller)
         {
             //Print($"Syncng {controller.chaFile.parameter.fullname}");
-            var nowcoordinatevalid = controller.nowCoordinate != null;
-            var parts = nowcoordinatevalid ? controller.nowCoordinate.accessory.parts : new ChaFileAccessory.PartsInfo[20];
+            if (controller.nowCoordinate == null)
+            {
+                return;
+            }
+            var parts = controller.nowCoordinate.accessory.parts;
             var len = parts.Length;
             var nowlength = len;
 #if KK || KKS
@@ -174,9 +177,13 @@ namespace MoreAccessoriesKOI
                         for (var i = 0; i < delta; i++) { array[i] = new ChaFileAccessory.PartsInfo(); }
                         item.accessory.parts = item.accessory.parts.Concat(array).ToArray();
                     }
+                    else if (delta < 0)
+                    {
+                        item.accessory.parts = item.accessory.parts.Take(len).ToArray();
+                    }
                 }
 #endif
-                MoreAccessories.MakerMode.RefreshToggles(len);
+                MakerMode.RefreshToggles(len);
             }
         }
         internal static void ArraySync(ChaFile file)

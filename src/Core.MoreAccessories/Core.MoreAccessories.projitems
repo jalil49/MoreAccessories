@@ -16,7 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Classes\Classes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions\ReflectionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_CvsAccessoryChange.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_CvsAccessoryCopy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Maker\Patches_Maker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Patches_SideLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SavePatch.cs" />
