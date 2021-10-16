@@ -154,7 +154,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
 
 #if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
+                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
 #endif
             }
         }
@@ -254,7 +254,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
 #if DEBUG
                 MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
-                                count++;
+                count++;
 #endif
 
             }

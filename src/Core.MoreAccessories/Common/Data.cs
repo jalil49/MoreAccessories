@@ -2,7 +2,7 @@
 {
     public partial class MoreAccessories
     {
-        public const string versionNum = "2.0.11";
+        public const string versionNum = "2.0.12";
         public const string GUID = "com.joan6694.illusionplugins.moreaccessories";
 
         public static MoreAccessories _self;
@@ -12,7 +12,7 @@
         internal static CharAdditionalData PreviousMigratedData;
 
         internal static bool _hasDarkness;
-        public bool ImportingCards { get; private set; } = true;
+        public bool ImportingCards { get; private set; }
         internal static bool CharaMaker => MakerMode != null;
 
         private static bool BackwardCompatibility = true; //Do not turn back on once off.

@@ -98,7 +98,6 @@ namespace MoreAccessoriesKOI
                 controller.hideHairAcs = newarray;
             }
 
-
             delta = len - controller.infoAccessory.Length;
             if (delta > 0)
             {

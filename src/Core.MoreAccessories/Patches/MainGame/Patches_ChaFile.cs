@@ -16,7 +16,6 @@ namespace MoreAccessoriesKOI.Patches
                 if (MoreAccessories.CharaMaker)
                 {
                     ChaCustom.CustomBase.Instance.selectSlot = -1;//Fixes issue with a bow appearing in first slot
-                    //MoreAccessories.ArraySync(ChaCustom.CustomBase.instance.chaCtrl);
                 }
             }
         }

@@ -1,20 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using BepInEx;
+using BepInEx.Logging;
+using ExtensibleSaveFormat;
+using HarmonyLib;
+using MoreAccessoriesKOI.Extensions;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
-using BepInEx;
-using BepInEx.Logging;
-using ExtensibleSaveFormat;
-using HarmonyLib;
-using Manager;
-#if KK || KKS
-using Studio;
-#endif
-using MoreAccessoriesKOI.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Scene = UnityEngine.SceneManagement.Scene;
+#if KK || KKS
+using Manager;
+using Studio;
+#endif
 
 namespace MoreAccessoriesKOI
 {
@@ -31,6 +31,7 @@ namespace MoreAccessoriesKOI
             ExtendedSave.CardBeingImported += MultiCoord_CardBeingImported;
 #elif EC
             ExtendedSave.CardBeingImported += SingleCoord_CardBeingImported; ;
+            ExtendedSave.CoordinateBeingImported += SingleCoord_CardBeingImported; ;
 #endif
             SceneManager.sceneLoaded += LevelLoaded;
 
@@ -66,10 +67,6 @@ namespace MoreAccessoriesKOI
         {
             _self.Logger.Log(logLevel, text);
         }
-
-        public bool InFreeHSelect { get; private set; }
-        public bool AtMenu { get; private set; }
-
 #if KKS
         private void MultiCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
         {
@@ -219,8 +216,8 @@ namespace MoreAccessoriesKOI
 #elif EC
         private void SingleCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
         {
+            ImportingCards = true;
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
-
             var data = new CharAdditionalData();
             var doc = new XmlDocument();
             doc.LoadXml((string)xmlData);
@@ -372,8 +369,6 @@ namespace MoreAccessoriesKOI
                     if (!instudio)
                     {
                         ImportingCards = false;
-                        InFreeHSelect = false;
-                        AtMenu = false;
 #if KK || KKS
                         HMode = null;
 #elif EC
@@ -381,10 +376,6 @@ namespace MoreAccessoriesKOI
 #endif
                         switch (scene.buildIndex)
                         {
-                            case 1: //converted
-                                ImportingCards = true;
-                                break;
-
                             //Chara maker
 #if KK
                             case 2:
@@ -394,20 +385,8 @@ namespace MoreAccessoriesKOI
                                 MakerMode = new MakerMode();
                                 break;
 
-#if KK || KKS
-                            case 7: //Hscenes
-                                break;
-
-
-                            case 11: //freeh select
-                                InFreeHSelect = true;
-                                break;
-                            case 4: //menu
-                                AtMenu = true;
-                                break;
                             default:
                                 break;
-#endif
                         }
                     }
 #if KK || KKS
@@ -504,7 +483,6 @@ namespace MoreAccessoriesKOI
             _self.OnActualCoordLoad(file);
         }
 
-
         #region Saves
         internal void OnActualCharaLoad(ChaFile file)
         {
@@ -517,9 +495,21 @@ namespace MoreAccessoriesKOI
             }
 #else
             if (file.coordinate.accessory.parts.Length > 20)
-                return;
+            {
+                //Print($"{file.parameter.fullname} has an array larger than 20");
+                if (
+#if KK || KKS
+                    InH ||
 #endif
-            // Print($"Loading Data for {file.parameter.fullname}");
+                    CharaMaker
+                    )
+                    this.ExecuteDelayed(UpdateUI);
+                else
+                    UpdateUI();
+
+                return;
+            }
+#endif
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
             if (pluginData == null)
             {
@@ -596,23 +586,28 @@ namespace MoreAccessoriesKOI
                     }
                 }
             }
+            //Print($"Loading Data for {file.parameter.fullname} current size {file.coordinate.accessory.parts.Length}");
 
             //Print($"Plugin Data has {PreviousMigratedData.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
-
+#if KK || KKS
             foreach (var item in PreviousMigratedData.rawAccessoriesInfos)
             {
                 //Print($"raw data has key {item.Key}");
-#if KK || KKS
                 if (!(item.Key < file.coordinate.Length)) continue;
 
                 var accessory = file.coordinate[item.Key].accessory;
-#else
-                var accessory = file.coordinate.accessory;
-#endif
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
                 //Print($"Settings coordinate {item.Key}");
             }
+#else
+            if (PreviousMigratedData.rawAccessoriesInfos.TryGetValue(0, out var partsInfos))
+            {
+                var accessory = file.coordinate.accessory;
+                accessory.parts = accessory.parts.Concat(partsInfos).ToArray();
+            }
+#endif
 
+            //Print($"finished Loading Data for {file.parameter.fullname} current size {file.coordinate.accessory.parts.Length} {System.Environment.StackTrace}");
 
             if (
 #if KK || KKS
@@ -627,7 +622,14 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCharaSave(ChaFile file)
         {
-            if (ImportingCards) return;
+            if (ImportingCards)
+            {
+                if (CharaMaker) ImportingCards = false;
+#if KK || KKS
+                if (InStudio) ImportingCards = false;
+#endif
+                OnActualCharaLoad(file);
+            }
             var pluginData = new PluginData { version = _saveVersion };
 
             if (BackwardCompatibility)
@@ -796,6 +798,15 @@ namespace MoreAccessoriesKOI
 
         private void OnActualCoordSave(ChaFileCoordinate file)
         {
+            if (ImportingCards)
+            {
+                if (CharaMaker) ImportingCards = false;
+#if KK || KKS
+                if (InStudio) ImportingCards = false;
+#endif
+                OnActualCoordLoad(file);
+            }
+
             if (BackwardCompatibility)
             {
                 var data = new CharAdditionalData(ChaCustom.CustomBase.instance.chaCtrl);
