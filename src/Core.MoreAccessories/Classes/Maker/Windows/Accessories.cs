@@ -84,8 +84,6 @@ namespace MoreAccessoriesKOI
             ScrollView.onValueChanged.AddListener(x =>
             {
                 FixWindowScroll();
-                Plugin.ExecuteDelayed(FixWindowScroll);
-                Plugin.ExecuteDelayed(FixWindowScroll, 2);
             });
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
@@ -211,8 +209,9 @@ namespace MoreAccessoriesKOI
 
         internal void FixWindowScroll()
         {
-            if (CustomBase.Instance.selectSlot < 0) return;
-            var t = _customAcsChangeSlot.items[CustomBase.Instance.selectSlot].cgItem.transform;
+            var selectedslot = _customAcsChangeSlot.GetSelectIndex();
+            if (selectedslot < 0) return;
+            var t = _customAcsChangeSlot.items[selectedslot].cgItem.transform;
             t.position = new Vector3(t.position.x, _slotUIPositionY);
         }
 
