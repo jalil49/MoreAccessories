@@ -13,7 +13,7 @@ namespace MoreAccessoriesKOI
             return character.cusAcsCmp[index];
         }
 
-        [Obsolete("Data is now stored directly on Chacontrol.cusAcsCmp")]
+        [Obsolete("Data is now stored directly on Chacontrol.cusAcsCmp  Array.IndexOf(Chacontrol.cusAcsCmp, component)")]
         public int GetChaAccessoryComponentIndex(ChaControl character, ChaAccessoryComponent component)
         {
             return character.cusAcsCmp.ToList().IndexOf(component); ;
