@@ -70,8 +70,8 @@ namespace MoreAccessoriesKOI
 #if KKS
         private void MultiCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
         {
+            ImportingCards = true;
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData) || xmlData == null) return; //new version doesn't have anything but version number
-
             var data = new CharAdditionalData();
             var doc = new XmlDocument();
             doc.LoadXml((string)xmlData);
