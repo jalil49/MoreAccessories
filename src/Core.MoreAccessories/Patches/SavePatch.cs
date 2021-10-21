@@ -131,5 +131,4 @@ namespace MoreAccessoriesKOI.Patches
                 _status.showAccessory = __state;
         }
     }
-
 }

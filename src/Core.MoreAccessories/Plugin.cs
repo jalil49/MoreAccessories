@@ -28,11 +28,12 @@ namespace MoreAccessoriesKOI
         {
             _self = this;
 #if KKS
-            ExtendedSave.CardBeingImported += MultiCoord_CardBeingImported;
+            ExtendedSave.CardBeingImported += CharacterBeingImported;
 #elif EC
-            ExtendedSave.CardBeingImported += SingleCoord_CardBeingImported; ;
-            ExtendedSave.CoordinateBeingImported += SingleCoord_CardBeingImported; ;
+            ExtendedSave.CardBeingImported += CharacterBeingImported;
+            ExtendedSave.CoordinateBeingImported += CoordinateBeingImported;
 #endif
+
             SceneManager.sceneLoaded += LevelLoaded;
 
             _hasDarkness = typeof(ChaControl).GetMethod("ChangeShakeAccessory", AccessTools.all) != null;
@@ -68,7 +69,7 @@ namespace MoreAccessoriesKOI
             _self.Logger.Log(logLevel, text);
         }
 #if KKS
-        private void MultiCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
+        private void CharacterBeingImported(Dictionary<string, PluginData> importedExtendedData, Dictionary<int, int?> coordinateMapping)
         {
             ImportingCards = true;
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData) || xmlData == null) return; //new version doesn't have anything but version number
@@ -214,7 +215,7 @@ namespace MoreAccessoriesKOI
             }
         }
 #elif EC
-        private void SingleCoord_CardBeingImported(Dictionary<string, PluginData> importedExtendedData)
+        private void CharacterBeingImported(Dictionary<string, PluginData> importedExtendedData)
         {
             ImportingCards = true;
             if (!importedExtendedData.TryGetValue(_extSaveKey, out var pluginData) || pluginData == null || !pluginData.data.TryGetValue("additionalAccessories", out var xmlData)) return; //new version doesn't have anything but version number
@@ -269,9 +270,10 @@ namespace MoreAccessoriesKOI
                                 }
                                 part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
                                 if (accessoryNode.Attributes["hideTiming"] != null)
+                                {
                                     part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
-                                if (_hasDarkness)
-                                    part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
+                                }
+                                part.noShake = accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value);
                             }
                             parts.Add(part);
                         }
@@ -280,13 +282,6 @@ namespace MoreAccessoriesKOI
                 }
             }
 
-            var dict = data.rawAccessoriesInfos;
-            var transferdict = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
-            if (dict.TryGetValue(0, out var list))
-            {
-                transferdict[0] = list;
-            }
-            data.rawAccessoriesInfos = transferdict;
             using (var stringWriter = new StringWriter())
             using (var xmlWriter = new XmlTextWriter(stringWriter))
             {
@@ -345,7 +340,11 @@ namespace MoreAccessoriesKOI
 
                 pluginData.data["additionalAccessories"] = stringWriter.ToString();
             }
+        }
 
+        private void CoordinateBeingImported(Dictionary<string, PluginData> importedExtendedData)
+        {
+            ImportingCards = true;
         }
 #endif
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
@@ -470,7 +469,6 @@ namespace MoreAccessoriesKOI
                 PlayMode.UpdatePlayUI();
 #endif
         }
-
         #endregion
 
         private static void UAR_ExtendedCardLoad_Prefix(ChaFile file)
@@ -689,7 +687,6 @@ namespace MoreAccessoriesKOI
                             xmlWriter.WriteEndElement();
                         }
                         xmlWriter.WriteEndElement();
-
                     }
 
 #if KK || KKS
