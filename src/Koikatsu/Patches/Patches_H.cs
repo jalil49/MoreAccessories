@@ -82,7 +82,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
                         yield return new CodeInstruction(OpCodes.Ldfld, typeof(HSprite).GetField(nameof(HSprite.females), AccessTools.all));
 
-                        yield return new CodeInstruction(OpCodes.Ldloc_1);
+                        yield return new CodeInstruction(OpCodes.Ldloc_2);
 
                         yield return new CodeInstruction(OpCodes.Call, typeof(HSpriteUpdate_patch).GetMethod(nameof(FemaleAccessoryCount), AccessTools.all));
                         continue;
@@ -117,8 +117,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             internal static void Prefix(HSprite __instance, List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
             {
-                MoreAccessories.Print($"female {_female} FemaleDressSubMenuAccessoryProc prefix");
-
                 try
                 {
                     AddAccessoryButtons(__instance, ___lstMultipleFemaleDressButton[_female].accessory, ___females, _female);
@@ -131,7 +129,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             public static void Postfix(List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
             {
-                MoreAccessories.Print($"female {_female} FemaleDressSubMenuAccessoryProc postfix");
                 try { HideExcessButtons(___lstMultipleFemaleDressButton[_female].accessory, ___females[_female]); }
                 catch (Exception ex)
                 {
