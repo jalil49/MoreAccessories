@@ -64,7 +64,11 @@ namespace MoreAccessoriesKOI
             }
         }
 
+#if DEBUG
         internal static void Print(string text, LogLevel logLevel = LogLevel.Warning)
+#else
+        internal static void Print(string text, LogLevel logLevel)
+#endif
         {
             _self.Logger.Log(logLevel, text);
         }

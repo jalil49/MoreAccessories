@@ -107,7 +107,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 try { HideExcessButtons(___categoryAccessory, ___females[0]); }
                 catch (Exception ex)
                 {
-                    MoreAccessories.Print($"Failed to hide buttons to H #{0} {ex}");
+                    MoreAccessories.Print($"Failed to hide buttons to H #0 {ex}", BepInEx.Logging.LogLevel.Error);
                 }
             }
         }
@@ -123,7 +123,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
                 catch (Exception ex)
                 {
-                    MoreAccessories.Print($"Failed to make Multiple H #{_female} AddAccessoryButtons {ex}");
+                    MoreAccessories.Print($"Failed to make Multiple H #{_female} AddAccessoryButtons {ex}", BepInEx.Logging.LogLevel.Error);
                 }
             }
 
@@ -132,7 +132,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 try { HideExcessButtons(___lstMultipleFemaleDressButton[_female].accessory, ___females[_female]); }
                 catch (Exception ex)
                 {
-                    MoreAccessories.Print($"Failed to hide excess buttons to H #{_female} {ex}");
+                    MoreAccessories.Print($"Failed to hide excess buttons to H #{_female} {ex}", BepInEx.Logging.LogLevel.Error);
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Failed to add buttons to H #{femalenum} {ex}");
+                MoreAccessories.Print($"Failed to add buttons to H #{femalenum} {ex}", BepInEx.Logging.LogLevel.Error);
             }
         }
 
