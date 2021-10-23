@@ -20,7 +20,7 @@ namespace MoreAccessoriesKOI
         public Copy_Window(CvsAccessoryCopy _instance)
         {
             CopyWindow = _instance;
-            CopyWindow.transform.position -= new Vector3(50, 0, 0);
+            CopyWindow.transform.position -= new Vector3(30, 0, 0);
             MakeScrollable();
         }
 
