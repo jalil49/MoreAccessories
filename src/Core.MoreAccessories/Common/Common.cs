@@ -25,11 +25,13 @@ namespace MoreAccessoriesKOI
             var nowlength = len;
 #if KK || KKS
             //Print($"Nowlength is {nowlength}");
-
-            foreach (var item in controller.chaFile.coordinate)
+            if (CharaMaker)
             {
-                len = Math.Max(len, item.accessory.parts.Length);
-                //Print($"coordinate length is {item.accessory.parts.Length}");
+                foreach (var item in controller.chaFile.coordinate)
+                {
+                    len = Math.Max(len, item.accessory.parts.Length);
+                    //Print($"coordinate length is {item.accessory.parts.Length}");
+                }
             }
 #endif
             //Print($"Max size in sync is {len}");
@@ -45,9 +47,7 @@ namespace MoreAccessoriesKOI
             }
             else if (delta < 0)
             {
-                var newarray = new bool[len];
-                Array.Copy(controller.fileStatus.showAccessory, newarray, len);
-                controller.fileStatus.showAccessory = newarray;
+                controller.fileStatus.showAccessory = controller.fileStatus.showAccessory.Take(len).ToArray();
             }
 
 
@@ -59,7 +59,6 @@ namespace MoreAccessoriesKOI
             }
             else if (delta < 0)
             {
-                var newarray = new GameObject[len];
                 for (var i = len; i < controller.objAccessory.Length; i++)
                 {
                     var obj = controller.objAccessory[i];
@@ -68,8 +67,7 @@ namespace MoreAccessoriesKOI
                         controller.SafeDestroy(obj);
                     }
                 }
-                Array.Copy(controller.objAccessory, newarray, len);
-                controller.objAccessory = newarray;
+                controller.objAccessory = controller.objAccessory.Take(len).ToArray();
             }
 
             delta = len - controller.cusAcsCmp.Length;
@@ -80,9 +78,7 @@ namespace MoreAccessoriesKOI
             }
             else if (delta < 0)
             {
-                var newarray = new ChaAccessoryComponent[len];
-                Array.Copy(controller.cusAcsCmp, newarray, len);
-                controller.cusAcsCmp = newarray;
+                controller.cusAcsCmp = controller.cusAcsCmp.Take(len).ToArray();
             }
 
             delta = len - controller.hideHairAcs.Length;
@@ -93,9 +89,7 @@ namespace MoreAccessoriesKOI
             }
             else if (delta < 0)
             {
-                var newarray = new bool[len];
-                Array.Copy(controller.hideHairAcs, newarray, len);
-                controller.hideHairAcs = newarray;
+                controller.hideHairAcs = controller.hideHairAcs.Take(len).ToArray();
             }
 
             delta = len - controller.infoAccessory.Length;
@@ -105,9 +99,7 @@ namespace MoreAccessoriesKOI
             }
             else if (delta < 0)
             {
-                var newarray = new ListInfoBase[len];
-                Array.Copy(controller.infoAccessory, newarray, len);
-                controller.infoAccessory = newarray;
+                controller.infoAccessory = controller.infoAccessory.Take(len).ToArray();
             }
 
             var movelen = controller.objAcsMove.GetLength(0);
@@ -161,9 +153,7 @@ namespace MoreAccessoriesKOI
                 }
                 else if (delta < 0)
                 {
-                    var newarray = new ChaFileAccessory.PartsInfo[delta];
-                    Array.Copy(controller.nowCoordinate.accessory.parts, newarray, len);
-                    controller.nowCoordinate.accessory.parts = newarray;
+                    controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Take(len).ToArray();
                 }
 
 #if KK || KKS
@@ -190,7 +180,6 @@ namespace MoreAccessoriesKOI
             var len = 20;
 #if KK || KKS
             //Print($"Nowlength is {nowlength}");
-
             foreach (var item in file.coordinate)
             {
                 len = Math.Max(len, item.accessory.parts.Length);
@@ -210,9 +199,7 @@ namespace MoreAccessoriesKOI
             }
             else if (delta < 0)
             {
-                var newarray = new bool[len];
-                Array.Copy(file.status.showAccessory, newarray, len);
-                file.status.showAccessory = newarray;
+                file.status.showAccessory = file.status.showAccessory.Take(len).ToArray();
             }
         }
 

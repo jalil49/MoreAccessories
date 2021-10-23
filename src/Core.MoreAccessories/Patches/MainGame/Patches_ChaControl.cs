@@ -606,7 +606,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             try
             {
                 var len = chara.nowCoordinate.accessory.parts.Length;
-                if (len > chara.objAccessory.Length || len > chara.fileStatus.showAccessory.Length || chara.objAccessory.Length != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
+                if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
                     MoreAccessories.ArraySync(chara);
 
                 if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
