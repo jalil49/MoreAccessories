@@ -171,6 +171,18 @@ namespace MoreAccessoriesKOI
                         item.accessory.parts = item.accessory.parts.Take(len).ToArray();
                     }
                 }
+#elif EC
+                delta = len - controller.chaFile.coordinate.accessory.parts.Length;
+                if (delta > 0)
+                {
+                    var array = new ChaFileAccessory.PartsInfo[delta];
+                    for (var i = 0; i < delta; i++) { array[i] = new ChaFileAccessory.PartsInfo(); }
+                    controller.chaFile.coordinate.accessory.parts = controller.chaFile.coordinate.accessory.parts.Concat(array).ToArray();
+                }
+                else if (delta < 0)
+                {
+                    controller.chaFile.coordinate.accessory.parts = controller.chaFile.coordinate.accessory.parts.Take(len).ToArray();
+                }
 #endif
                 MakerMode.RefreshToggles(len);
             }
