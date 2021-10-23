@@ -26,20 +26,10 @@ namespace MoreAccessoriesKOI
 
         private ScrollRect ScrollView;
 
-        internal void SetSourceIndex(int index)
-        {
-            ChangeWindow.selSrc = index;
-        }
-
-        internal void SetDestinationIndex(int index)
-        {
-            ChangeWindow.selDst = index;
-        }
-
         public void MakeScrollable()
         {
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglChange/ChangeTop/rect").transform;
-            ScrollView = UIUtility.CreateScrollView("Slots", container);
+            ScrollView = UIUtility.CreateScrollView("kind", container);
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
             ScrollView.scrollSensitivity = 18f;
@@ -112,36 +102,6 @@ namespace MoreAccessoriesKOI
             ChangeWindow.tglDstKind = ChangeWindow.tglDstKind.Concat(tglDstKindarray).ToArray();
             ChangeWindow.textSrc = ChangeWindow.textSrc.Concat(srcarray).ToArray();
             ChangeWindow.textDst = ChangeWindow.textDst.Concat(dstarray).ToArray();
-        }
-
-        public void Something()
-        {
-            var index = 0;
-            var transferSlotObject = Object.Instantiate(ScrollView.content.GetChild(0).gameObject, ScrollView.content);
-            var transferSourceToggle = transferSlotObject.transform.GetChild(1).GetComponentInChildren<Toggle>();
-            var transferDestinationToggle = transferSlotObject.transform.GetChild(2).GetComponentInChildren<Toggle>();
-            var transferSourceText = transferSourceToggle.GetComponentInChildren<TextMeshProUGUI>();
-            var transferDestinationText = transferDestinationToggle.GetComponentInChildren<TextMeshProUGUI>();
-            transferSlotObject.transform.GetChild(0).GetComponentInChildren<TextMeshProUGUI>().text = (index + 1).ToString("00");
-            transferSourceText.text = "なし";
-            transferDestinationText.text = "なし";
-            transferSlotObject.name = "kind" + index.ToString("00");
-            transferSourceToggle.onValueChanged = new Toggle.ToggleEvent();
-            transferSourceToggle.onValueChanged.AddListener((b) =>
-            {
-                if (transferSourceToggle.isOn)
-                    SetSourceIndex(index);
-            });
-            transferDestinationToggle.onValueChanged = new Toggle.ToggleEvent();
-            transferDestinationToggle.onValueChanged.AddListener((b) =>
-            {
-                if (transferDestinationToggle.isOn)
-                    SetDestinationIndex(index);
-            });
-            transferSourceToggle.isOn = false;
-            transferDestinationToggle.isOn = false;
-            transferSourceToggle.graphic.raycastTarget = true;
-            transferDestinationToggle.graphic.raycastTarget = true;
         }
 
         internal void WindowRefresh()
