@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Illusion.Extensions;
 using System.Linq;
-#if EC
-using HPlay;
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
-#endif
-using Illusion.Extensions;
-using UnityEngine;
 using UniRx;
+using UnityEngine;
+
+#if KK || KKS
+using System;
+#endif
 
 namespace MoreAccessoriesKOI
 {
