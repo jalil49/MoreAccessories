@@ -13,6 +13,7 @@ namespace MoreAccessoriesKOI
     {
         public static void ArraySync(ChaControl controller)
         {
+            Patches.Common_Patches.Seal(false);
             //Print($"Syncng {controller.chaFile.parameter.fullname}");
             if (controller.nowCoordinate == null)
             {
@@ -52,8 +53,7 @@ namespace MoreAccessoriesKOI
             delta = len - controller.objAccessory.Length;
             if (delta > 0)
             {
-                var newarray = new GameObject[delta];
-                controller.objAccessory = controller.objAccessory.Concat(newarray).ToArray();
+                controller.objAccessory = controller.objAccessory.Concat(new GameObject[delta]).ToArray();
             }
             else if (delta < 0)
             {
@@ -71,8 +71,7 @@ namespace MoreAccessoriesKOI
             delta = len - controller.cusAcsCmp.Length;
             if (delta > 0)
             {
-                var newarray = new ChaAccessoryComponent[delta];
-                controller.cusAcsCmp = controller.cusAcsCmp.Concat(newarray).ToArray();
+                controller.cusAcsCmp = controller.cusAcsCmp.Concat(new ChaAccessoryComponent[delta]).ToArray();
             }
             else if (delta < 0)
             {
@@ -82,8 +81,7 @@ namespace MoreAccessoriesKOI
             delta = len - controller.hideHairAcs.Length;
             if (delta > 0)
             {
-                var newarray = new bool[delta];
-                controller.hideHairAcs = controller.hideHairAcs.Concat(newarray).ToArray();
+                controller.hideHairAcs = controller.hideHairAcs.Concat(new bool[delta]).ToArray();
             }
             else if (delta < 0)
             {
@@ -184,9 +182,11 @@ namespace MoreAccessoriesKOI
 #endif
                 MakerMode.RefreshToggles(len);
             }
+            Patches.Common_Patches.Seal(true);
         }
         internal static void ArraySync(ChaFile file)
         {
+            Patches.Common_Patches.Seal(false);
             var len = 20;
 #if KK || KKS
             len = file.coordinate[file.status.coordinateType].accessory.parts.Length;
@@ -208,6 +208,8 @@ namespace MoreAccessoriesKOI
             {
                 file.status.showAccessory = file.status.showAccessory.Take(len).ToArray();
             }
+
+            Patches.Common_Patches.Seal(true);
         }
 
         public static void TurnOffBackwardsCompatibility()

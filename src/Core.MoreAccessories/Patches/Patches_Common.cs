@@ -1,84 +1,105 @@
-﻿namespace MoreAccessoriesKOI.Patches
+﻿using HarmonyLib;
+using UnityEngine;
+
+namespace MoreAccessoriesKOI.Patches
 {
     public class Common_Patches
     {
-        //can't do any of this since I gotta prepatch UAR or do a different method to get the resolveinfo for old cards
-        //        [HarmonyPatch(typeof(clothesFileControl), nameof(clothesFileControl.Initialize))]
-        //        internal class ClothesFileControlInitialize_patch
-        //        {
-        //            internal static void Prefix()
-        //            {
-        //                MoreAccessories.ClothesFileControlLoading = true;
-        //            }
-        //            internal static void Postfix()
-        //            {
-        //                MoreAccessories.ClothesFileControlLoading = false;
-        //            }
-        //        }
+        #region Greedy Code
+        internal static void Seal(bool value)
+        {
+            ShowAccessorySetterPatch.seal = value;
+            CusAcsCmpSetterPatch.seal = value;
+            ObjAccessorySetterPatch.seal = value;
+            ObjAcsMoveSetterPatch.seal = value;
+            InfoAccessorySetterPatch.seal = value;
+            HideHairAcsSetterPatch.seal = value;
+        }
 
-        //        [HarmonyPatch(typeof(clothesFileControl), nameof(clothesFileControl.Initialize))]
-        //        internal class CustomCharaFileInitialize_patch
-        //        {
-        //            internal static void Prefix()
-        //            {
-        //                MoreAccessories.CharaListIsLoading = true;
-        //            }
-        //            internal static void Postfix()
-        //            {
-        //                MoreAccessories.CharaListIsLoading = false;
-        //            }
-        //        }
-        //#if KK || KKS
-        //        [HarmonyPatch(typeof(CharaViewer), nameof(CharaViewer.CreateCharaList))]
-        //        internal class CharaViewerStart_patch
-        //        {
-        //            internal static void Prefix()
-        //            {
-        //                MoreAccessories.Print($"CharaViewer creating list", BepInEx.Logging.LogLevel.Message);
-        //                MoreAccessories.CharaListIsLoading = true;
-        //            }
-        //            internal static void Postfix()
-        //            {
-        //                MoreAccessories.CharaListIsLoading = false;
-        //            }
-        //        }
-
-        //        [HarmonyPatch(typeof(SaveData.CharaData), nameof(SaveData.CharaData.SetCharFile))]
-        //        internal class SetCharFilePatch
-        //        {
-        //            internal static void Prefix(ChaFileControl charFile)
-        //            {
-        //                MoreAccessories._self.OnActualCharaLoad(charFile);
-        //            }
-        //        }
-
-        //#endif 
-        //#if KKS
-        //        [HarmonyPatch(typeof(Localize.Translate.CustomFileListSelecter), nameof(Localize.Translate.CustomFileListSelecter.Initialize))]
-        //        internal class CustomFileListSelecter_patch
-        //        {
-        //            internal static void Prefix()
-        //            {
-        //                MoreAccessories.Print($"CustomFileListSelecter creating list", BepInEx.Logging.LogLevel.Message);
-        //                MoreAccessories.CharaListIsLoading = true;
-        //            }
-        //            internal static void Postfix()
-        //            {
-        //                MoreAccessories.CharaListIsLoading = false;
-        //            }
-        //        }
-
-        //        [HarmonyPatch(typeof(Localize.Translate.CustomFileListSelecter), nameof(Localize.Translate.CustomFileListSelecter.Awake))]
-        //        internal class CustomFileListSelecterStart_patch
-        //        {
-        //            internal static void Postfix(Localize.Translate.CustomFileListSelecter __instance)
-        //            {
-        //                __instance.onEnter += (FileControl) =>
-        //                  {
-        //                      MoreAccessories._self.OnActualCharaLoad(FileControl);
-        //                  };
-        //            }
-        //        }
-        //#endif
+        [HarmonyPatch(typeof(ChaFileStatus), nameof(ChaFileStatus.showAccessory), MethodType.Setter)]
+        internal class ShowAccessorySetterPatch
+        {
+            internal static bool seal = true;
+            internal static bool Prefix(ChaFileStatus __instance, bool[] value)
+            {
+                if (__instance.showAccessory != null && seal && value.Length != __instance.showAccessory.Length)
+                {
+                    MoreAccessories.Print("Please do not try to change showAccessory array size outside of MoreAccessories.ArraySync", BepInEx.Logging.LogLevel.Warning);
+                    return false;
+                }
+                return true;
+            }
+        }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.cusAcsCmp), MethodType.Setter)]
+        internal class CusAcsCmpSetterPatch
+        {
+            internal static bool seal = true;
+            internal static bool Prefix(ChaControl __instance, ChaAccessoryComponent[] value)
+            {
+                if (__instance.cusAcsCmp != null && seal && value.Length != __instance.cusAcsCmp.Length)
+                {
+                    MoreAccessories.Print("Please do not try to change cusAcsCmp array size outside of MoreAccessories.ArraySync", BepInEx.Logging.LogLevel.Warning);
+                    return false;
+                }
+                return true;
+            }
+        }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.objAccessory), MethodType.Setter)]
+        internal class ObjAccessorySetterPatch
+        {
+            internal static bool seal = true;
+            internal static bool Prefix(ChaControl __instance, ChaAccessoryComponent[] value)
+            {
+                if (__instance.objAccessory != null && seal && value.Length != __instance.objAccessory.Length)
+                {
+                    MoreAccessories.Print("Please do not try to change objAccessory array size outside of MoreAccessories.ArraySync", BepInEx.Logging.LogLevel.Warning);
+                    return false;
+                }
+                return true;
+            }
+        }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.objAcsMove), MethodType.Setter)]
+        internal class ObjAcsMoveSetterPatch
+        {
+            internal static bool seal = true;
+            internal static bool Prefix(ChaControl __instance, GameObject[,] value)
+            {
+                if (__instance.objAcsMove != null && seal && value.Length != __instance.objAcsMove.Length)
+                {
+                    MoreAccessories.Print("Please do not try to change objAcsMove array size outside of MoreAccessories.ArraySync", BepInEx.Logging.LogLevel.Warning);
+                    return false;
+                }
+                return true;
+            }
+        }
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.hideHairAcs), MethodType.Setter)]
+        internal class HideHairAcsSetterPatch
+        {
+            internal static bool seal = true;
+            internal static bool Prefix(ChaControl __instance, bool[] value)
+            {
+                if (__instance.hideHairAcs != null && seal && value.Length != __instance.hideHairAcs.Length)
+                {
+                    MoreAccessories.Print("Please do not try to change hideHairAcs array size outside of MoreAccessories.ArraySync", BepInEx.Logging.LogLevel.Warning);
+                    return false;
+                }
+                return true;
+            }
+        }
+        [HarmonyPatch(typeof(ChaInfo), nameof(ChaInfo.infoAccessory), MethodType.Setter)]
+        internal class InfoAccessorySetterPatch
+        {
+            internal static bool seal = true;
+            internal static bool Prefix(ChaInfo __instance, ListInfoBase[] value)
+            {
+                if (__instance.infoAccessory != null && seal && value.Length != __instance.infoAccessory.Length)
+                {
+                    MoreAccessories.Print("Please do not try to change infoAccessory array size outside of MoreAccessories.ArraySync", BepInEx.Logging.LogLevel.Warning);
+                    return false;
+                }
+                return true;
+            }
+        }
+        #endregion
     }
 }
