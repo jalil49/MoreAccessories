@@ -189,12 +189,9 @@ namespace MoreAccessoriesKOI
         {
             var len = 20;
 #if KK || KKS
-            //Print($"Nowlength is {nowlength}");
-            foreach (var item in file.coordinate)
-            {
-                len = Math.Max(len, item.accessory.parts.Length);
-                //Print($"coordinate length is {item.accessory.parts.Length}");
-            }
+            len = file.coordinate[file.status.coordinateType].accessory.parts.Length;
+#elif EC
+            len = file.coordinate.accessory.parts.Length;
 #endif
             //Print($"Max size in sync is {len}");
             var delta = len - file.status.showAccessory.Length;

@@ -598,7 +598,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
         internal class AssignCoordinate_Patch
         {
-            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
+            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
         internal static void ArraySyncCheck(ChaControl chara)
