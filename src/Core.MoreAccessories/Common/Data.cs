@@ -9,7 +9,6 @@
 
         private const int _saveVersion = 2;
         private const string _extSaveKey = "moreAccessories";
-        internal static CharAdditionalData PreviousMigratedData;
 
         internal static bool _hasDarkness;
         public bool ImportingCards { get; private set; }

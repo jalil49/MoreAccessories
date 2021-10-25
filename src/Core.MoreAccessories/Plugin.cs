@@ -488,7 +488,6 @@ namespace MoreAccessoriesKOI
         #region Saves
         internal void OnActualCharaLoad(ChaFile file)
         {
-            PreviousMigratedData = null;
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
             {
@@ -513,15 +512,16 @@ namespace MoreAccessoriesKOI
             }
 #endif
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
+
             if (pluginData == null)
             {
                 //Print("Plugin Data Null", LogLevel.Error);
                 return;
             }
-            PreviousMigratedData = new CharAdditionalData();
+            var additionaldata = new CharAdditionalData();
 
             XmlNode node = null;
-            if (pluginData != null && pluginData.data.TryGetValue("additionalAccessories", out var xmlData))
+            if (pluginData.data.TryGetValue("additionalAccessories", out var xmlData) && xmlData != null)
             {
                 var doc = new XmlDocument();
                 doc.LoadXml((string)xmlData);
@@ -537,10 +537,10 @@ namespace MoreAccessoriesKOI
                             var coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
                             List<ChaFileAccessory.PartsInfo> parts;
 
-                            if (PreviousMigratedData.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
+                            if (additionaldata.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
                             {
                                 parts = new List<ChaFileAccessory.PartsInfo>();
-                                PreviousMigratedData.rawAccessoriesInfos.Add(coordinateType, parts);
+                                additionaldata.rawAccessoriesInfos.Add(coordinateType, parts);
                             }
 
                             foreach (XmlNode accessoryNode in childNode.ChildNodes)
@@ -592,17 +592,16 @@ namespace MoreAccessoriesKOI
 
             //Print($"Plugin Data has {PreviousMigratedData.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
 #if KK || KKS
-            foreach (var item in PreviousMigratedData.rawAccessoriesInfos)
+            foreach (var item in additionaldata.rawAccessoriesInfos)
             {
                 //Print($"raw data has key {item.Key}");
                 if (!(item.Key < file.coordinate.Length)) continue;
-
                 var accessory = file.coordinate[item.Key].accessory;
                 accessory.parts = accessory.parts.Concat(item.Value).ToArray();
                 //Print($"Settings coordinate {item.Key}");
             }
 #else
-            if (PreviousMigratedData.rawAccessoriesInfos.TryGetValue(0, out var partsInfos))
+            if (additionaldata.rawAccessoriesInfos.TryGetValue(0, out var partsInfos))
             {
                 var accessory = file.coordinate.accessory;
                 accessory.parts = accessory.parts.Concat(partsInfos).ToArray();
@@ -719,19 +718,17 @@ namespace MoreAccessoriesKOI
 
         internal void OnActualCoordLoad(ChaFileCoordinate file)
         {
-            PreviousMigratedData = null;
-
-            var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
             if (file.accessory.parts.Length > 20) //escape data is already saved directly on card 
             {
                 return;
             }
 
-            PreviousMigratedData = new CharAdditionalData();
+            var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
+            var additionaldata = new CharAdditionalData();
             XmlNode node = null;
-            if (pluginData != null && pluginData.data.TryGetValue("additionalAccessories", out var xmlData))
+            if (pluginData != null && pluginData.data.TryGetValue("additionalAccessories", out var xmlData) && xmlData != null)
             {
                 var doc = new XmlDocument();
                 doc.LoadXml((string)xmlData);
@@ -780,11 +777,11 @@ namespace MoreAccessoriesKOI
                         if (_hasDarkness)
                             part.SetPrivateProperty("noShake", accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value));
                     }
-                    PreviousMigratedData.nowAccessories.Add(part);
+                    additionaldata.nowAccessories.Add(part);
                 }
             }
 
-            file.accessory.parts = file.accessory.parts.Concat(PreviousMigratedData.nowAccessories).ToArray();
+            file.accessory.parts = file.accessory.parts.Concat(additionaldata.nowAccessories).ToArray();
 
             if (
 #if KK || KKS

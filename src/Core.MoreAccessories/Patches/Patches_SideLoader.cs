@@ -1,67 +1,26 @@
-﻿using ExtensibleSaveFormat;
-using HarmonyLib;
-using MessagePack;
+﻿using HarmonyLib;
 using Sideloader.AutoResolver;
-using System;
 using System.Collections.Generic;
+
+#if KKS || EC
+using ExtensibleSaveFormat;
+using MessagePack;
 using System.Linq;
+#endif
 
 namespace MoreAccessoriesKOI.Patches
 {
     public static class SideLoader_Patches
     {
+#if !EC
         [HarmonyPatch(typeof(UniversalAutoResolver), "IterateCoordinatePrefixes")]
         private static class SideloaderAutoresolverHooks_IterateCoordinatePrefixes_Patches
         {
-            private static object _sideLoaderChaFileAccessoryPartsInfoProperties;
-#if !EC
             [HarmonyBefore("com.deathweasel.bepinex.guidmigration")]
             internal static void Prefix(ICollection<ResolveInfo> extInfo) => Outfit_Error_Fix(extInfo);
-#endif
-            internal static void Postfix(object action, ChaFileCoordinate coordinate, object extInfo, string prefix)
-            {
-                var additionalData = MoreAccessories.PreviousMigratedData;
-
-                if (additionalData == null) return;
-
-                if (_sideLoaderChaFileAccessoryPartsInfoProperties == null)
-                {
-#if KK
-                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,Sideloader")
-#elif KKS
-                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,KKS_Sideloader")
-#elif EC
-                    _sideLoaderChaFileAccessoryPartsInfoProperties = Type.GetType($"Sideloader.AutoResolver.StructReference,EC_Sideloader")
-#endif
-                                                                         .GetProperty("ChaFileAccessoryPartsInfoProperties", AccessTools.all).GetValue(null, null);
-                }
-
-                if (string.IsNullOrEmpty(prefix))
-                {
-                    for (var j = 0; j < additionalData.nowAccessories.Count; j++)
-                        ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, additionalData.nowAccessories[j], extInfo, $"accessory{j + 20}.");
-                }
-                else
-                {
-                    var coordId = prefix.Replace("outfit", "").Replace(".", "");
-
-#if !EC
-                    if (int.TryParse(coordId, out var result) == false)
-                        return;
-#else
-                    if (int.TryParse(coordId, out var result) == false)
-                        result = 0;
-#endif
-                    if (additionalData.rawAccessoriesInfos.TryGetValue(result, out var parts) == false)
-                        return;
-
-                    for (var j = 0; j < parts.Count; j++)
-                    {
-                        ((Delegate)action).DynamicInvoke(_sideLoaderChaFileAccessoryPartsInfoProperties, parts[j], extInfo, $"{prefix}accessory{j + 20}.");
-                    }
-                }
-            }
         }
+#endif
+
 #if KKS || EC
         [HarmonyPatch(typeof(ExtendedSave), "CardImportEvent")]
         private static class SideloaderAutoresolverHooks_Import_Patches
