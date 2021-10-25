@@ -3,7 +3,7 @@
 namespace MoreAccessoriesKOI
 {
     [BepInProcess("KoikatsuSunshine")]
-    [BepInProcess("KoikatsuSunshineVR")]
+    [BepInProcess("KoikatsuSunshine_VR")]
     [BepInProcess("CharaStudio")]
     public partial class MoreAccessories { }
 }
