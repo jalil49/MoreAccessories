@@ -49,7 +49,7 @@ namespace MoreAccessoriesKOI
                 tglarray[i] = copyToggle.GetComponentInChildren<Toggle>();
                 tglarray[i].graphic.raycastTarget = true;
                 tglarray[i].transform.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
-                copyToggle.name = "Slot" + index.ToString("00");
+                copyToggle.name = "kind" + (index - 1).ToString("00");
                 srcarray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
                 dstarray[i] = copyToggle.transform.Find("dstText00").GetComponent<TextMeshProUGUI>();
                 var info = AdditionalCharaMakerSlots[index - 21];//21 since index starts at 1
