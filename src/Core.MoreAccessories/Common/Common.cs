@@ -14,7 +14,6 @@ namespace MoreAccessoriesKOI
         public static void ArraySync(ChaControl controller)
         {
             Patches.Common_Patches.Seal(false);
-            //Print($"Syncng {controller.chaFile.parameter.fullname}");
             if (controller.nowCoordinate == null)
             {
                 return;
@@ -22,6 +21,8 @@ namespace MoreAccessoriesKOI
             var parts = controller.nowCoordinate.accessory.parts;
             var len = parts.Length;
             var nowlength = len;
+            //Print($"Syncng {controller.chaFile.parameter.fullname} to {len}");
+
 #if KK || KKS
             //Print($"Nowlength is {nowlength}");
             if (CharaMaker)

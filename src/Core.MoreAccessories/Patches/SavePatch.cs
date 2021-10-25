@@ -112,6 +112,7 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPriority(Priority.First)]
         private static void Prefix(ChaFileStatus _status, out bool[] __state)
         {
+            Common_Patches.Seal(false);
             try
             {
                 __state = _status.showAccessory;
@@ -123,12 +124,13 @@ namespace MoreAccessoriesKOI.Patches
                 __state = null;
             }
         }
-        [HarmonyPriority(Priority.First)]
 
+        [HarmonyPriority(Priority.First)]
         private static void Postfix(ChaFileStatus _status, bool[] __state)
         {
             if (__state != null)
                 _status.showAccessory = __state;
+            Common_Patches.Seal(true);
         }
     }
 }
