@@ -51,6 +51,8 @@ namespace MoreAccessoriesKOI
 
         internal void RefreshToggles(int length)
         {
+            Plugin.ExecuteDelayed(WindowRefresh);
+
             var windowlength = ChangeWindow.tglSrcKind.Length;
             var delta = length - windowlength;
             if (delta < 1) return;
@@ -68,7 +70,7 @@ namespace MoreAccessoriesKOI
             var srcarray = new TextMeshProUGUI[delta];
             var dstarray = new TextMeshProUGUI[delta];
 
-            //OnValueChangedAsObservable overwrites the selecteds slot
+            //OnValueChangedAsObservable overwrites the selected slot
             var originalseldst = ChangeWindow.selDst;
             var originalselsrc = ChangeWindow.selSrc;
 
@@ -111,8 +113,6 @@ namespace MoreAccessoriesKOI
             ChangeWindow.tglDstKind = ChangeWindow.tglDstKind.Concat(tglDstKindarray).ToArray();
             ChangeWindow.textSrc = ChangeWindow.textSrc.Concat(srcarray).ToArray();
             ChangeWindow.textDst = ChangeWindow.textDst.Concat(dstarray).ToArray();
-
-            Plugin.ExecuteDelayed(WindowRefresh);
         }
 
         internal void WindowRefresh()

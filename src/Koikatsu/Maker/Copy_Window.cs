@@ -28,6 +28,8 @@ namespace MoreAccessoriesKOI
 
         public void RefreshToggles(int length)
         {
+            Plugin.ExecuteDelayed(WindowRefresh);
+
             var windowlength = CopyWindow.tglKind.Length;
             var delta = length - windowlength;
             if (delta < 1) return;
@@ -63,8 +65,6 @@ namespace MoreAccessoriesKOI
             CopyWindow.tglKind = CopyWindow.tglKind.Concat(tglarray).ToArray();
             CopyWindow.textSrc = CopyWindow.textSrc.Concat(srcarray).ToArray();
             CopyWindow.textDst = CopyWindow.textDst.Concat(dstarray).ToArray();
-
-            Plugin.ExecuteDelayed(WindowRefresh);
         }
 
         internal void ValidatateToggles()
