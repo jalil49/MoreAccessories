@@ -464,6 +464,12 @@ namespace MoreAccessoriesKOI
         {
             toggle.OnValueChangedAsObservable().Subscribe(x =>
             {
+                //code will trigger when changed to false STOP IT
+                if (!x)
+                {
+                    return;
+                }
+
                 if (index >= CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length)
                 {
                     ParentWin.ChangeSlot(index, false);
