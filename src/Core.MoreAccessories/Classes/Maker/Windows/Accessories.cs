@@ -34,7 +34,13 @@ namespace MoreAccessoriesKOI
             _customAcsChangeSlot = _instance;
             PrepareScroll();
             MakeSlotsScrollable();
-            Plugin.ExecuteDelayed(InitilaizeSlotNames, 60);
+            Plugin.ExecuteDelayed(delegate ()
+            {
+                _customAcsChangeSlot.items[0].tglItem.Set(false);
+                _customAcsChangeSlot.items[0].tglItem.Set(true);
+            }, 5);
+            ValidatateToggles();
+            Plugin.ExecuteDelayed(InitilaizeSlotNames, 5);
         }
 
         internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
@@ -91,6 +97,7 @@ namespace MoreAccessoriesKOI
                 _customAcsChangeSlot.items[index].tglItem.Set(false);
                 _customAcsChangeSlot.items[0].tglItem.Set(true);
             }
+            FixWindowScroll();
         }
 
         private void MakeSlotsScrollable()
@@ -312,6 +319,8 @@ namespace MoreAccessoriesKOI
 
             if (count > AdditionalCharaMakerSlots.Count)
             {
+                MoreAccessories.MakerMode.ValidatateToggles();
+
                 return;
             }
             var cvscolor = CVSColor(count + 21);//do once rather than every time slots are made in case of 10 batch
