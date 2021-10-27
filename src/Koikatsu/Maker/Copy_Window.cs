@@ -22,6 +22,8 @@ namespace MoreAccessoriesKOI
             CopyWindow = _instance;
             CopyWindow.transform.position -= new Vector3(30, 0, 0);
             MakeScrollable();
+            CopyWindow.btnAllOn.onClick = new Button.ButtonClickedEvent();
+            CopyWindow.btnAllOn.onClick.AddListener(SelectAllToggles);
         }
 
         private ScrollRect ScrollView;
@@ -74,7 +76,15 @@ namespace MoreAccessoriesKOI
                 CopyWindow.tglKind[i].Set(false);
             }
         }
-
+        private void SelectAllToggles()
+        {
+            var array = CopyWindow.tglKind;
+            var partscount = CopyWindow.accessory.parts.Length;
+            for (var i = 0; i < partscount; i++)
+            {
+                array[i].Set(true);
+            }
+        }
         private void MakeScrollable()
         {
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglCopy/CopyTop/rect").transform;
