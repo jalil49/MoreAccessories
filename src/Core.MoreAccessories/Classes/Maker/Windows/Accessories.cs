@@ -117,7 +117,7 @@ namespace MoreAccessoriesKOI
 
             _customAcsChangeSlot.ExecuteDelayed(() =>
             {
-                _slotUIPositionY = _charaMakerSlotTemplate.transform.parent.position.y;
+                _slotUIPositionY = container.position.y;
             }, 15);
 
             var kkus = System.Type.GetType("HSUS.HSUS,KKUS");
@@ -190,6 +190,8 @@ namespace MoreAccessoriesKOI
                     var t = data.cgItem.transform;
                     t.position = new Vector3(t.position.x, _slotUIPositionY);
                 });
+                var trans = data.cgItem.transform;
+                trans.position = new Vector3(trans.position.x, _slotUIPositionY);
             }
 
             _customAcsChangeSlot.ExecuteDelayed(() =>
@@ -205,14 +207,6 @@ namespace MoreAccessoriesKOI
             {
                 ScrollView.viewport.gameObject.SetActive(true);
             }, 5);
-        }
-
-        internal void FixWindowScroll()
-        {
-            var selectedslot = _customAcsChangeSlot.GetSelectIndex();
-            if (selectedslot < 0) return;
-            var t = _customAcsChangeSlot.items[selectedslot].cgItem.transform;
-            t.position = new Vector3(t.position.x, _slotUIPositionY);
         }
 
         private void MakeWindowScrollable(Transform slotTransform)
@@ -273,6 +267,14 @@ namespace MoreAccessoriesKOI
             slotTransform.SetParent(scroll.content);
         }
 
+        internal void FixWindowScroll()
+        {
+            var selectedslot = _customAcsChangeSlot.GetSelectIndex();
+            if (selectedslot < 0) return;
+            var t = _customAcsChangeSlot.items[selectedslot].cgItem.transform;
+            t.position = new Vector3(t.position.x, _slotUIPositionY);
+        }
+
         public void UpdateUI()
         {
             if (!Ready)
@@ -310,6 +312,8 @@ namespace MoreAccessoriesKOI
 
                     info.AccessorySlot = newSlot.gameObject;
                     var toggle = newSlot.GetComponent<Toggle>();
+                    toggle.isOn = false;
+
                     var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
 
@@ -322,6 +326,8 @@ namespace MoreAccessoriesKOI
                     {
                         item.colorKind = cvscolor;
                     }
+                    var trans = canvasGroup.transform;
+                    trans.position = new Vector3(trans.position.x, _slotUIPositionY);
 #if KK || KKS
                     var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
 #elif EC
@@ -338,10 +344,8 @@ namespace MoreAccessoriesKOI
 
                     ParentWin.cvsAccessory = CvsAccessoryArray;
 
-                    toggle.isOn = false;
                     canvasGroup.Enable(false, false);
 
-                    RestoreToggle(toggle, index);
 
                     cvsAccessory.textSlotName.text = $"スロット{index + 1:00}";
                     cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
@@ -363,6 +367,8 @@ namespace MoreAccessoriesKOI
                         custombase.actUpdateAcsSlotName[index]?.Invoke();
                         custombase._updateCvsAccessory[index].Value = false;
                     });
+
+                    RestoreToggle(toggle, index);
 
                     _addButtonsGroup.SetAsLastSibling();
                     var action = new System.Action(delegate () { cvsAccessory.Start(); });
@@ -417,18 +423,27 @@ namespace MoreAccessoriesKOI
 
         private void RestoreToggle(Toggle toggle, int index)
         {
-            toggle.onValueChanged.AddListener(x =>
+            toggle.OnValueChangedAsObservable().Subscribe(x =>
             {
-                if (!x) return;
-
+                if (index >= CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length)
+                {
+                    ParentWin.ChangeSlot(index, false);
+                    var arr3 = _customAcsChangeSlot.customAcsMoveWin;
+                    for (var j = 0; j < arr3.Length; j++)
+                    {
+                        arr3[j].ChangeSlot(index, false);
+                    }
+                    var arr4 = _customAcsChangeSlot.customAcsSelectKind;
+                    for (var j = 0; j < arr4.Length; j++)
+                    {
+                        arr4[j].ChangeSlot(index, false);
+                    }
+                    return;
+                }
                 var open = false;
                 if (120 != CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts[index].type)
                 {
                     open = true;
-                }
-                if (CustomBase.instance.chaCtrl.hideHairAcs[index])
-                {
-                    open = false;
                 }
                 ParentWin.ChangeSlot(index, open);
                 var array3 = _customAcsChangeSlot.customAcsMoveWin;
