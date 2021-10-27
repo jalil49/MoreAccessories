@@ -43,21 +43,36 @@ namespace MoreAccessoriesKOI
             var tglarray = new Toggle[delta];
             var srcarray = new TextMeshProUGUI[delta];
             var dstarray = new TextMeshProUGUI[delta];
+
             for (var i = 0; i < delta; i++, index++)
             {
                 var copyToggle = Object.Instantiate(gameobject, ScrollView.content);
                 tglarray[i] = copyToggle.GetComponentInChildren<Toggle>();
+                tglarray[i].Set(false);
                 tglarray[i].graphic.raycastTarget = true;
                 tglarray[i].transform.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
                 copyToggle.name = "kind" + (index - 1).ToString("00");
                 srcarray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
+                srcarray[i].name = $"srcText{i:00}";
                 dstarray[i] = copyToggle.transform.Find("dstText00").GetComponent<TextMeshProUGUI>();
+                dstarray[i].name = $"dstText{i:00}";
                 var info = AdditionalCharaMakerSlots[index - 21];//21 since index starts at 1
                 info.copySlotObject = copyToggle;
             }
+
             CopyWindow.tglKind = CopyWindow.tglKind.Concat(tglarray).ToArray();
             CopyWindow.textSrc = CopyWindow.textSrc.Concat(srcarray).ToArray();
             CopyWindow.textDst = CopyWindow.textDst.Concat(dstarray).ToArray();
+
+            Plugin.ExecuteDelayed(WindowRefresh);
+        }
+
+        internal void ValidatateToggles()
+        {
+            for (var i = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length; i < CopyWindow.tglKind.Length; i++)
+            {
+                CopyWindow.tglKind[i].Set(false);
+            }
         }
 
         private void MakeScrollable()
@@ -84,6 +99,7 @@ namespace MoreAccessoriesKOI
         internal void WindowRefresh()
         {
             CopyWindow.UpdateCustomUI();
+            ValidatateToggles();
         }
     }
 }

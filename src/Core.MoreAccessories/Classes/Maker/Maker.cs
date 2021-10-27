@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using ChaCustom;
 #if EC
@@ -80,6 +81,15 @@ namespace MoreAccessoriesKOI
             CopyWindow.RefreshToggles(len);
 #endif
             UpdateMakerUI();
+        }
+
+        internal void ValidatateToggles()
+        {
+            AccessoriesWindow.ValidatateToggles();
+#if KK || KKS
+            CopyWindow.ValidatateToggles();
+#endif
+            TransferWindow.ValidatateToggles();
         }
     }
 }

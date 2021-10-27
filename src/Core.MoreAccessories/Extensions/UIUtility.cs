@@ -946,7 +946,7 @@ namespace MoreAccessoriesKOI.Extensions
         {
             var cachedEvent = self.onValueChanged;
             self.onValueChanged = _emptyToggleEvent;
-            self.isOn = value;
+            self.Set(value);
             self.onValueChanged = cachedEvent;
         }
     }

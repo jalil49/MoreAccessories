@@ -68,9 +68,34 @@ namespace MoreAccessoriesKOI
 
         }
 
+        internal void ValidatateToggles()
+        {
+            var index = _customAcsChangeSlot.GetSelectIndex();
+            if (index < 0)
+            {
+                return;
+            }
+            var partcount = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length;
+            if (_customAcsChangeSlot.items[index].tglItem.isOn && _customAcsChangeSlot.items[index].cgItem.alpha < .1f)
+            {
+                _customAcsChangeSlot.items[index].tglItem.Set(false);
+                _customAcsChangeSlot.items[0].tglItem.Set(true);
+            }
+#if KK||KKS
+            if (index >= partcount + 2)
+#else
+            if (index >= partcount + 1)
+#endif
+            {
+                _customAcsChangeSlot.CloseWindow();
+                _customAcsChangeSlot.items[index].tglItem.Set(false);
+                _customAcsChangeSlot.items[0].tglItem.Set(true);
+            }
+        }
+
         private void MakeSlotsScrollable()
         {
-            var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop").transform;
+            var container = (RectTransform)_customAcsChangeSlot.transform;
 
             foreach (var slotTransform in container.Cast<Transform>())
             {
@@ -120,13 +145,13 @@ namespace MoreAccessoriesKOI
                 _slotUIPositionY = container.position.y;
             }, 15);
 
-            var kkus = System.Type.GetType("HSUS.HSUS,KKUS");
-            if (kkus != null)
-            {
-                var self = kkus.GetField("_self", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-                var scale = Traverse.Create(self).Field("_gameUIScale").GetValue<float>();
-                //element.minHeight = element.minHeight / scale + 160f * (1f - scale);
-            }
+            //var kkus = System.Type.GetType("HSUS.HSUS,KKUS");
+            //if (kkus != null)
+            //{
+            //    var self = kkus.GetField("_self", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+            //    var scale = Traverse.Create(self).Field("_gameUIScale").GetValue<float>();
+            //    //element.minHeight = element.minHeight / scale + 160f * (1f - scale);
+            //}
 
             for (var i = 0; i < 20; i++)
             {
@@ -197,8 +222,8 @@ namespace MoreAccessoriesKOI
             _customAcsChangeSlot.ExecuteDelayed(() =>
             {
                 CvsAccessoryArray[0].UpdateCustomUI();
-                CvsAccessoryArray[0].tglTakeOverParent.isOn = false;
-                CvsAccessoryArray[0].tglTakeOverColor.isOn = false;
+                CvsAccessoryArray[0].tglTakeOverParent.Set(false);
+                CvsAccessoryArray[0].tglTakeOverColor.Set(false);
             }, 5);
 
             ScrollView.viewport.gameObject.SetActive(false);
@@ -281,6 +306,8 @@ namespace MoreAccessoriesKOI
             {
                 return;
             }
+
+
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
 
             if (count > AdditionalCharaMakerSlots.Count)
@@ -289,6 +316,7 @@ namespace MoreAccessoriesKOI
             }
             var cvscolor = CVSColor(count + 21);//do once rather than every time slots are made in case of 10 batch
             var slotindex = 0;
+
             for (; slotindex < count; slotindex++)
             {
                 var info = AdditionalCharaMakerSlots[slotindex];
@@ -299,6 +327,7 @@ namespace MoreAccessoriesKOI
                     if (slotindex + 20 == CustomBase.Instance.selectSlot)
                         Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
                     CvsAccessoryArray[slotindex + 20].UpdateSlotName();
+
                     if (info.transferSlotObject) info.transferSlotObject.SetActive(true);
 #if KK || KKS
                     if (info.copySlotObject) info.copySlotObject.SetActive(true);
@@ -312,7 +341,7 @@ namespace MoreAccessoriesKOI
 
                     info.AccessorySlot = newSlot.gameObject;
                     var toggle = newSlot.GetComponent<Toggle>();
-                    toggle.isOn = false;
+                    toggle.Set(false);
 
                     var canvasGroup = toggle.transform.GetChild(1).GetComponentInChildren<CanvasGroup>();
                     var cvsAccessory = toggle.GetComponentInChildren<CvsAccessory>();
@@ -329,9 +358,9 @@ namespace MoreAccessoriesKOI
                     var trans = canvasGroup.transform;
                     trans.position = new Vector3(trans.position.x, _slotUIPositionY);
 #if KK || KKS
-                    var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
+                    _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
 #elif EC
-                    var uigroups = _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup }, 1);
+                    _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup }, 1);
 #endif
                     foreach (var _custom in SelectKind)
                     {
@@ -345,7 +374,6 @@ namespace MoreAccessoriesKOI
                     ParentWin.cvsAccessory = CvsAccessoryArray;
 
                     canvasGroup.Enable(false, false);
-
 
                     cvsAccessory.textSlotName.text = $"スロット{index + 1:00}";
                     cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
@@ -382,9 +410,11 @@ namespace MoreAccessoriesKOI
                     {
                         MoreAccessories.Print(ex.ToString(), BepInEx.Logging.LogLevel.Error);
                     }
-
                 }
             }
+
+            MoreAccessories.MakerMode.ValidatateToggles();
+
             for (; slotindex < AdditionalCharaMakerSlots.Count; slotindex++)
             {
                 var slot = AdditionalCharaMakerSlots[slotindex];
