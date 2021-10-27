@@ -28,12 +28,25 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #endif
+
+
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Load))]
         internal class ChaControlLoadPatch
         {
             static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
+#if KKS
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.LoadNoAsync))]
+        internal class ChaControlLoadAsyncPatch
+        {
+            static void Prefix()
+            {
+                Common_Patches.Seal(false);
+            }
+            static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
+#endif
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Patches
         {
@@ -630,6 +643,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return MathfEx.RangeEqualOn(0, slot, 19);
             }
         }
+
         private static void RemoveExcessObjects(ChaControl chara)
         {
             try
@@ -670,5 +684,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return 20;
             }
         }
+
+
     }
 }

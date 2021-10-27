@@ -25,6 +25,7 @@ namespace MoreAccessoriesKOI.Patches
         {
             private static void Prefix(ChaFileStatus __instance, ChaFileStatus src)
             {
+                Common_Patches.Seal(false);//will probably get sealed soon
                 __instance.showAccessory = new bool[src.showAccessory.Length];
             }
         }
@@ -32,6 +33,7 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.CopyAll))]
         private static class ChaFileCopyAllPatch
         {
+            private static void Prefix() => Common_Patches.Seal(false);
             private static void Postfix(ChaFile __instance)
             {
                 MoreAccessories.ArraySync(__instance);
