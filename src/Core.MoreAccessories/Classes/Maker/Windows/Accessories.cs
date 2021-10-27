@@ -81,10 +81,10 @@ namespace MoreAccessoriesKOI
                 _customAcsChangeSlot.items[index].tglItem.Set(false);
                 _customAcsChangeSlot.items[0].tglItem.Set(true);
             }
-#if KK||KKS
-            if (index >= partcount + 2)
+#if KK || KKS
+            if (index >= partcount && index < _customAcsChangeSlot.items.Length - 2)
 #else
-            if (index >= partcount + 1)
+            if (index >= partcount && index < _customAcsChangeSlot.items.Length - 1)
 #endif
             {
                 _customAcsChangeSlot.CloseWindow();
