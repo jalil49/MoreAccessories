@@ -20,7 +20,6 @@ namespace MoreAccessoriesKOI
         public Copy_Window(CvsAccessoryCopy _instance)
         {
             CopyWindow = _instance;
-            CopyWindow.transform.position -= new Vector3(30, 0, 0);
             MakeScrollable();
             CopyWindow.btnAllOn.onClick = new Button.ButtonClickedEvent();
             CopyWindow.btnAllOn.onClick.AddListener(SelectAllToggles);
@@ -105,6 +104,11 @@ namespace MoreAccessoriesKOI
             ScrollView.content = content;
             ScrollView.transform.SetAsFirstSibling();
             ScrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -570f), new Vector2(-16f, -80f));
+
+            Plugin.ExecuteDelayed(delegate ()
+            {
+                CopyWindow.transform.localPosition -= new Vector3(50, 0, 0);
+            });
         }
         internal void WindowRefresh()
         {

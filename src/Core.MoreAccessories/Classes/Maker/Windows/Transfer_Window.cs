@@ -20,7 +20,6 @@ namespace MoreAccessoriesKOI
         public Transfer_Window(CvsAccessoryChange _instance)
         {
             ChangeWindow = _instance;
-            ChangeWindow.transform.position -= new Vector3(30, 0, 0);
             MakeScrollable();
         }
 
@@ -33,6 +32,11 @@ namespace MoreAccessoriesKOI
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
             ScrollView.scrollSensitivity = 18f;
+
+            Plugin.ExecuteDelayed(delegate ()
+            {
+                ChangeWindow.transform.localPosition -= new Vector3(50, 0, 0);
+            });
 
             if (ScrollView.horizontalScrollbar != null)
                 Object.Destroy(ScrollView.horizontalScrollbar.gameObject);

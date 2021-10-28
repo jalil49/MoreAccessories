@@ -57,7 +57,6 @@ namespace MoreAccessoriesKOI
             scrolltemplate = DefaultControls.CreateScrollView(new DefaultControls.Resources());
             var scrollrect = scrolltemplate.GetComponent<ScrollRect>();
 
-
             scrollrect.verticalScrollbar.GetComponent<Image>().sprite = original_scroll.verticalScrollbar.GetComponent<Image>().sprite;
             scrollrect.verticalScrollbar.image.sprite = original_scroll.verticalScrollbar.image.sprite;
 
@@ -129,10 +128,6 @@ namespace MoreAccessoriesKOI
             height = element.minHeight = rootCanvas.rect.height / 1.298076f;
             element.minWidth = rootCanvas.rect.width * 0.35f;
 
-            //ScrollView.verticalScrollbar.transform.localPosition -= new Vector3(element.minWidth * 3 / 4 + 125, 0, 0);
-            ScrollView.verticalScrollbar.transform.localPosition -= new Vector3(element.minWidth / 2 + 125, 0, 0);
-            ScrollView.transform.position -= new Vector3(50, 0, 0);
-
             var vlg = ScrollView.content.gameObject.AddComponent<VerticalLayoutGroup>();
             parentGroup = container.GetComponent<VerticalLayoutGroup>();
 
@@ -148,16 +143,10 @@ namespace MoreAccessoriesKOI
 
             _customAcsChangeSlot.ExecuteDelayed(() =>
             {
+                ScrollView.verticalScrollbar.transform.localPosition = new Vector3(-140, ScrollView.verticalScrollbar.transform.localPosition.y, ScrollView.verticalScrollbar.transform.localPosition.z);
                 _slotUIPositionY = container.position.y;
-            }, 15);
 
-            //var kkus = System.Type.GetType("HSUS.HSUS,KKUS");
-            //if (kkus != null)
-            //{
-            //    var self = kkus.GetField("_self", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-            //    var scale = Traverse.Create(self).Field("_gameUIScale").GetValue<float>();
-            //    //element.minHeight = element.minHeight / scale + 160f * (1f - scale);
-            //}
+            }, 15);
 
             for (var i = 0; i < 20; i++)
             {
@@ -197,6 +186,7 @@ namespace MoreAccessoriesKOI
             text.rectTransform.SetRect(Vector2.zero, Vector2.one, new Vector2(5f, 4f), new Vector2(-5f, -4f));
             text.text = "+10";
             addTenButton.onClick.AddListener(delegate () { AddSlot(10); });
+
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
 #if KK || KKS
             for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 2; j--, i++)
@@ -248,7 +238,10 @@ namespace MoreAccessoriesKOI
             foreach (Transform t in listParent)
                 elements.Add(t);
 
-            listParent.position -= new Vector3(30, 0, 0);
+            Plugin.ExecuteDelayed(delegate ()
+            {
+                listParent.localPosition -= new Vector3(50, 0, 0);
+            });
 
             var fitter = listParent.GetComponent<ContentSizeFitter>();
             fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -264,10 +257,8 @@ namespace MoreAccessoriesKOI
 
             s_LE.preferredWidth = 400;
             s_LE.preferredHeight = height;
-            //s_LE.flexibleHeight = 1;
 
             var scroll = scrollTransform.GetComponent<ScrollRect>();
-            scroll.viewport.transform.position -= new Vector3(300, 0, 0);
             var vlg = scroll.content.gameObject.AddComponent<VerticalLayoutGroup>();
             vlg.childAlignment = parentGroup.childAlignment;
             vlg.childControlHeight = parentGroup.childControlHeight;
@@ -276,17 +267,7 @@ namespace MoreAccessoriesKOI
             vlg.childForceExpandWidth = parentGroup.childForceExpandWidth;
             vlg.spacing = parentGroup.spacing;
 
-            //var vlg2 = scroll.viewport.gameObject.AddComponent<VerticalLayoutGroup>();
-            //vlg2.childAlignment = parentGroup.childAlignment;
-            //vlg2.childControlHeight = parentGroup.childControlHeight;
-            //vlg2.childControlWidth = parentGroup.childControlWidth;
-            //vlg2.childForceExpandHeight = parentGroup.childForceExpandHeight;
-            //vlg2.childForceExpandWidth = parentGroup.childForceExpandWidth;
-            //vlg2.spacing = parentGroup.spacing;
-
-
             scroll.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-            //scroll.viewport.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             foreach (var item in elements)
             {
