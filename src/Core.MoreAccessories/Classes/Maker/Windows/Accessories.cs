@@ -34,11 +34,6 @@ namespace MoreAccessoriesKOI
             _customAcsChangeSlot = _instance;
             PrepareScroll();
             MakeSlotsScrollable();
-            Plugin.ExecuteDelayed(delegate ()
-            {
-                _customAcsChangeSlot.items[0].tglItem.Set(false);
-                _customAcsChangeSlot.items[0].tglItem.Set(true);
-            }, 5);
             Plugin.ExecuteDelayed(InitilaizeSlotNames, 5);
         }
 
