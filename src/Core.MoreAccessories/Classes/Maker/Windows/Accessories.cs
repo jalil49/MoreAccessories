@@ -39,7 +39,6 @@ namespace MoreAccessoriesKOI
                 _customAcsChangeSlot.items[0].tglItem.Set(false);
                 _customAcsChangeSlot.items[0].tglItem.Set(true);
             }, 5);
-            ValidatateToggles();
             Plugin.ExecuteDelayed(InitilaizeSlotNames, 5);
         }
 
@@ -319,8 +318,6 @@ namespace MoreAccessoriesKOI
 
             if (count > AdditionalCharaMakerSlots.Count)
             {
-                MoreAccessories.MakerMode.ValidatateToggles();
-
                 return;
             }
             var cvscolor = CVSColor(count + 21);//do once rather than every time slots are made in case of 10 batch
@@ -386,8 +383,8 @@ namespace MoreAccessoriesKOI
 
                     cvsAccessory.textSlotName.text = $"スロット{index + 1:00}";
                     cvsAccessory.slotNo = (CvsAccessory.AcsSlotNo)index;
-                    cvsAccessory.CalculateUI();//fixes copyng data over from original slot
-                    Plugin.ExecuteDelayed(cvsAccessory.CalculateUI);//fixes copyng data over from original slot
+                    cvsAccessory.CalculateUI();//fixes copying data over from original slot
+                    Plugin.ExecuteDelayed(cvsAccessory.CalculateUI);//fixes copying data over from original slot
                     newSlot.name = "tglSlot" + (index + 1).ToString("00");
 
                     custombase.actUpdateCvsAccessory = custombase.actUpdateCvsAccessory.Concat(new System.Action(cvsAccessory.UpdateCustomUI)).ToArray();
