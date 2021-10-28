@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyDescription("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("https://github.com/jalil49/MoreAccessories/releases")]
 
 [assembly: AssemblyTitle(nameof(MoreAccessoriesKOI.MoreAccessories))]
 [assembly: AssemblyProduct(nameof(MoreAccessoriesKOI.MoreAccessories))]
