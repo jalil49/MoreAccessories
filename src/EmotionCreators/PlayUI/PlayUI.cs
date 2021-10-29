@@ -17,7 +17,7 @@ namespace MoreAccessoriesKOI
 
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
         private RectTransform _playButtonTemplate;
-        private HPlayHPartAccessoryCategoryUI _playUI;
+        private readonly HPlayHPartAccessoryCategoryUI _playUI;
         private MoreAccessories Plugin => MoreAccessories._self;
 
         //CharaUICtrl

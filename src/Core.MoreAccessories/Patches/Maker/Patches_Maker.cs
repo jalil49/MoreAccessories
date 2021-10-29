@@ -80,7 +80,11 @@ namespace MoreAccessoriesKOI.Patches.Maker
         }
     }
 
+#if KKS
     [HarmonyPatch(typeof(CustomChangeMainMenu), nameof(CustomChangeMainMenu.Initialize))]
+#elif KK || EC
+    [HarmonyPatch(typeof(CustomChangeMainMenu), nameof(CustomChangeMainMenu.Start))]
+#endif
     internal static class CustomChangeMainMenuInitializePatch
     {
         //Fix Window Scroll when toggle is clicked. Added just to make sure the first time you open the window that it is fixed AccessoriesWindow probably handles most if not all other cases

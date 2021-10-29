@@ -1,14 +1,23 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using System.Collections.Generic;
-#if EC
-using HPlay;
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
+using ExtensibleSaveFormat;
+using MoreAccessoriesKOI.Extensions;
+using System.Linq;
+using System.Xml;
+
+#if KK || KKS
+using Manager;
+using Studio;
 #endif
 
-using System.Linq;
+#if EC
+using ADVPart.Manipulate;
+using ADVPart.Manipulate.Chara;
+using HPlay;
+using TMPro;
+#endif
+
 
 namespace MoreAccessoriesKOI
 {
@@ -16,6 +25,89 @@ namespace MoreAccessoriesKOI
     public class CharAdditionalData
     {
         public CharAdditionalData() { }
+
+        public CharAdditionalData(PluginData pluginData)
+        {
+            XmlNode node = null;
+            if (pluginData.data.TryGetValue("additionalAccessories", out var xmlData) && xmlData != null)
+            {
+                var doc = new XmlDocument();
+                doc.LoadXml((string)xmlData);
+                node = doc.FirstChild;
+            }
+            if (node != null)
+            {
+                foreach (XmlNode childNode in node.ChildNodes)
+                {
+                    switch (childNode.Name)
+                    {
+                        case "accessorySet":
+                            var coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
+                            List<ChaFileAccessory.PartsInfo> parts;
+
+                            if (rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
+                            {
+                                parts = new List<ChaFileAccessory.PartsInfo>();
+                                rawAccessoriesInfos.Add(coordinateType, parts);
+                            }
+
+                            foreach (XmlNode accessoryNode in childNode.ChildNodes)
+                            {
+                                var part = new ChaFileAccessory.PartsInfo { type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value) };
+                                if (part.type != 120)
+                                {
+                                    part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
+                                    part.parentKey = accessoryNode.Attributes["parentKey"].Value;
+
+                                    for (var i = 0; i < 2; i++)
+                                    {
+                                        for (var j = 0; j < 3; j++)
+                                        {
+                                            part.addMove[i, j] = new Vector3
+                                            {
+                                                x = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}x"].Value),
+                                                y = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}y"].Value),
+                                                z = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}z"].Value)
+                                            };
+                                        }
+                                    }
+                                    for (var i = 0; i < 4; i++)
+                                    {
+                                        part.color[i] = new Color
+                                        {
+                                            r = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}r"].Value),
+                                            g = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}g"].Value),
+                                            b = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}b"].Value),
+                                            a = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}a"].Value)
+                                        };
+                                    }
+                                    part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
+#if EC
+                                    if (accessoryNode.Attributes["hideTiming"] != null)
+                                        part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
+#endif
+                                    if (MoreAccessories._hasDarkness)
+                                        part.SetPrivateProperty("noShake", accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value));
+                                }
+                                parts.Add(part);
+                            }
+                            break;
+#if KK || KKS
+                        case "visibility":
+                            if (MoreAccessories.InStudio)
+                            {
+                                showAccessories = new List<bool>();
+                                foreach (XmlNode grandChildNode in childNode.ChildNodes)
+                                    showAccessories.Add(grandChildNode.Attributes?["value"] == null || XmlConvert.ToBoolean(grandChildNode.Attributes["value"].Value));
+                            }
+                            break;
+#endif
+                        default: break;
+                    }
+                }
+            }
+        }
+
 
 #if KK || KKS
         public CharAdditionalData(ChaControl chactrl)
@@ -32,6 +124,8 @@ namespace MoreAccessoriesKOI
             {
                 rawAccessoriesInfos[i] = file.coordinate[i].accessory.parts.Skip(20).ToList();
             }
+            if (MoreAccessories.InStudio)
+                showAccessories = file.status.showAccessory.Skip(20).ToList();
         }
 #elif EC
         public CharAdditionalData(ChaControl chactrl)

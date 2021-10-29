@@ -200,7 +200,7 @@ namespace MoreAccessoriesKOI
                 }
 
 #if KK || KKS
-                if (StudioMode != null)
+                if (InStudio)
                 {
                     xmlWriter.WriteStartElement("visibility");
                     for (var i = 0; i < maxCount && i < data.showAccessories.Count; i++)
@@ -486,18 +486,26 @@ namespace MoreAccessoriesKOI
         }
 
         #region Saves
-        internal void OnActualCharaLoad(ChaFile file)
+        private void OnActualCharaLoad(ChaFile file)
         {
+            var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
+
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
-            {
-                //Print($"{file.parameter.fullname} has an array larger than 20");
-                return;
-            }
 #else
             if (file.coordinate.accessory.parts.Length > 20)
+#endif
             {
-                //Print($"{file.parameter.fullname} has an array larger than 20");
+
+#if KK || KKS
+                if (InStudio && pluginData != null && pluginData.version == 2 && pluginData.data.TryGetValue("ShowAccessories", out var bytearray) && bytearray != null)
+                {
+                    Patches.Common_Patches.Seal(false);
+                    file.status.showAccessory = file.status.showAccessory.Concat(MessagePack.MessagePackSerializer.Deserialize<bool[]>((byte[])bytearray)).ToArray();
+                    Patches.Common_Patches.Seal(true);
+                }
+#endif
+
                 if (
 #if KK || KKS
                     InH ||
@@ -510,84 +518,14 @@ namespace MoreAccessoriesKOI
 
                 return;
             }
-#endif
-            var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
             if (pluginData == null)
             {
-                //Print("Plugin Data Null", LogLevel.Error);
                 return;
             }
-            var additionaldata = new CharAdditionalData();
 
-            XmlNode node = null;
-            if (pluginData.data.TryGetValue("additionalAccessories", out var xmlData) && xmlData != null)
-            {
-                var doc = new XmlDocument();
-                doc.LoadXml((string)xmlData);
-                node = doc.FirstChild;
-            }
-            if (node != null)
-            {
-                foreach (XmlNode childNode in node.ChildNodes)
-                {
-                    switch (childNode.Name)
-                    {
-                        case "accessorySet":
-                            var coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
-                            List<ChaFileAccessory.PartsInfo> parts;
+            var additionaldata = new CharAdditionalData(pluginData);
 
-                            if (additionaldata.rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
-                            {
-                                parts = new List<ChaFileAccessory.PartsInfo>();
-                                additionaldata.rawAccessoriesInfos.Add(coordinateType, parts);
-                            }
-
-                            foreach (XmlNode accessoryNode in childNode.ChildNodes)
-                            {
-                                var part = new ChaFileAccessory.PartsInfo { type = XmlConvert.ToInt32(accessoryNode.Attributes["type"].Value) };
-                                if (part.type != 120)
-                                {
-                                    part.id = XmlConvert.ToInt32(accessoryNode.Attributes["id"].Value);
-                                    part.parentKey = accessoryNode.Attributes["parentKey"].Value;
-
-                                    for (var i = 0; i < 2; i++)
-                                    {
-                                        for (var j = 0; j < 3; j++)
-                                        {
-                                            part.addMove[i, j] = new Vector3
-                                            {
-                                                x = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}x"].Value),
-                                                y = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}y"].Value),
-                                                z = XmlConvert.ToSingle(accessoryNode.Attributes[$"addMove{i}{j}z"].Value)
-                                            };
-                                        }
-                                    }
-                                    for (var i = 0; i < 4; i++)
-                                    {
-                                        part.color[i] = new Color
-                                        {
-                                            r = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}r"].Value),
-                                            g = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}g"].Value),
-                                            b = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}b"].Value),
-                                            a = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}a"].Value)
-                                        };
-                                    }
-                                    part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
-#if EC
-                                    if (accessoryNode.Attributes["hideTiming"] != null)
-                                        part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
-#endif
-                                    if (_hasDarkness)
-                                        part.SetPrivateProperty("noShake", accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value));
-                                }
-                                parts.Add(part);
-                            }
-                            break;
-                        default: break;
-                    }
-                }
-            }
             //Print($"Loading Data for {file.parameter.fullname} current size {file.coordinate.accessory.parts.Length}");
 
             //Print($"Plugin Data has {PreviousMigratedData.rawAccessoriesInfos.Count} and version {pluginData.version}", LogLevel.Error);
@@ -607,7 +545,14 @@ namespace MoreAccessoriesKOI
                 accessory.parts = accessory.parts.Concat(partsInfos).ToArray();
             }
 #endif
-
+#if KK || KKS
+            if (InStudio)
+            {
+                Patches.Common_Patches.Seal(false);
+                file.status.showAccessory = file.status.showAccessory.Concat(additionaldata.showAccessories).ToArray();
+                Patches.Common_Patches.Seal(true);
+            }
+#endif
             //Print($"finished Loading Data for {file.parameter.fullname} current size {file.coordinate.accessory.parts.Length} {System.Environment.StackTrace}");
 
             if (
@@ -693,7 +638,7 @@ namespace MoreAccessoriesKOI
                     }
 
 #if KK || KKS
-                    if (StudioMode != null)
+                    if (InStudio)
                     {
                         xmlWriter.WriteStartElement("visibility");
                         for (var i = 0; i < maxCount && i < data.showAccessories.Count; i++)
@@ -709,10 +654,15 @@ namespace MoreAccessoriesKOI
                     xmlWriter.WriteEndElement();
 
                     pluginData.data.Add("additionalAccessories", stringWriter.ToString());
-                    ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
                 }
-                return;
             }
+
+#if KK || KKS
+            if (InStudio)
+            {
+                pluginData.data.Add("ShowAccessories", MessagePack.MessagePackSerializer.Serialize(file.status.showAccessory.Skip(20).ToArray()));
+            }
+#endif
             ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
         }
 
