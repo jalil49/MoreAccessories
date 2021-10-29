@@ -55,7 +55,7 @@ namespace MoreAccessoriesKOI
 
             var scrolltemplate = DefaultControls.CreateScrollView(new DefaultControls.Resources());
             var scrollrect = scrolltemplate.GetComponent<ScrollRect>();
-
+            scrollrect.name = "AccessoryScroll";
             scrollrect.verticalScrollbar.GetComponent<Image>().sprite = original_scroll.verticalScrollbar.GetComponent<Image>().sprite;
             scrollrect.verticalScrollbar.image.sprite = original_scroll.verticalScrollbar.image.sprite;
 
@@ -69,19 +69,25 @@ namespace MoreAccessoriesKOI
             element.preferredHeight = element.minHeight = Screen.height / 4;
             element.preferredWidth = element.minWidth = Screen.width / 10;
             if (scrollrect.horizontalScrollbar != null)
-                Object.DestroyImmediate(scrollrect.horizontalScrollbar.gameObject);
-            //scrollrect.rectTransform.localPosition -= new Vector3(0, 100, 0);
-            //if (scrollrect.verticalScrollbar != null)
-            //    Object.DestroyImmediate(scrollrect.verticalScrollbar.gameObject);
-            Object.DestroyImmediate(scrollrect.transform.GetComponent<Image>());
+                Object.Destroy(scrollrect.horizontalScrollbar.gameObject);
+            Object.Destroy(scrollrect.transform.GetComponent<Image>());
 
-            var vlg = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
-            vlg.childForceExpandHeight = true;
+            //var vlg = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
+            //var parentGroup = container.GetComponent<VerticalLayoutGroup>();
 
-            scrollrect.transform.SetRect(container);
-            //Object.Destroy(scrollrect.content.gameObject);
-            scrollrect.content = (RectTransform)container;
+            //vlg.childAlignment = parentGroup.childAlignment;
+            //vlg.childControlHeight = parentGroup.childControlHeight;
+            //vlg.childControlWidth = parentGroup.childControlWidth;
+            //vlg.childForceExpandHeight = parentGroup.childForceExpandHeight;
+            //vlg.childForceExpandWidth = parentGroup.childForceExpandWidth;
+            //vlg.spacing = parentGroup.spacing;
+
             scrollrect.transform.SetParent(container.parent, false);
+            scrollrect.content = (RectTransform)container;
+            container.SetParent(scrollrect.content);
+
+            scrollrect.transform.localPosition += new Vector3(0, -100, 0);
+            scrollrect.verticalScrollbar.transform.localPosition += new Vector3(+50, 0, 0);
         }
     }
 }
