@@ -66,28 +66,19 @@ namespace MoreAccessoriesKOI
             scrollrect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
             scrolltemplate.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             var element = scrolltemplate.AddComponent<LayoutElement>();
-            element.preferredHeight = element.minHeight = Screen.height / 4;
-            element.preferredWidth = element.minWidth = Screen.width / 10;
+            element.preferredHeight = Screen.height / 4;
+
+            var recttra = (RectTransform)scrolltemplate.transform;
+
+            recttra.pivot = new Vector2(0, 1);//set pivot to Left,Top so that recttransform grows downwards on larger resolutions
+            recttra.anchorMax = new Vector2(0, 0.50f);//0.5f Anchor so that the scroll bar aligns well enough
             if (scrollrect.horizontalScrollbar != null)
                 Object.Destroy(scrollrect.horizontalScrollbar.gameObject);
             Object.Destroy(scrollrect.transform.GetComponent<Image>());
 
-            //var vlg = scrollrect.content.gameObject.AddComponent<VerticalLayoutGroup>();
-            //var parentGroup = container.GetComponent<VerticalLayoutGroup>();
-
-            //vlg.childAlignment = parentGroup.childAlignment;
-            //vlg.childControlHeight = parentGroup.childControlHeight;
-            //vlg.childControlWidth = parentGroup.childControlWidth;
-            //vlg.childForceExpandHeight = parentGroup.childForceExpandHeight;
-            //vlg.childForceExpandWidth = parentGroup.childForceExpandWidth;
-            //vlg.spacing = parentGroup.spacing;
-
             scrollrect.transform.SetParent(container.parent, false);
             scrollrect.content = (RectTransform)container;
             container.SetParent(scrollrect.content);
-
-            scrollrect.transform.localPosition += new Vector3(0, -100, 0);
-            scrollrect.verticalScrollbar.transform.localPosition += new Vector3(+50, 0, 0);
         }
     }
 }
