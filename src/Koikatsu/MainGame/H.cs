@@ -75,10 +75,12 @@ namespace MoreAccessoriesKOI
             if (scrollrect.horizontalScrollbar != null)
                 Object.Destroy(scrollrect.horizontalScrollbar.gameObject);
             Object.Destroy(scrollrect.transform.GetComponent<Image>());
-
+            Object.Destroy(scrollrect.content.gameObject);
+            Object.Destroy(scrollrect.viewport.GetComponent<Image>());//removes blank being rendered on top
+            Object.Destroy(scrollrect.viewport.GetComponent<Mask>());//fixes not being able to select out of scroll,
             scrollrect.transform.SetParent(container.parent, false);
             scrollrect.content = (RectTransform)container;
-            container.SetParent(scrollrect.content);
+            container.SetParent(scrollrect.viewport);
         }
     }
 }
