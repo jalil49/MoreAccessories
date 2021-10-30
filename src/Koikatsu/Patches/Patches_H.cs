@@ -159,7 +159,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     for (var i = 0; i < delta; i++)
                     {
                         var transform = UnityEngine.Object.Instantiate(slot, parent);
-                        transform.name = $"{list.Count}";
+                        transform.name = $"{list.Count + 1}";
                         var button = transform.GetComponent<Button>();
                         button.onClick = new Button.ButtonClickedEvent();
                         MakeButton(sprite, button, femalenum, list.Count);
