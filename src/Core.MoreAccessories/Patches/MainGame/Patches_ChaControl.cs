@@ -622,7 +622,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
                     MoreAccessories.ArraySync(chara);
 
-                if (MoreAccessories.CharaMaker && ChaCustom.CustomBase.instance.chaCtrl != null) MoreAccessories.MakerMode.UpdateMakerUI();
+                MoreAccessories._self.UpdateUI();
             }
             catch (Exception ex)
             {
