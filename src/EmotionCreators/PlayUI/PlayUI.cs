@@ -18,7 +18,6 @@ namespace MoreAccessoriesKOI
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
         private RectTransform _playButtonTemplate;
         private readonly HPlayHPartAccessoryCategoryUI _playUI;
-        private MoreAccessories Plugin => MoreAccessories._self;
 
         //CharaUICtrl
         internal void SpawnPlayUI()
@@ -56,8 +55,6 @@ namespace MoreAccessoriesKOI
         {
             if (_playUI == null || _playButtonTemplate == null || _playUI.selectChara == null)
                 return;
-            //if (_updatePlayUIHandler == null)
-            //    _updatePlayUIHandler = Plugin.StartCoroutine(UpdatePlayUI_Routine());
             var parts = _playUI.selectChara.nowCoordinate.accessory.parts;
             var count = parts.Length - 20;
             var j = 0;

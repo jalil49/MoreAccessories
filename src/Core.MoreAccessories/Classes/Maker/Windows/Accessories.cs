@@ -95,6 +95,7 @@ namespace MoreAccessoriesKOI
         {
             var container = (RectTransform)_customAcsChangeSlot.transform;
 
+            //adjust size of all buttons (shrunk to take less screenspace/maker window wider
             foreach (var slotTransform in container.Cast<Transform>())
             {
                 var layout = slotTransform.GetComponent<LayoutElement>();
@@ -286,7 +287,6 @@ namespace MoreAccessoriesKOI
             {
                 return;
             }
-
 
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
 
