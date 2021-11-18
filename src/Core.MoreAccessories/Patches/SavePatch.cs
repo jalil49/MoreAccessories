@@ -19,14 +19,25 @@ namespace MoreAccessoriesKOI.Patches
                 {
                     __state[outfitnum] = coord[outfitnum].accessory.parts;
                     var lastvalidslot = Array.FindLastIndex(coord[outfitnum].accessory.parts, x => x.type != 120);
-                    if (lastvalidslot < 20) continue;
+                    if (lastvalidslot < 20)
+                    {
+                        if (__state[outfitnum].Length > 20)
+                        {
+                            lastvalidslot = 19;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+
                     coord[outfitnum].accessory.parts = coord[outfitnum].accessory.parts.Take(lastvalidslot + 1).ToArray();
                 }
             }
             catch (Exception ex)
             {
                 __state = null;
-                MoreAccessories.Print($"Error occured while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
             }
         }
 
@@ -88,12 +99,22 @@ namespace MoreAccessoriesKOI.Patches
                 __state = __instance.accessory.parts.ToArray();
 
                 var lastvalidslot = Array.FindLastIndex(__instance.accessory.parts, x => x.type != 120);
-                if (lastvalidslot < 20) return;
+                if (lastvalidslot < 20)
+                {
+                    if (__state.Length > 20)
+                    {
+                        lastvalidslot = 19;
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
                 __instance.accessory.parts = __instance.accessory.parts.Take(lastvalidslot + 1).ToArray();
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Error occured while saving coordinate {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving coordinate {ex}", BepInEx.Logging.LogLevel.Fatal);
                 __state = null;
             }
         }
@@ -120,7 +141,7 @@ namespace MoreAccessoriesKOI.Patches
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Error occured while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
                 __state = null;
             }
         }
