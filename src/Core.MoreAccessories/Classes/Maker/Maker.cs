@@ -40,6 +40,8 @@ namespace MoreAccessoriesKOI
 #endif
                 if (CustomBase.Instance.chaCtrl == null) return true;
 
+                if (!AccessoriesWindow.WindowMoved) return true;
+
                 return false;
             });
             ready = true;

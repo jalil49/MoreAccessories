@@ -24,6 +24,7 @@ namespace MoreAccessoriesKOI
         internal CustomAcsSelectKind[] SelectKind { get { return _customAcsChangeSlot.customAcsSelectKind; } set { _customAcsChangeSlot.customAcsSelectKind = value; } }
         internal CvsAccessory[] CvsAccessoryArray { get { return _customAcsChangeSlot.cvsAccessory; } set { _customAcsChangeSlot.cvsAccessory = value; } }
 
+        internal bool WindowMoved;
         public static bool AddInProgress { get; internal set; }
         #endregion
 
@@ -62,7 +63,6 @@ namespace MoreAccessoriesKOI
             if (scrollrect.horizontalScrollbar != null)
                 Object.DestroyImmediate(scrollrect.horizontalScrollbar.gameObject);
             Object.DestroyImmediate(scrollrect.GetComponent<Image>());
-
         }
 
         internal void ValidatateToggles()
@@ -112,9 +112,6 @@ namespace MoreAccessoriesKOI
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
             ScrollView.scrollSensitivity = 18f;
-            //if (ScrollView.verticalScrollbar != null)
-            //    Object.Destroy(ScrollView.verticalScrollbar.gameObject);
-            //Object.Destroy(ScrollView.content.GetComponent<Image>());
             var _charaMakerSlotTemplate = container.GetChild(0).gameObject;
 
             var rootCanvas = (RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform;
@@ -141,11 +138,9 @@ namespace MoreAccessoriesKOI
                 _slotUIPositionY = container.position.y;
 
             }, 15);
-
-            for (var i = 0; i < 20; i++)
+            for (var i = 0; i < CvsAccessoryArray.Length; i++)
             {
                 var child = container.GetChild(0);
-                //child.localScale = new Vector3(0.5f, 1, 0);
                 MakeWindowScrollable(child);
                 container.GetChild(0).SetParent(ScrollView.content);
             }
@@ -192,12 +187,13 @@ namespace MoreAccessoriesKOI
                 var temp = i;
                 data.tglItem.onValueChanged.AddListener(b =>
                 {
-                    if (temp == 0)
+                    _customAcsChangeSlot.CloseWindow();
+                    if (temp == 0)  //Transfer Window
                     {
                         MoreAccessories.MakerMode.TransferWindow.WindowRefresh();
                     }
 #if KK || KKS
-                    if (temp == 1)
+                    if (temp == 1)  //Copy Window
                     {
                         MoreAccessories.MakerMode.CopyWindow.WindowRefresh();
                     }
@@ -205,8 +201,6 @@ namespace MoreAccessoriesKOI
                     var t = data.cgItem.transform;
                     t.position = new Vector3(t.position.x, _slotUIPositionY);
                 });
-                var trans = data.cgItem.transform;
-                trans.position = new Vector3(trans.position.x, _slotUIPositionY);
             }
 
             _customAcsChangeSlot.ExecuteDelayed(() =>
@@ -227,7 +221,7 @@ namespace MoreAccessoriesKOI
         private void MakeWindowScrollable(Transform slotTransform)
         {
             var listParent = slotTransform.Cast<Transform>().Where(x => x.name.EndsWith("Top")).First();
-            //Object.Destroy(listParent.GetComponent<Image>());//Destroy image that contains scrollbar
+
             var elements = new List<Transform>();
             foreach (Transform t in listParent)
                 elements.Add(t);
@@ -235,6 +229,7 @@ namespace MoreAccessoriesKOI
             Plugin.ExecuteDelayed(delegate ()
             {
                 listParent.localPosition -= new Vector3(50, 0, 0);
+                WindowMoved = true;
             });
 
             var fitter = listParent.GetComponent<ContentSizeFitter>();
