@@ -15,15 +15,15 @@ namespace MoreAccessoriesKOI
     /// </summary>
     public class Accessories
     {
-        internal CustomAcsChangeSlot _customAcsChangeSlot { get; private set; }
+        public CustomAcsChangeSlot AccessoryTab { get; private set; }
         internal static MoreAccessories Plugin => MoreAccessories._self;
         internal GameObject scrolltemplate;
         #region Properties
         private bool Ready => MoreAccessories.MakerMode.ready;
-        internal CustomAcsParentWindow ParentWin { get { return _customAcsChangeSlot.customAcsParentWin; } }
-        internal CustomAcsMoveWindow[] MoveWin { get { return _customAcsChangeSlot.customAcsMoveWin; } set { _customAcsChangeSlot.customAcsMoveWin = value; } }
-        internal CustomAcsSelectKind[] SelectKind { get { return _customAcsChangeSlot.customAcsSelectKind; } set { _customAcsChangeSlot.customAcsSelectKind = value; } }
-        internal CvsAccessory[] CvsAccessoryArray { get { return _customAcsChangeSlot.cvsAccessory; } set { _customAcsChangeSlot.cvsAccessory = value; } }
+        internal CustomAcsParentWindow ParentWin { get { return AccessoryTab.customAcsParentWin; } }
+        internal CustomAcsMoveWindow[] MoveWin { get { return AccessoryTab.customAcsMoveWin; } set { AccessoryTab.customAcsMoveWin = value; } }
+        internal CustomAcsSelectKind[] SelectKind { get { return AccessoryTab.customAcsSelectKind; } set { AccessoryTab.customAcsSelectKind = value; } }
+        internal CvsAccessory[] CvsAccessoryArray { get { return AccessoryTab.cvsAccessory; } set { AccessoryTab.cvsAccessory = value; } }
 
         internal bool WindowMoved;  //wait for window to be moved to the left before allowing UpdateUI
         public static bool AddInProgress { get; private set; } //Don't allow spamming of the add buttons
@@ -32,7 +32,7 @@ namespace MoreAccessoriesKOI
         internal Accessories(CustomAcsChangeSlot _instance)
         {
             AddInProgress = false;//in case of something going wrong and its static
-            _customAcsChangeSlot = _instance;
+            AccessoryTab = _instance;
             PrepareScroll();
             MakeSlotsScrollable();
             Plugin.ExecuteDelayed(InitilaizeSlotNames, 5);
@@ -69,33 +69,33 @@ namespace MoreAccessoriesKOI
 
         internal void ValidatateToggles()
         {
-            var index = _customAcsChangeSlot.GetSelectIndex();
+            var index = AccessoryTab.GetSelectIndex();
             if (index < 0)
             {
                 return;
             }
             var partcount = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length;
-            if (_customAcsChangeSlot.items[index].tglItem.isOn && _customAcsChangeSlot.items[index].cgItem.alpha < .1f)
+            if (AccessoryTab.items[index].tglItem.isOn && AccessoryTab.items[index].cgItem.alpha < .1f)
             {
-                _customAcsChangeSlot.items[index].tglItem.Set(false);
-                _customAcsChangeSlot.items[0].tglItem.Set(true);
+                AccessoryTab.items[index].tglItem.Set(false);
+                AccessoryTab.items[0].tglItem.Set(true);
             }
 #if KK || KKS
-            if (index >= partcount && index < _customAcsChangeSlot.items.Length - 2)
+            if (index >= partcount && index < AccessoryTab.items.Length - 2)
 #else
-            if (index >= partcount && index < _customAcsChangeSlot.items.Length - 1)
+            if (index >= partcount && index < AccessoryTab.items.Length - 1)
 #endif
             {
-                _customAcsChangeSlot.CloseWindow();
-                _customAcsChangeSlot.items[index].tglItem.Set(false);
-                _customAcsChangeSlot.items[0].tglItem.Set(true);
+                AccessoryTab.CloseWindow();
+                AccessoryTab.items[index].tglItem.Set(false);
+                AccessoryTab.items[0].tglItem.Set(true);
             }
             FixWindowScroll();
         }
 
         private void MakeSlotsScrollable()
         {
-            var container = (RectTransform)_customAcsChangeSlot.transform;
+            var container = (RectTransform)AccessoryTab.transform;
 
             //adjust size of all buttons (shrunk to take less screenspace/maker window wider)
             foreach (var slotTransform in container.Cast<Transform>())
@@ -134,7 +134,7 @@ namespace MoreAccessoriesKOI
             ScrollView.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             ScrollView.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            _customAcsChangeSlot.ExecuteDelayed(() =>
+            AccessoryTab.ExecuteDelayed(() =>
             {
                 ScrollView.verticalScrollbar.transform.localPosition = new Vector3(-140, ScrollView.verticalScrollbar.transform.localPosition.y, ScrollView.verticalScrollbar.transform.localPosition.z);
                 _slotUIPositionY = container.position.y;
@@ -180,22 +180,22 @@ namespace MoreAccessoriesKOI
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(container);
 #if KK || KKS
-            for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 2; j--, i++)
+            for (int i = 0, j = AccessoryTab.items.Length - 1; i < 2; j--, i++)
 #else
-            for (int i = 0, j = _customAcsChangeSlot.items.Length - 1; i < 1; j--, i++)
+            for (int i = 0, j = AccessoryTab.items.Length - 1; i < 1; j--, i++)
 #endif
             {
-                var data = _customAcsChangeSlot.items[j];
+                var data = AccessoryTab.items[j];
                 var temp = i;
                 var index = j;
                 data.tglItem.onValueChanged.AddListener(b =>
                 {
-                    _customAcsChangeSlot.CloseWindow();
+                    AccessoryTab.CloseWindow();
                     if (temp == 0)  //Transfer Window
                     {
                         if (CvsAccessoryArray.Length > 20)  //disable slot [index of transfer 22 kk/kks 21 EC] from showing
                         {
-                            _customAcsChangeSlot.items[index].cgItem.Enable(false);
+                            AccessoryTab.items[index].cgItem.Enable(false);
                         }
                         MoreAccessories.MakerMode.TransferWindow.WindowRefresh();
                     }
@@ -204,7 +204,7 @@ namespace MoreAccessoriesKOI
                     {
                         if (CvsAccessoryArray.Length > 21)  //disable slot [index of copy 21 kk/kks] from showing
                         {
-                            _customAcsChangeSlot.items[index].cgItem.Enable(false);
+                            AccessoryTab.items[index].cgItem.Enable(false);
                         }
                         MoreAccessories.MakerMode.CopyWindow.WindowRefresh();
                     }
@@ -214,7 +214,7 @@ namespace MoreAccessoriesKOI
                 });
             }
 
-            _customAcsChangeSlot.ExecuteDelayed(() =>
+            AccessoryTab.ExecuteDelayed(() =>
             {
                 CvsAccessoryArray[0].UpdateCustomUI();
                 CvsAccessoryArray[0].tglTakeOverParent.Set(false);
@@ -223,7 +223,7 @@ namespace MoreAccessoriesKOI
 
             ScrollView.viewport.gameObject.SetActive(false);
 
-            _customAcsChangeSlot.ExecuteDelayed(() => //Fixes problems with UI masks overlapping and creating bugs
+            AccessoryTab.ExecuteDelayed(() => //Fixes problems with UI masks overlapping and creating bugs
             {
                 ScrollView.viewport.gameObject.SetActive(true);
             }, 5);
@@ -281,9 +281,9 @@ namespace MoreAccessoriesKOI
 
         internal void FixWindowScroll()
         {
-            var selectedslot = _customAcsChangeSlot.GetSelectIndex();
+            var selectedslot = AccessoryTab.GetSelectIndex();
             if (selectedslot < 0) return;
-            var t = _customAcsChangeSlot.items[selectedslot].cgItem.transform;
+            var t = AccessoryTab.items[selectedslot].cgItem.transform;
             t.position = new Vector3(t.position.x, _slotUIPositionY);
         }
 
@@ -344,9 +344,9 @@ namespace MoreAccessoriesKOI
                     var trans = canvasGroup.transform;
                     trans.position = new Vector3(trans.position.x, _slotUIPositionY);
 #if KK || KKS
-                    _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
+                    AccessoryTab.items = AccessoryTab.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup });
 #elif EC
-                    _customAcsChangeSlot.items = _customAcsChangeSlot.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup }, 1);
+                    AccessoryTab.items = AccessoryTab.items.ConcatNearEnd(new UI_ToggleGroupCtrl.ItemInfo() { tglItem = toggle, cgItem = canvasGroup }, 1);
 #endif
                     foreach (var _custom in SelectKind)
                     {
@@ -371,7 +371,7 @@ namespace MoreAccessoriesKOI
                     custombase.actUpdateAcsSlotName = custombase.actUpdateAcsSlotName.Concat(new System.Action(delegate () { Plugin.ExecuteDelayed(cvsAccessory.UpdateSlotName); })).ToArray(); //delay to avoid an error when called early due to additional patches
                     var newreactive = new BoolReactiveProperty(false);
                     custombase._updateCvsAccessory = custombase._updateCvsAccessory.Concat(newreactive).ToArray();
-                    _customAcsChangeSlot.textSlotNames = _customAcsChangeSlot.textSlotNames.Concat(cvsAccessory.textSlotName).ToArray();
+                    AccessoryTab.textSlotNames = AccessoryTab.textSlotNames.Concat(cvsAccessory.textSlotName).ToArray();
                     newreactive.Subscribe(delegate (bool f)
                     {
                         if (index == custombase.selectSlot)
@@ -450,12 +450,12 @@ namespace MoreAccessoriesKOI
                 if (index >= CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length)
                 {
                     ParentWin.ChangeSlot(index, false);
-                    var arr3 = _customAcsChangeSlot.customAcsMoveWin;
+                    var arr3 = AccessoryTab.customAcsMoveWin;
                     for (var j = 0; j < arr3.Length; j++)
                     {
                         arr3[j].ChangeSlot(index, false);
                     }
-                    var arr4 = _customAcsChangeSlot.customAcsSelectKind;
+                    var arr4 = AccessoryTab.customAcsSelectKind;
                     for (var j = 0; j < arr4.Length; j++)
                     {
                         arr4[j].ChangeSlot(index, false);
@@ -468,29 +468,29 @@ namespace MoreAccessoriesKOI
                     open = true;
                 }
                 ParentWin.ChangeSlot(index, open);
-                var array3 = _customAcsChangeSlot.customAcsMoveWin;
+                var array3 = AccessoryTab.customAcsMoveWin;
                 for (var j = 0; j < array3.Length; j++)
                 {
                     array3[j].ChangeSlot(index, open);
                 }
-                var array4 = _customAcsChangeSlot.customAcsSelectKind;
+                var array4 = AccessoryTab.customAcsSelectKind;
                 for (var j = 0; j < array4.Length; j++)
                 {
                     array4[j].ChangeSlot(index, open);
                 }
                 Singleton<CustomBase>.Instance.selectSlot = index;
                 Singleton<CustomBase>.Instance.SetUpdateCvsAccessory(index, true);
-                if (_customAcsChangeSlot.backIndex != index)
+                if (AccessoryTab.backIndex != index)
                 {
-                    _customAcsChangeSlot.ChangeColorWindow(index);
+                    AccessoryTab.ChangeColorWindow(index);
                 }
 
-                _customAcsChangeSlot.backIndex = index;
+                AccessoryTab.backIndex = index;
                 FixWindowScroll();
 
-                for (var i = 0; i < _customAcsChangeSlot.items.Length; i++)
+                for (var i = 0; i < AccessoryTab.items.Length; i++)
                 {
-                    var info = _customAcsChangeSlot.items[i];
+                    var info = AccessoryTab.items[i];
                     if (index == i && toggle.isOn)
                     {
                         info.cgItem.Enable(true, false);

@@ -35,9 +35,9 @@ namespace MoreAccessoriesKOI
         }
         internal int GetSelectedMakerIndex()
         {
-            for (var i = 0; MakerMode.AccessoriesWindow != null && i < MakerMode.AccessoriesWindow._customAcsChangeSlot.items.Length; i++)
+            for (var i = 0; MakerMode.AccessoriesWindow != null && i < MakerMode.AccessoriesWindow.AccessoryTab.items.Length; i++)
             {
-                var info = MakerMode.AccessoriesWindow._customAcsChangeSlot.items[i];
+                var info = MakerMode.AccessoriesWindow.AccessoryTab.items[i];
                 if (info.tglItem.isOn)
                     return i;
             }
