@@ -6,15 +6,7 @@ using MoreAccessoriesKOI.Extensions;
 using System.Linq;
 using System.Xml;
 
-#if KK || KKS
-using Manager;
-using Studio;
-#endif
-
 #if EC
-using ADVPart.Manipulate;
-using ADVPart.Manipulate.Chara;
-using HPlay;
 using TMPro;
 #endif
 
