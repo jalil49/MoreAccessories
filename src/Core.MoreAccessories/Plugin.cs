@@ -490,6 +490,29 @@ namespace MoreAccessoriesKOI
         {
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
+            if (pluginData == null)
+            {
+                return;
+            }
+
+#if KK || KKS
+            if (pluginData.version == 1)
+            {
+                foreach (var item in file.coordinate)
+                {
+                    if (item.accessory.parts.Length > 20)
+                    {
+                        item.accessory.parts = item.accessory.parts.Take(20).ToArray();
+                    }
+                }
+            }
+#else
+            if (pluginData.version == 1 && file.coordinate.accessory.parts.Length > 20)
+            {
+                file.coordinate.accessory.parts = file.coordinate.accessory.parts.Take(20).ToArray();
+            }
+#endif
+
 #if KK || KKS
             if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
 #else
@@ -498,7 +521,7 @@ namespace MoreAccessoriesKOI
             {
 
 #if KK || KKS
-                if (InStudio && pluginData != null && pluginData.version == 2 && pluginData.data.TryGetValue("ShowAccessories", out var bytearray) && bytearray != null)
+                if (InStudio && pluginData.version == 2 && pluginData.data.TryGetValue("ShowAccessories", out var bytearray) && bytearray != null)
                 {
                     Patches.Common_Patches.Seal(false);
                     file.status.showAccessory = file.status.showAccessory.Concat(MessagePack.MessagePackSerializer.Deserialize<bool[]>((byte[])bytearray)).ToArray();
@@ -516,11 +539,6 @@ namespace MoreAccessoriesKOI
                 else
                     UpdateUI();
 
-                return;
-            }
-
-            if (pluginData == null)
-            {
                 return;
             }
 
@@ -668,13 +686,17 @@ namespace MoreAccessoriesKOI
 
         internal void OnActualCoordLoad(ChaFileCoordinate file)
         {
+            var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
-            if (file.accessory.parts.Length > 20) //escape data is already saved directly on card 
+            if (pluginData == null || pluginData.version == 2 && file.accessory.parts.Length > 20) //escape data is already saved directly on card 
             {
                 return;
             }
 
-            var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
+            if (pluginData.version == 1 && file.accessory.parts.Length > 20)//check if it was saved with old moreaccessories assume the worst and trim
+            {
+                file.accessory.parts = file.accessory.parts.Take(20).ToArray();
+            }
 
             var additionaldata = new CharAdditionalData();
             XmlNode node = null;
