@@ -9,6 +9,9 @@ using UniRx;
 
 namespace MoreAccessoriesKOI.Patches.Maker
 {
+    /// <summary>
+    /// replace instances of fixed value "20" with either the minimum part array length or cvsaccessory array length
+    /// </summary>
     [HarmonyPatch]
     internal static class Maker_Replace_20_Patch
     {

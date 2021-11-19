@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using ExtensibleSaveFormat;
+﻿using ExtensibleSaveFormat;
 using MoreAccessoriesKOI.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
+using UnityEngine;
+using UnityEngine.UI;
 
 #if EC
 using TMPro;
@@ -13,7 +13,6 @@ using TMPro;
 
 namespace MoreAccessoriesKOI
 {
-    #region Private Types
     public class CharAdditionalData
     {
         public CharAdditionalData() { }
@@ -143,6 +142,7 @@ namespace MoreAccessoriesKOI
 #endif
         public Dictionary<int, List<ChaFileAccessory.PartsInfo>> rawAccessoriesInfos = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
     }
+
     public class CharaMakerSlotData
     {
         public GameObject AccessorySlot;
@@ -177,5 +177,4 @@ namespace MoreAccessoriesKOI
         public Toggle takeOff;
     }
 #endif
-    #endregion
 }

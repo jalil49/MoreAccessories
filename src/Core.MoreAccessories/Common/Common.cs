@@ -11,6 +11,11 @@ namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
+        /// <summary>
+        /// Sync the Arrays of the ChaControl so that the nowcoordinate size is reflected in revelent arrays.
+        /// In maker: syncs to the largest array size
+        /// </summary>
+        /// <param name="controller"> The Chacontrol to be adjusted</param>
         public static void ArraySync(ChaControl controller)
         {
             Patches.Common_Patches.Seal(false);
@@ -185,6 +190,11 @@ namespace MoreAccessoriesKOI
             }
             Patches.Common_Patches.Seal(true);
         }
+
+        /// <summary>
+        /// Sync the showaccessory array with parts array.
+        /// </summary>
+        /// <param name="file"></param>
         internal static void ArraySync(ChaFile file)
         {
             Patches.Common_Patches.Seal(false);
@@ -213,6 +223,9 @@ namespace MoreAccessoriesKOI
             Patches.Common_Patches.Seal(true);
         }
 
+        /// <summary>
+        /// Turns off BackwardsCompatibility save;
+        /// </summary>
         public static void TurnOffBackwardsCompatibility()
         {
             BackwardCompatibility = false;

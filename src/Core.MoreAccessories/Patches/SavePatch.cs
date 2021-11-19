@@ -5,10 +5,13 @@ using System.Linq;
 namespace MoreAccessoriesKOI.Patches
 {
 #if KK || KKS
+    /// <summary>
+    /// Trim slot length to last slot that is not empty or 20 length
+    /// </summary>
     [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetCoordinateBytes), new Type[0])]
     internal class CharaSavePatch
     {
-        [HarmonyPriority(Priority.First)]
+        [HarmonyPriority(Priority.Last)]
         internal static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[][] __state)
         {
             try
@@ -48,7 +51,7 @@ namespace MoreAccessoriesKOI.Patches
     [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetCoordinateBytes), new Type[0])]
     internal class SavePatch
     {
-        [HarmonyPriority(Priority.First)]
+        [HarmonyPriority(Priority.Last)]
         internal static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[] __state)
         {
             try
@@ -87,7 +90,7 @@ namespace MoreAccessoriesKOI.Patches
     [HarmonyPatch(typeof(ChaFileCoordinate), nameof(ChaFileCoordinate.SaveFile))]
     internal class CoordSavePatch
     {
-        [HarmonyPriority(Priority.First)]
+        [HarmonyPriority(Priority.Last)]
         internal static void Prefix(ChaFileCoordinate __instance, out ChaFileAccessory.PartsInfo[] __state)
         {
             try
@@ -121,10 +124,11 @@ namespace MoreAccessoriesKOI.Patches
         }
     }
 
-    [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetStatusBytes), typeof(ChaFileStatus))]
+    //Don't save with manipulated showAccessory array. Will cause issues when plugin is not installed or when used with moreaccessories by joan
+    [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetStatusBytes), typeof(ChaFileStatus))]
     internal static class ChaFileStatusPatch
     {
-        [HarmonyPriority(Priority.First)]
+        [HarmonyPriority(Priority.Last)]
         private static void Prefix(ChaFileStatus _status, out bool[] __state)
         {
             Common_Patches.Seal(false);

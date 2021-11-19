@@ -8,6 +8,10 @@ namespace MoreAccessoriesKOI.Patches
 {
     public class Common_Patches
     {
+        //
+        // Please do not adjust externally, please just call arraysync after adjusting nowcoordinate.accessory.parts to desired size
+        //
+        // Greedy code stop others from adjusting array sizes unexpectedly and breaking sync
         #region Greedy Code
 
 #if KK || EC
@@ -23,7 +27,10 @@ namespace MoreAccessoriesKOI.Patches
             return Character.ChaControls;
         }
 #endif
-
+        /// <summary>
+        /// Please do not adjust externally, please just call arraysync after adjusting nowcoordinate.accessory.parts to desired size
+        /// </summary>
+        /// <param name="value"></param>
         internal static void Seal(bool value)
         {
             ShowAccessorySetterPatch.seal = value;
@@ -130,6 +137,7 @@ namespace MoreAccessoriesKOI.Patches
         }
         #endregion
 
+        //native code that triggers greed allow it to bypass
         //Let this do its thing, not an issue... so far
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ReleaseObject))]
         internal class ReleaseObjectPatch

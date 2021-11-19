@@ -10,26 +10,28 @@ using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {
+    /// <summary>
+    /// Handles adjusting position of slots/windows and adds scrolling to them.
+    /// </summary>
     public class Accessories
     {
         internal CustomAcsChangeSlot _customAcsChangeSlot { get; private set; }
-
         internal static MoreAccessories Plugin => MoreAccessories._self;
         internal GameObject scrolltemplate;
-
         #region Properties
         private bool Ready => MoreAccessories.MakerMode.ready;
-        internal CustomAcsParentWindow ParentWin { get { return _customAcsChangeSlot.customAcsParentWin; } set { _customAcsChangeSlot.customAcsParentWin = value; } }
+        internal CustomAcsParentWindow ParentWin { get { return _customAcsChangeSlot.customAcsParentWin; } }
         internal CustomAcsMoveWindow[] MoveWin { get { return _customAcsChangeSlot.customAcsMoveWin; } set { _customAcsChangeSlot.customAcsMoveWin = value; } }
         internal CustomAcsSelectKind[] SelectKind { get { return _customAcsChangeSlot.customAcsSelectKind; } set { _customAcsChangeSlot.customAcsSelectKind = value; } }
         internal CvsAccessory[] CvsAccessoryArray { get { return _customAcsChangeSlot.cvsAccessory; } set { _customAcsChangeSlot.cvsAccessory = value; } }
 
-        internal bool WindowMoved;
-        public static bool AddInProgress { get; internal set; }
+        internal bool WindowMoved;  //wait for window to be moved to the left before allowing UpdateUI
+        public static bool AddInProgress { get; private set; } //Don't allow spamming of the add buttons
         #endregion
 
-        public Accessories(CustomAcsChangeSlot _instance)
+        internal Accessories(CustomAcsChangeSlot _instance)
         {
+            AddInProgress = false;//in case of something going wrong and its static
             _customAcsChangeSlot = _instance;
             PrepareScroll();
             MakeSlotsScrollable();
@@ -95,7 +97,7 @@ namespace MoreAccessoriesKOI
         {
             var container = (RectTransform)_customAcsChangeSlot.transform;
 
-            //adjust size of all buttons (shrunk to take less screenspace/maker window wider
+            //adjust size of all buttons (shrunk to take less screenspace/maker window wider)
             foreach (var slotTransform in container.Cast<Transform>())
             {
                 var layout = slotTransform.GetComponent<LayoutElement>();
@@ -499,9 +501,9 @@ namespace MoreAccessoriesKOI
             });
         }
 
-        private static void AddSlot(int num)
+        public static void AddSlot(int num)
         {
-            if (AddInProgress) return;
+            if (AddInProgress || !CustomBase.instance) return;
             AddInProgress = true;
             var controller = CustomBase.instance.chaCtrl;
             var nowparts = controller.nowCoordinate.accessory.parts;

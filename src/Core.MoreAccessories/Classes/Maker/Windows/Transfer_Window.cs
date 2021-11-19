@@ -10,14 +10,18 @@ using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {
+    /// <summary>
+    /// Transfer Window Patching, add scrolling and additional slots
+    /// </summary>
     public class Transfer_Window
     {
         public CvsAccessoryChange ChangeWindow { get; private set; }
-        public MoreAccessories Plugin => MoreAccessories._self;
+
+        private MoreAccessories Plugin => MoreAccessories._self;
 
         internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
 
-        public Transfer_Window(CvsAccessoryChange _instance)
+        internal Transfer_Window(CvsAccessoryChange _instance)
         {
             ChangeWindow = _instance;
             MakeScrollable();
@@ -25,7 +29,7 @@ namespace MoreAccessoriesKOI
 
         private ScrollRect ScrollView;
 
-        public void MakeScrollable()
+        private void MakeScrollable()
         {
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglChange/ChangeTop/rect").transform;
             ScrollView = UIUtility.CreateScrollView("kind", container);
@@ -74,7 +78,7 @@ namespace MoreAccessoriesKOI
             var srcarray = new TextMeshProUGUI[delta];
             var dstarray = new TextMeshProUGUI[delta];
 
-            //OnValueChangedAsObservable overwrites the selected slot
+            //OnValueChangedAsObservable overwrites the selected slot save original value
             var originalseldst = ChangeWindow.selDst;
             var originalselsrc = ChangeWindow.selSrc;
 

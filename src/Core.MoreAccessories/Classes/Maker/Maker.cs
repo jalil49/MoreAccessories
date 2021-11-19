@@ -12,17 +12,27 @@ using UnityEngine;
 
 namespace MoreAccessoriesKOI
 {
+    /// <summary>
+    /// wait for the following objects before being ready
+    /// </summary>
     public class MakerMode
     {
         public MakerMode() { Plugin.StartCoroutine(WaitforMakerReady()); }
-        internal static MoreAccessories Plugin => MoreAccessories._self;
         public Accessories AccessoriesWindow;
-        internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
-        internal bool ready;
 #if KK || KKS
         public Copy_Window CopyWindow { get; internal set; }
 #endif
-        internal Transfer_Window TransferWindow { get; set; }
+        public Transfer_Window TransferWindow { get; set; }
+
+        /// <summary>
+        /// Accessible through their own arrays
+        /// AccessorySlot:= CustomAcsChangeSlot.Items
+        /// copySlotObject:= CvsAccessoryChange.tglSrcKind, CvsAccessoryChange.tglDstKind, CvsAccessoryChange.textSrc, CvsAccessoryChange.textDst,
+        /// transferSlotObject:= CustomAcsChangeSlot.Items
+        /// </summary>
+        internal List<CharaMakerSlotData> _additionalCharaMakerSlots = new List<CharaMakerSlotData>();
+        internal bool ready;
+        internal static MoreAccessories Plugin => MoreAccessories._self;
 
         public void UpdateMakerUI()
         {

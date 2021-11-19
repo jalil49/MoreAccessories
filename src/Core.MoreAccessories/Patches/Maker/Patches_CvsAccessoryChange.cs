@@ -3,6 +3,7 @@ using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches.Maker
 {
+    //No external reference CvsAccessoryChange (AKA Transferwindow)
     [HarmonyPatch(typeof(CvsAccessoryChange), nameof(CvsAccessoryChange.Start))]
     internal static class CvsAccessoryChange_Start_Patches
     {

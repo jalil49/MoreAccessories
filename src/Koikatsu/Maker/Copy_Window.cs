@@ -10,14 +10,16 @@ using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI
 {
+    /// <summary>
+    /// CopyWindow add scrolling and slots
+    /// </summary>
     public class Copy_Window
     {
         public CvsAccessoryCopy CopyWindow { get; private set; }
         internal MoreAccessories Plugin => MoreAccessories._self;
-
         internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
 
-        public Copy_Window(CvsAccessoryCopy _instance)
+        internal Copy_Window(CvsAccessoryCopy _instance)
         {
             CopyWindow = _instance;
             MakeScrollable();
@@ -27,7 +29,7 @@ namespace MoreAccessoriesKOI
 
         private ScrollRect ScrollView;
 
-        public void RefreshToggles(int length)
+        internal void RefreshToggles(int length)
         {
             Plugin.ExecuteDelayed(WindowRefresh);
 
@@ -75,6 +77,7 @@ namespace MoreAccessoriesKOI
                 CopyWindow.tglKind[i].Set(false);
             }
         }
+
         private void SelectAllToggles()
         {
             var array = CopyWindow.tglKind;
@@ -84,6 +87,7 @@ namespace MoreAccessoriesKOI
                 array[i].Set(true);
             }
         }
+
         private void MakeScrollable()
         {
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglCopy/CopyTop/rect").transform;
@@ -110,6 +114,7 @@ namespace MoreAccessoriesKOI
                 CopyWindow.transform.localPosition -= new Vector3(50, 0, 0);
             });
         }
+
         internal void WindowRefresh()
         {
             CopyWindow.UpdateCustomUI();

@@ -97,6 +97,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateSlotName))]
         internal static class UpdateSlotNamePatch
         {
+            [HarmonyPriority(Priority.Last)]
             internal static void Prefix(CvsAccessory __instance, out int __state)
             {
                 __state = __instance.accessory.parts[__instance.nSlotNo].type;
@@ -106,6 +107,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
                 }
             }
 
+            [HarmonyPriority(Priority.First)]
             internal static void Postfix(CvsAccessory __instance, int __state)
             {
                 __instance.accessory.parts[__instance.nSlotNo].type = __state;

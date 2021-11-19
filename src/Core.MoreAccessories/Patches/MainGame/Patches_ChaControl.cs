@@ -9,6 +9,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 {
     public class ChaControl_Patches
     {
+        /// <summary>
+        /// Check array sizes at multiple points when coordinate/character changes
+        /// </summary>
+        #region ArraySyncChecks
 #if KK || KKS
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
         internal class ChangeCoordinateTypePostFix
@@ -40,13 +44,58 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.LoadNoAsync))]
         internal class ChaControlLoadAsyncPatch
         {
-            static void Prefix()
-            {
-                Common_Patches.Seal(false);
-            }
+            static void Prefix() => Common_Patches.Seal(false);
+
             static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #endif
+#if KK || KKS
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
+#elif EC
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), new Type[0])]
+#endif
+        internal class AssignCoordinate_Patch
+        {
+            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
+
+#if KKS
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
+#elif KK || EC
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool) })]
+#endif
+        internal class ChacontrolChangeAccessory_Patch
+        {
+            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
+
+        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
+        internal class ChacontrolChangeAccessoryAsync_Patch
+        {
+            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
+        }
+
+        internal static void ArraySyncCheck(ChaControl chara)
+        {
+            try
+            {
+                var len = chara.nowCoordinate.accessory.parts.Length;
+                if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
+                    MoreAccessories.ArraySync(chara);
+
+                MoreAccessories._self.UpdateUI();
+            }
+            catch (Exception ex)
+            {
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+            }
+        }
+        #endregion
+
+        #region Transpiler Patches
+        /// <summary>
+        /// Async/coroutines need to be patched like this KKAPI can patch movenext, but cant use kkapi due to loop
+        /// </summary>
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Patches
         {
@@ -120,7 +169,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #if DEBUG
                 MoreAccessories.Print($"Transpiler worked");
 #endif
-
             }
         }
 
@@ -172,6 +220,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
         }
 
+        /// <summary>
+        /// Patches where slot number is the first parameter
+        /// </summary>
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches
         {
@@ -272,25 +323,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             }
         }
-#if KKS
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
-#elif KK || EC
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool) })]
-#endif
-        internal class ChacontrolChangeAccessory_Patch
-        {
-            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
-            internal static void Postfix(ChaControl __instance) => RemoveExcessObjects(__instance);
-        }
 
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
-        internal class ChacontrolChangeAccessoryAsync_Patch
-        {
-            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
-
-            internal static void Postfix(ChaControl __instance) => RemoveExcessObjects(__instance);
-        }
-
+        /// <summary>
+        /// Patches where slot number is the second parameter
+        /// </summary>
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_1_Patches
         {
@@ -378,6 +414,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
         }
 
+        /// <summary>
+        /// Replace 20 values with current accessory parts length
+        /// </summary>
         [HarmonyPatch]
         internal static class ChaControl_Replace_20_Patch
         {
@@ -433,113 +472,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             }
         }
-
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryState))]
-        internal class SetAccessory_Patch
-        {
-            static bool Prefix(ChaControl __instance, int slotNo, bool show)
-            {
-                try
-                {
-                    if (__instance.nowCoordinate.accessory.parts.Length <= slotNo)
-                    {
-                        return false;
-                    }
-                    __instance.fileStatus.showAccessory[slotNo] = show;
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
-                    return true;
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateAll))]
-        internal class SetAccessoryStateAll_Patch
-        {
-            static bool Prefix(ChaControl __instance, bool show)
-            {
-                try
-                {
-                    var length = __instance.nowCoordinate.accessory.parts.Length;
-                    for (var i = 0; i < length; i++)
-                    {
-                        __instance.fileStatus.showAccessory[i] = show;
-                    }
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
-                    return true;
-                }
-            }
-        }
-
-#if KK || KKS
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateCategory))]
-        internal class SetAccessoryStateCategoryPatch
-        {
-            static bool Prefix(ChaControl __instance, int cateNo, bool show)
-            {
-                try
-                {
-                    if (cateNo != 0 && 1 != cateNo)
-                    {
-                        return false;
-                    }
-                    var length = __instance.nowCoordinate.accessory.parts.Length;
-                    for (var i = 0; i < length; i++)
-                    {
-                        if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
-                        {
-                            __instance.fileStatus.showAccessory[i] = show;
-                        }
-                    }
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
-                    return true;
-                }
-            }
-        }
-
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.GetAccessoryCategoryCount))]
-        internal class GetAccessoryCategoryCountPatch
-        {
-            static bool Prefix(ChaControl __instance, int cateNo, ref int __result)
-            {
-                try
-                {
-                    if (cateNo != 0 && 1 != cateNo)
-                    {
-                        __result = -1;
-                        return false;
-                    }
-                    __result = 0;
-                    var length = __instance.nowCoordinate.accessory.parts.Length;
-
-                    for (var i = 0; i < length; i++)
-                    {
-                        if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
-                        {
-                            __result++;
-                        }
-                    }
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
-                    return true;
-                }
-            }
-        }
-#endif
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.UpdateVisible))]
         internal class UpdateVisible_Patch
@@ -604,32 +536,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
 #endif
         }
-#if KK || KKS
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
-#elif EC
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), new Type[0])]
-#endif
-        internal class AssignCoordinate_Patch
-        {
-            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
-        }
-
-        internal static void ArraySyncCheck(ChaControl chara)
-        {
-            try
-            {
-                var len = chara.nowCoordinate.accessory.parts.Length;
-                if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
-                    MoreAccessories.ArraySync(chara);
-
-                MoreAccessories._self.UpdateUI();
-            }
-            catch (Exception ex)
-            {
-                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
-            }
-        }
-
 
         private static bool AccessorySlotBoolCheck(ChaControl chara, int slot)
         {
@@ -643,35 +549,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return MathfEx.RangeEqualOn(0, slot, 19);
             }
         }
-
-        private static void RemoveExcessObjects(ChaControl chara)
-        {
-            try
-            {
-                var obj = chara.objAccessory;
-                var info = chara.infoAccessory;
-                var cusacscmp = chara.cusAcsCmp;
-                var objAcsMove = chara.objAcsMove;
-                for (int i = chara.nowCoordinate.accessory.parts.Length, n = obj.Length; i < n; i++)
-                {
-                    if (obj[i])
-                    {
-                        chara.SafeDestroy(obj[i]);
-                        info[i] = null;
-                        cusacscmp[i] = null;
-                        for (var j = 0; j < 2; j++)
-                        {
-                            objAcsMove[i, j] = null;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
-            }
-        }
-
         private static int AccessoryCount(ChaControl chara)
         {
             try
@@ -684,7 +561,118 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 return 20;
             }
         }
+        #endregion
 
+        /// <summary>
+        /// Probably got lazy and just replicated the original since its small function that'll work 
+        /// </summary>
+        #region Prefix override
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryState))]
+        internal class SetAccessory_Patch
+        {
+            static bool Prefix(ChaControl __instance, int slotNo, bool show)
+            {
+                try
+                {
+                    if (__instance.nowCoordinate.accessory.parts.Length <= slotNo)
+                    {
+                        return false;
+                    }
+                    __instance.fileStatus.showAccessory[slotNo] = show;
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
+                }
+            }
+        }
 
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateAll))]
+        internal class SetAccessoryStateAll_Patch
+        {
+            static bool Prefix(ChaControl __instance, bool show)
+            {
+                try
+                {
+                    var length = __instance.nowCoordinate.accessory.parts.Length;
+                    for (var i = 0; i < length; i++)
+                    {
+                        __instance.fileStatus.showAccessory[i] = show;
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
+                }
+            }
+        }
+
+#if KK || KKS
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateCategory))]
+        internal class SetAccessoryStateCategoryPatch
+        {
+            static bool Prefix(ChaControl __instance, int cateNo, bool show)
+            {
+                try
+                {
+                    if (cateNo != 0 && 1 != cateNo)
+                    {
+                        return false;
+                    }
+                    var length = __instance.nowCoordinate.accessory.parts.Length;
+                    for (var i = 0; i < length; i++)
+                    {
+                        if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
+                        {
+                            __instance.fileStatus.showAccessory[i] = show;
+                        }
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
+                }
+            }
+        }
+
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.GetAccessoryCategoryCount))]
+        internal class GetAccessoryCategoryCountPatch
+        {
+            static bool Prefix(ChaControl __instance, int cateNo, ref int __result)
+            {
+                try
+                {
+                    if (cateNo != 0 && 1 != cateNo)
+                    {
+                        __result = -1;
+                        return false;
+                    }
+                    __result = 0;
+                    var length = __instance.nowCoordinate.accessory.parts.Length;
+
+                    for (var i = 0; i < length; i++)
+                    {
+                        if (__instance.nowCoordinate.accessory.parts[i].hideCategory == cateNo)
+                        {
+                            __result++;
+                        }
+                    }
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    return true;
+                }
+            }
+        }
+#endif
+        #endregion
     }
 }

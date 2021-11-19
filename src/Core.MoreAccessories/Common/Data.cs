@@ -2,7 +2,7 @@
 {
     public partial class MoreAccessories
     {
-        public const string versionNum = "2.0.19";
+        public const string versionNum = "2.0.20";
         public const string GUID = "com.joan6694.illusionplugins.moreaccessories";
 
         public static MoreAccessories _self;
@@ -14,6 +14,9 @@
         public bool ImportingCards { get; private set; }
         internal static bool CharaMaker => MakerMode != null;
 
+        /// <summary>
+        /// Only affects saving of data in old moreaccessory format
+        /// </summary>
         private static bool BackwardCompatibility = true; //Do not turn back on once off.
 
         public static MakerMode MakerMode { get; internal set; }
