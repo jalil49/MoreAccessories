@@ -185,16 +185,25 @@ namespace MoreAccessoriesKOI
             {
                 var data = _customAcsChangeSlot.items[j];
                 var temp = i;
+                var index = j;
                 data.tglItem.onValueChanged.AddListener(b =>
                 {
                     _customAcsChangeSlot.CloseWindow();
                     if (temp == 0)  //Transfer Window
                     {
+                        if (CvsAccessoryArray.Length > 20)  //disable slot [index of transfer 22 kk/kks 21 EC] from showing
+                        {
+                            _customAcsChangeSlot.items[index].cgItem.Enable(false);
+                        }
                         MoreAccessories.MakerMode.TransferWindow.WindowRefresh();
                     }
 #if KK || KKS
                     if (temp == 1)  //Copy Window
                     {
+                        if (CvsAccessoryArray.Length > 21)  //disable slot [index of copy 21 kk/kks] from showing
+                        {
+                            _customAcsChangeSlot.items[index].cgItem.Enable(false);
+                        }
                         MoreAccessories.MakerMode.CopyWindow.WindowRefresh();
                     }
 #endif
