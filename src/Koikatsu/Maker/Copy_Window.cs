@@ -12,6 +12,7 @@ namespace MoreAccessoriesKOI
 {
     /// <summary>
     /// CopyWindow add scrolling and slots
+    /// If Unwanted dependency hook CvsAccessoryCopy.Start for reference 
     /// </summary>
     public class Copy_Window
     {

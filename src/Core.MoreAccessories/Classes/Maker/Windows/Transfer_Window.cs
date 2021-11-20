@@ -12,6 +12,7 @@ namespace MoreAccessoriesKOI
 {
     /// <summary>
     /// Transfer Window Patching, add scrolling and additional slots
+    /// If Unwanted dependency hook CvsAccessoryChange.Start for reference 
     /// </summary>
     public class Transfer_Window
     {

@@ -7,24 +7,21 @@ namespace MoreAccessoriesKOI
 {
     public class HScene
     {
-        internal List<ChaControl> _hSceneFemales;
-        private readonly HSprite[] _hSprite;
+        public List<ChaControl> HSceneFemales { get; private set; }
+        public HSprite[] HSprites { get; private set; }//only KK VR uses array 
 
-        public HScene(List<ChaControl> lstFemale, HSprite[] sprite)
+        internal HScene(List<ChaControl> lstFemale, HSprite[] sprite)
         {
-            _hSceneFemales = lstFemale;
-            _hSprite = sprite;
+            HSceneFemales = lstFemale;
+            HSprites = sprite;
             Plugin.ExecuteDelayed(MakeSingleScrollable, 1);
             Plugin.ExecuteDelayed(MakeMultiScrollable, 1);
         }
         private MoreAccessories Plugin => MoreAccessories._self;
 
-        public List<ChaControl> LstFemale { get; }
-        public HSprite Sprite { get; }
-
         private void MakeSingleScrollable()
         {
-            foreach (var sprite in _hSprite)
+            foreach (var sprite in HSprites)
             {
                 Scrollingwork(sprite, sprite.categoryAccessory.transform);
             }
@@ -32,7 +29,7 @@ namespace MoreAccessoriesKOI
 
         private void MakeMultiScrollable()
         {
-            foreach (var sprite in _hSprite)
+            foreach (var sprite in HSprites)
             {
                 foreach (var FemaleDressButton in sprite.lstMultipleFemaleDressButton)
                 {
@@ -41,9 +38,9 @@ namespace MoreAccessoriesKOI
             }
         }
 
-        public void MakeMultiScrollable(int female)//in case adding multiple heroines
+        public void MakeMultiScrollable(int female)//in case adding multiple heroines and default was copied
         {
-            foreach (var sprite in _hSprite)
+            foreach (var sprite in HSprites)
             {
                 Scrollingwork(sprite, sprite.lstMultipleFemaleDressButton[female].accessory.transform);
             }

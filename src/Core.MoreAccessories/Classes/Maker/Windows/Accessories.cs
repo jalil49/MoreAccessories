@@ -12,12 +12,14 @@ namespace MoreAccessoriesKOI
 {
     /// <summary>
     /// Handles adjusting position of slots/windows and adds scrolling to them.
+    /// If Unwanted dependency hook CustomAcsChangeSlot.Start for reference 
     /// </summary>
     public class Accessories
     {
         public CustomAcsChangeSlot AccessoryTab { get; private set; }
         internal static MoreAccessories Plugin => MoreAccessories._self;
         internal GameObject scrolltemplate;
+
         #region Properties
         private bool Ready => MoreAccessories.MakerMode.ready;
         internal CustomAcsParentWindow ParentWin { get { return AccessoryTab.customAcsParentWin; } }
