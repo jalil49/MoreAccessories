@@ -495,6 +495,7 @@ namespace MoreAccessoriesKOI
                 return;
             }
 
+            //Trim if card was resaved with version 1
 #if KK || KKS
             if (pluginData.version == 1)
             {
@@ -512,16 +513,11 @@ namespace MoreAccessoriesKOI
                 file.coordinate.accessory.parts = file.coordinate.accessory.parts.Take(20).ToArray();
             }
 #endif
-
-#if KK || KKS
-            if (file.coordinate.Any(x => x.accessory.parts.Length > 20))
-#else
-            if (file.coordinate.accessory.parts.Length > 20)
-#endif
+            if (pluginData.version == 2)
             {
 
 #if KK || KKS
-                if (InStudio && pluginData.version == 2 && pluginData.data.TryGetValue("ShowAccessories", out var bytearray) && bytearray != null)
+                if (InStudio && pluginData.data.TryGetValue("ShowAccessories", out var bytearray) && bytearray != null)
                 {
                     Patches.Common_Patches.Seal(false);
                     file.status.showAccessory = file.status.showAccessory.Concat(MessagePack.MessagePackSerializer.Deserialize<bool[]>((byte[])bytearray)).ToArray();
@@ -688,7 +684,7 @@ namespace MoreAccessoriesKOI
         {
             var pluginData = ExtendedSave.GetExtendedDataById(file, _extSaveKey);
 
-            if (pluginData == null || pluginData.version == 2 && file.accessory.parts.Length > 20) //escape data is already saved directly on card 
+            if (pluginData == null || pluginData.version == 2) //escape data is already saved directly on card 
             {
                 return;
             }
