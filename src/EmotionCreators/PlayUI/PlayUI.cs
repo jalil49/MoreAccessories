@@ -1,7 +1,10 @@
 ﻿using HPlay;
+using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
+using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -18,16 +21,16 @@ namespace MoreAccessoriesKOI
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
         private RectTransform _playButtonTemplate;
         private readonly HPlayHPartAccessoryCategoryUI _playUI;
-
+        private ScrollRect scrollView;
         //CharaUICtrl
-        internal void SpawnPlayUI()
+        private void SpawnPlayUI()
         {
             var buttons = _playUI.accessoryCategoryUIs;
             _playButtonTemplate = (RectTransform)buttons[0].btn.transform;
             _playButtonTemplate.GetComponentInChildren<TextMeshProUGUI>().fontMaterial = new Material(_playButtonTemplate.GetComponentInChildren<TextMeshProUGUI>().fontMaterial);
             var index = _playButtonTemplate.parent.GetSiblingIndex();
 
-            var scrollView = UIUtility.CreateScrollView("ScrollView", _playButtonTemplate.parent.parent);
+            scrollView = UIUtility.CreateScrollView("ScrollView", _playButtonTemplate.parent.parent);
             scrollView.transform.SetSiblingIndex(index);
             scrollView.transform.SetRect(_playButtonTemplate.parent);
             ((RectTransform)scrollView.transform).offsetMax = new Vector2(_playButtonTemplate.offsetMin.x + 192f, -88f);
@@ -55,6 +58,7 @@ namespace MoreAccessoriesKOI
         {
             if (_playUI == null || _playButtonTemplate == null || _playUI.selectChara == null)
                 return;
+
             var parts = _playUI.selectChara.nowCoordinate.accessory.parts;
             var count = parts.Length - 20;
             var j = 0;
@@ -65,8 +69,10 @@ namespace MoreAccessoriesKOI
                     slot = _additionalPlaySceneSlots[j];
                 else
                 {
-                    slot = new PlaySceneSlotData();
-                    slot.slot = (RectTransform)Object.Instantiate(_playButtonTemplate.gameObject).transform;
+                    slot = new PlaySceneSlotData
+                    {
+                        slot = (RectTransform)Object.Instantiate(_playButtonTemplate.gameObject).transform
+                    };
                     slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
                     slot.text.fontMaterial = new Material(slot.text.fontMaterial);
                     slot.button = slot.slot.GetComponentInChildren<Button>(true);
@@ -94,6 +100,12 @@ namespace MoreAccessoriesKOI
 
             for (; j < _additionalPlaySceneSlots.Count; ++j)
                 _additionalPlaySceneSlots[j].slot.gameObject.SetActive(false);
+        }
+
+        //control when scrollview is active so scrollview does not block other menus
+        internal void SetScrollViewActive(bool active)
+        {
+            scrollView.gameObject.SetActive(active);
         }
     }
 }

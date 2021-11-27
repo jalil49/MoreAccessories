@@ -1,6 +1,9 @@
 ﻿using HarmonyLib;
 using HPlay;
+using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
+using System;
+using UniRx;
 
 namespace MoreAccessoriesKOI.Patches
 {
@@ -15,7 +18,7 @@ namespace MoreAccessoriesKOI.Patches
             }
         }
 
-        [HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Init))]
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Init))]
         internal static class HPlayHPartAccessoryCategoryUI_Init_Postfix
         {
             internal static void Postfix()
@@ -24,13 +27,27 @@ namespace MoreAccessoriesKOI.Patches
             }
         }
 
-        //[HarmonyPatch(typeof(HPlayHPartClothMenuUI), "Init")]
-        //internal static class HPlayHPartClothMenuUI_Init_Postfix
-        //{
-        //    internal static void Postfix(HPlayHPartClothMenuUI __instance, Button[] ___btnClothMenus)
-        //    {
-        //        ___btnClothMenus[1].gameObject.SetActive(___btnClothMenus[1].gameObject.activeSelf /*|| MoreAccessories._self._accessoriesByChar[__instance.selectChara.chaFile].objAccessory.Any(o => o != null)*/);
-        //    }
-        //}
+        [HarmonyPatch(typeof(HPlayHPartClothMenuUI), nameof(HPlayHPartClothMenuUI.Start))]
+        internal static class HPlayHPartClothMenuUI_Start_Postfix
+        {
+            internal static void Postfix(HPlayHPartClothMenuUI __instance)
+            {
+                for (var i = 0; i < __instance.btnClothMenus.Length; i++)
+                {
+                    var num = i;
+                    __instance.btnClothMenus[i].OnClickAsObservable().Subscribe(delegate (Unit _)
+                    {
+                        if (num == 1)
+                        {
+                            MoreAccessories.PlayMode.SetScrollViewActive(__instance.accessoryCategoryUI.Active);
+                        }
+                        else
+                        {
+                            MoreAccessories.PlayMode.SetScrollViewActive(false);
+                        }
+                    });
+                }
+            }
+        }
     }
 }
