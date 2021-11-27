@@ -21,9 +21,30 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Init))]
         internal static class HPlayHPartAccessoryCategoryUI_Init_Postfix
         {
-            internal static void Postfix()
+            internal static bool Prefix(HPlayHPartAccessoryCategoryUI __instance)
             {
-                MoreAccessories._self.ExecuteDelayed(MoreAccessories.PlayMode.UpdatePlayUI, 2);
+                if (__instance.selectChara == null)
+                {
+                    return false;
+                }
+                MoreAccessories.PlayMode.UpdatePlayUI();
+                var limit = Math.Min(__instance.accessoryCategoryUIs.Length, __instance.selectChara.nowCoordinate.accessory.parts.Length);
+                var i = 0;
+                for (; i < limit; i++)
+                {
+                    var showbutton = __instance.selectChara.IsAccessory(i);
+                    __instance.accessoryCategoryUIs[i].btn.gameObject.SetActiveIfDifferent(showbutton);
+                    if (showbutton)
+                    {
+                        var component = __instance.selectChara.objAccessory[i].GetComponent<ListInfoComponent>();
+                        __instance.accessoryCategoryUIs[i].text.text = component.data.Name;
+                    }
+                }
+                for (; i < __instance.accessoryCategoryUIs.Length; i++)
+                {
+                    __instance.accessoryCategoryUIs[i].btn.gameObject.SetActiveIfDifferent(false);
+                }
+                return false;
             }
         }
 

@@ -64,42 +64,35 @@ namespace MoreAccessoriesKOI
             var j = 0;
             for (; j < count; j++)
             {
-                PlaySceneSlotData slot;
                 if (j < _additionalPlaySceneSlots.Count)
-                    slot = _additionalPlaySceneSlots[j];
-                else
-                {
-                    slot = new PlaySceneSlotData
-                    {
-                        slot = (RectTransform)Object.Instantiate(_playButtonTemplate.gameObject).transform
-                    };
-                    slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
-                    slot.text.fontMaterial = new Material(slot.text.fontMaterial);
-                    slot.button = slot.slot.GetComponentInChildren<Button>(true);
-                    slot.slot.SetParent(_playButtonTemplate.parent);
-                    slot.slot.localPosition = Vector3.zero;
-                    slot.slot.localScale = Vector3.one;
-                    var i1 = j + 20;
-                    slot.button.onClick = new Button.ButtonClickedEvent();
-                    slot.button.onClick.AddListener(() =>
-                    {
-                        _playUI.selectChara.chaFile.status.showAccessory[i1] = !_playUI.selectChara.chaFile.status.showAccessory[i1];
-                    });
-                    _additionalPlaySceneSlots.Add(slot);
-                }
-                var objAccessory = _playUI.selectChara.objAccessory[j + 20];
-                if (objAccessory == null)
-                    slot.slot.gameObject.SetActive(false);
-                else
-                {
-                    slot.slot.gameObject.SetActive(true);
-                    var component = objAccessory.GetComponent<ListInfoComponent>();
-                    slot.text.text = component.data.Name;
-                }
-            }
+                    continue;
 
-            for (; j < _additionalPlaySceneSlots.Count; ++j)
-                _additionalPlaySceneSlots[j].slot.gameObject.SetActive(false);
+                var slot = new PlaySceneSlotData
+                {
+                    slot = (RectTransform)Object.Instantiate(_playButtonTemplate.gameObject).transform
+                };
+                slot.text = slot.slot.GetComponentInChildren<TextMeshProUGUI>(true);
+                slot.text.fontMaterial = new Material(slot.text.fontMaterial);
+                slot.button = slot.slot.GetComponentInChildren<Button>(true);
+                slot.slot.SetParent(_playButtonTemplate.parent);
+                slot.slot.localPosition = Vector3.zero;
+                slot.slot.localScale = Vector3.one;
+                var i1 = j + 20;
+                slot.button.onClick = new Button.ButtonClickedEvent();
+                slot.button.onClick.AddListener(() =>
+                {
+                    _playUI.selectChara.chaFile.status.showAccessory[i1] = !_playUI.selectChara.chaFile.status.showAccessory[i1];
+                });
+
+                //modify original array
+                _playUI.accessoryCategoryUIs = _playUI.accessoryCategoryUIs.Concat(new HPlayHPartUI.SelectUITextMesh
+                {
+                    btn = slot.button,
+                    text = slot.text
+                }).ToArray();
+
+                _additionalPlaySceneSlots.Add(slot);
+            }
         }
 
         //control when scrollview is active so scrollview does not block other menus
