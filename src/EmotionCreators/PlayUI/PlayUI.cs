@@ -20,7 +20,7 @@ namespace MoreAccessoriesKOI
 
         private readonly List<PlaySceneSlotData> _additionalPlaySceneSlots = new List<PlaySceneSlotData>();
         private RectTransform _playButtonTemplate;
-        private readonly HPlayHPartAccessoryCategoryUI _playUI;
+        public readonly HPlayHPartAccessoryCategoryUI _playUI;
         private ScrollRect scrollView;
         //CharaUICtrl
         private void SpawnPlayUI()
