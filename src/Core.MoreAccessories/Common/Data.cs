@@ -29,6 +29,8 @@
 #elif EC
         internal bool InPlayMode => PlayMode != null;
         public static PlayMode PlayMode;
+
+        internal static BepInEx.Configuration.ConfigEntry<bool> SceneCreateAccessoryNames;
 #endif
     }
 }

@@ -54,6 +54,8 @@ namespace MoreAccessoriesKOI
 #if EC
             ExtendedSave.HEditDataBeingSaved += ExtendedSave_HEditDataBeingSaved;
             ExtendedSave.HEditDataBeingLoaded += ExtendedSave_HEditDataBeingLoaded;
+
+            SceneCreateAccessoryNames = Config.Bind("Scene Creation", "Use Accessory Name", true);
 #endif
         }
 

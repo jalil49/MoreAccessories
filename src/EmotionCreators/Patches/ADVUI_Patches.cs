@@ -14,6 +14,7 @@ namespace MoreAccessoriesKOI.Patches
     internal class ADVUI_Patches
     {
         static float? defaultheight;
+        static float? defaulttext;
 
         [HarmonyPatch(typeof(AccessoryUICtrl), nameof(AccessoryUICtrl.UpdateUI))]
         internal static class AccessoryUICtrl_UpdateUI_Patches
@@ -52,17 +53,25 @@ namespace MoreAccessoriesKOI.Patches
 
                 #region NameSlots
                 {
+                    if (!defaulttext.HasValue)
+                    {
+                        defaulttext = __instance.toggles[0].toggles[0].transform.parent.parent.GetComponentInChildren<TextMeshProUGUI>().m_currentFontSize;
+                    }
+
                     var i = 0;
                     for (; i < range && i < __instance.chaControl.infoAccessory.Length; i++)
                     {
                         var text = __instance.toggles[i].toggles[0].transform.parent.parent.GetComponentInChildren<TextMeshProUGUI>();
                         var info = __instance.chaControl.infoAccessory[i];
-                        if (info != null)
+                        if (info != null && MoreAccessories.SceneCreateAccessoryNames.Value)
                         {
                             text.text = $"{i + 1} {info.Name}";
+                            text.enableAutoSizing = true;
                             continue;
                         }
                         text.text = $"スロット {i + 1}";
+                        text.enableAutoSizing = false;
+                        text.fontSize = defaulttext.Value;
                     }
                 }
                 #endregion
