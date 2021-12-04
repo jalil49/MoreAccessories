@@ -19,16 +19,50 @@
         /// </summary>
         private static bool BackwardCompatibility = true; //Do not turn back on once off.
 
-        public static MakerMode MakerMode { get; internal set; }
+        public static MakerMode MakerMode
+        {
+            get { return _makermode; }
+            internal set
+            {
+#if KK || KKS
+                HMode = null;
+#elif EC
+                PlayMode = null;
+#endif
+                _makermode = value;
+            }
+        }
+        private static MakerMode _makermode;
+
 #if KK || KKS
         internal static bool InH => HMode != null;
-        public static HScene HMode { get; internal set; }
+
+        public static HScene HMode
+        {
+            get { return _hMode; }
+            internal set
+            {
+                MakerMode = null;
+                _hMode = value;
+            }
+        }
+
+        private static HScene _hMode;
 
         internal static bool InStudio => StudioMode != null;
         public static StudioClass StudioMode { get; internal set; }
 #elif EC
         internal bool InPlayMode => PlayMode != null;
-        public static PlayMode PlayMode;
+        public static PlayMode PlayMode
+        {
+            get { return _playMode; }
+            internal set
+            {
+                MakerMode = null;
+                _playMode = value;
+            }
+        }
+        private static PlayMode _playMode;
 
         internal static BepInEx.Configuration.ConfigEntry<bool> SceneCreateAccessoryNames;
 #endif

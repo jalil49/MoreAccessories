@@ -546,6 +546,11 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             else if (StudioMode != null)
                 StudioMode.UpdateStudioUI();
+#elif EC
+            else if (PlayMode != null)
+            {
+                PlayMode.UpdatePlayUI();
+            }
 #endif
         }
         #endregion
