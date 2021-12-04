@@ -12,7 +12,7 @@
 
         internal static bool _hasDarkness;
         public bool ImportingCards { get; private set; }
-        internal static bool CharaMaker => MakerMode != null;
+        internal static bool CharaMaker => _makermode != null;
 
         /// <summary>
         /// Only affects saving of data in old moreaccessory format
@@ -25,9 +25,9 @@
             internal set
             {
 #if KK || KKS
-                HMode = null;
+                _hMode = null;
 #elif EC
-                PlayMode = null;
+                _playMode = null;
 #endif
                 _makermode = value;
             }
@@ -35,14 +35,14 @@
         private static MakerMode _makermode;
 
 #if KK || KKS
-        internal static bool InH => HMode != null;
+        internal static bool InH => _hMode != null;
 
         public static HScene HMode
         {
             get { return _hMode; }
             internal set
             {
-                MakerMode = null;
+                _makermode = null;
                 _hMode = value;
             }
         }
