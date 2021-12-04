@@ -27,7 +27,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
 #endif
 #if KKS
-            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)//Male was added in KKS
             {
                 var instructionsList = instructions.ToList();
                 var i = 0;

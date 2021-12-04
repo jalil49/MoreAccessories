@@ -1,28 +1,152 @@
-﻿#if false
-using ADVPart.Manipulate.Chara;
+﻿using ADVPart.Manipulate.Chara;
 using HarmonyLib;
+using Illusion.Extensions;
+using MoreAccessoriesKOI.Extensions;
+using System;
+using System.Linq;
+using TMPro;
+using UniRx;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace MoreAccessoriesKOI.Patches
 {
-    internal class ADVUI_Patches//no idea if there is anything for me to do here
+    internal class ADVUI_Patches
     {
-        [HarmonyPatch(typeof(AccessoryUICtrl), "Init")]
-        internal static class AccessoryUICtrl_Init_Patches
+        static float? defaultheight;
+
+        [HarmonyPatch(typeof(AccessoryUICtrl), nameof(AccessoryUICtrl.UpdateUI))]
+        internal static class AccessoryUICtrl_UpdateUI_Patches
         {
-            private static void Postfix(AccessoryUICtrl __instance)
+            private static bool Prefix(AccessoryUICtrl __instance)
             {
-                MoreAccessories.ADVMode = new ADVMode(__instance);
+                __instance.isUpdateUI = true;
+                UpdateADVUI(__instance);
+                var range = Math.Min(__instance.chaControl.nowCoordinate.accessory.parts.Length, __instance.toggles.Length);
+
+                #region Adjust Visible Slots
+                {
+                    var i = 0;
+                    for (; i < range; i++)
+                    {
+                        __instance.toggles[i].toggles[0].transform.parent.parent.gameObject.SetActive(true);
+                        __instance.toggles[i].select = __instance.charState.accessory[i] + 1;
+                        if (i < __instance.chaControl.objAccessory.Length)
+                        {
+                            var interact = __instance.chaControl.objAccessory[i] != null;
+                            __instance.toggles[i].interactable = interact;
+                            foreach (var toggle in __instance.toggles[i].toggles)
+                            {
+                                toggle.interactable = interact;
+                            }
+                        }
+                    }
+                    for (; i < __instance.toggles.Length; i++)
+                    {
+                        __instance.toggles[i].toggles[0].transform.parent.parent.gameObject.SetActive(false);
+                    }
+                }
+                #endregion
+
+                CalculateHeight(__instance);
+
+                #region NameSlots
+                {
+                    var i = 0;
+                    for (; i < range && i < __instance.chaControl.infoAccessory.Length; i++)
+                    {
+                        var text = __instance.toggles[i].toggles[0].transform.parent.parent.GetComponentInChildren<TextMeshProUGUI>();
+                        var info = __instance.chaControl.infoAccessory[i];
+                        if (info != null)
+                        {
+                            text.text = $"{i + 1} {info.Name}";
+                            continue;
+                        }
+                        text.text = $"スロット {i + 1}";
+                    }
+                }
+                #endregion
+
+                __instance.isUpdateUI = false;
+                return false;
             }
         }
 
-        [HarmonyPatch(typeof(AccessoryUICtrl), "UpdateUI")]
-        internal static class AccessoryUICtrl_UpdateUI_Patches
+        private static void UpdateADVUI(AccessoryUICtrl _advUI)
         {
-            private static void Postfix()
+            var _advToggleTemplate = _advUI.toggles[19].toggles[0].transform.parent.parent;
+            var baselength = _advUI.toggles.Length;
+            var count = _advUI.chaControl.nowCoordinate.accessory.parts.Length - baselength;
+            if (0 < count)
             {
-                MoreAccessories.ADVMode.UpdateADVUI();
+                var toggleuiappend = new AccessoryUICtrl.ToggleUI[count];
+                for (var i = 0; i < count; i++)
+                {
+                    var toggleGO = UnityEngine.Object.Instantiate(_advToggleTemplate, _advToggleTemplate.parent);
+                    var togglenum = baselength + i;
+
+                    toggleGO.name = $"Slot {togglenum + 1}";
+                    var toggleUI = toggleuiappend[i] = new AccessoryUICtrl.ToggleUI();
+                    var toggles = toggleGO.GetComponentsInChildren<Toggle>();
+                    toggleGO.GetComponentInChildren<TextMeshProUGUI>().text = $"スロット {togglenum + 1}";
+                    toggleUI.toggles = new Toggle[toggles.Length];
+                    for (var j = 0; j < toggles.Length; j++)
+                    {
+                        var state = j - 1;
+                        toggles[j].onValueChanged = new Toggle.ToggleEvent();
+                        toggles[j].OnValueChangedAsObservable().Subscribe(delegate (bool _)
+                        {
+                            if (_advUI.isUpdateUI) { return; }
+
+                            _advUI.charState.accessory[togglenum] = state;
+
+                            if (state >= 0)
+                            {
+                                _advUI.chaControl.SetAccessoryState(togglenum, state == 0);
+                            }
+                        });
+
+                        toggleUI.toggles[j] = toggles[j];
+                    }
+                    toggleGO.gameObject.SetActive(true);
+                }
+                _advUI.toggles = _advUI.toggles.Concat(toggleuiappend).ToArray();
             }
+            count = _advUI.chaControl.nowCoordinate.accessory.parts.Length - _advUI.charState.accessory.Length;
+            if (0 < count)
+            {
+                var accessoryarray = new int[count];
+                for (var i = 0; i < count; i++)
+                {
+                    accessoryarray[i] = -1;
+                }
+                _advUI.charState.accessory = _advUI.charState.accessory.Concat(accessoryarray).ToArray();
+            }
+            else if (count != 0)
+            {
+                _advUI.charState.accessory = _advUI.charState.accessory.Take(_advUI.chaControl.nowCoordinate.accessory.parts.Length).ToArray();
+            }
+        }
+
+        private static void CalculateHeight(AccessoryUICtrl _advUI)
+        {
+            var _advToggleTemplate = _advUI.toggles[19].toggles[0].transform.parent.parent;
+            var parent = (RectTransform)_advToggleTemplate.parent.parent;
+            if (!defaultheight.HasValue)
+            {
+                defaultheight = parent.offsetMax.y;
+            }
+            parent.offsetMin = new Vector2(0, defaultheight.Value - 66 - 34 * (_advUI.chaControl.nowCoordinate.accessory.parts.Length + 1));
+            MoreAccessories._self.ExecuteDelayed(() =>
+            {
+                //Fuck you I'm going to bed
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent);
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent.parent);
+
+                var scrollrect = _advToggleTemplate.GetComponentInParent<ScrollRect>();
+                scrollrect.Rebuild(CanvasUpdate.Layout);
+                scrollrect.CalculateLayoutInputVertical();
+            });
         }
     }
 }
-#endif

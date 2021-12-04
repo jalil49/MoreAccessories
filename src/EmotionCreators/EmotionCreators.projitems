@@ -9,8 +9,8 @@
     <Import_RootNamespace>MoreAccessoriesKOI</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)ADVUI\ADVMode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ADVUI_Patches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\SavePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Hplay_Patches.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PlayUI\PlayUI.cs" />
   </ItemGroup>

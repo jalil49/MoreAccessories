@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using ExtensibleSaveFormat;
 using HarmonyLib;
+using MessagePack;
 using MoreAccessoriesKOI.Extensions;
 using System.Collections.Generic;
 using System.IO;
@@ -50,6 +51,10 @@ namespace MoreAccessoriesKOI
 #endif
             ExtendedSave.CardBeingSaved += OnActualCharaSave;
             ExtendedSave.CoordinateBeingSaved += OnActualCoordSave;
+#if EC
+            ExtendedSave.HEditDataBeingSaved += ExtendedSave_HEditDataBeingSaved;
+            ExtendedSave.HEditDataBeingLoaded += ExtendedSave_HEditDataBeingLoaded;
+#endif
         }
 
         private void SceneManager_sceneUnloaded(Scene arg0)
@@ -350,6 +355,77 @@ namespace MoreAccessoriesKOI
         {
             ImportingCards = true;
         }
+
+        /// <summary>
+        /// previously unsupported by Joan
+        /// Save charstate data which determines which accessories should be shown/hidden per node.
+        /// Unable to save directly to array due to how its being saved
+        /// </summary>
+        /// <param name="data"></param>
+        private void ExtendedSave_HEditDataBeingSaved(HEdit.HEditData data)
+        {
+            var dict = new Dictionary<string, List<List<int[]>>>();
+            foreach (var advpart in data.nodes.Where(x => ((HEdit.ADVPart)x.Value) != null))
+            {
+                var referencelist = dict[advpart.Key] = new List<List<int[]>>();
+                foreach (var cut in ((HEdit.ADVPart)advpart.Value).cuts)
+                {
+                    var cutlist = new List<int[]>();
+                    referencelist.Add(cutlist);
+                    foreach (var charstate in cut.charStates)
+                    {
+                        cutlist.Add(charstate.accessory.Skip(20).ToArray());
+                    }
+                }
+            }
+            var plugindata = new PluginData();
+            plugindata.data[_extSaveKey] = MessagePackSerializer.Serialize(dict);
+
+            ExtendedSave.SetExtendedDataById(data, GUID, plugindata);
+        }
+
+        /// <summary>
+        /// previously unsupported by Joan
+        /// Load charstate data which determines which accessories should be shown/hidden per node.
+        /// </summary>
+        /// <param name="data"></param>
+        private void ExtendedSave_HEditDataBeingLoaded(HEdit.HEditData data)
+        {
+            var plugindata = ExtendedSave.GetExtendedDataById(data, GUID);
+            if (plugindata == null) return;
+
+            var cutsdict = new Dictionary<string, List<List<int[]>>>();
+            switch (plugindata.version)
+            {
+                case 0:
+                    if (plugindata.data.TryGetValue(_extSaveKey, out var bytearry) && bytearry != null)
+                    {
+                        cutsdict = MessagePackSerializer.Deserialize<Dictionary<string, List<List<int[]>>>>((byte[])bytearry);
+                    }
+                    break;
+                default:
+                    Print("New MoreAccessories Version found please update", LogLevel.Message);
+                    return;
+            }
+
+            foreach (var cutslist in cutsdict)
+            {
+                var advpart = (HEdit.ADVPart)data.nodes[cutslist.Key];
+                var advpartcutslist = cutsdict[cutslist.Key];
+                var cutscount = 0;
+                foreach (var cut in advpart.cuts)
+                {
+                    var charStatescount = 0;
+                    foreach (var charstate in cut.charStates)
+                    {
+                        charstate.accessory = charstate.accessory.Concat(advpartcutslist[cutscount][charStatescount]).ToArray();
+                        charStatescount++;
+                    }
+                    cutscount++;
+                }
+            }
+        }
+
 #endif
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {

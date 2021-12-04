@@ -1,7 +1,6 @@
 ﻿using HarmonyLib;
 using HPlay;
 using Illusion.Extensions;
-using MoreAccessoriesKOI.Extensions;
 using System;
 using UniRx;
 
