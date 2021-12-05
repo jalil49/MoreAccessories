@@ -16,8 +16,8 @@ namespace MoreAccessoriesKOI.Patches.Maker
     internal static class Maker_Replace_20_Patch
     {
 #if DEBUG
-        static int count = 0;
-        static Exception Finalizer(Exception __exception)
+        private static int count = 0;
+        private static Exception Finalizer(Exception __exception)
         {
             if (__exception != null)
             {
@@ -27,7 +27,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
             return __exception;
         }
 #endif
-        static IEnumerable<MethodBase> TargetMethods()
+        private static IEnumerable<MethodBase> TargetMethods()
         {
             var list = new List<MethodBase>
             {
