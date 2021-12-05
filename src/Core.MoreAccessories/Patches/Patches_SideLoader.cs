@@ -8,6 +8,8 @@ using MessagePack;
 using System.Linq;
 #endif
 
+#pragma warning disable IDE0051 // Remove unused private members
+
 namespace MoreAccessoriesKOI.Patches
 {
     public static class SideLoader_Patches

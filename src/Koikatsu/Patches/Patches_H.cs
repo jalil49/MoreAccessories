@@ -14,9 +14,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         private static class HSpriteUpdate_patch
         {
 #if DEBUG
-            static int current = 0;
+            private static int current = 0;
 
-            static void Finalizer(Exception __exception)
+            private static void Finalizer(Exception __exception)
             {
                 current %= 300;
                 if (__exception != null && current == 0)

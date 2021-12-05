@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace MoreAccessoriesKOI.Patches
 {
-    public class Common_Patches
+    internal class Common_Patches
     {
         //
         // Please do not adjust externally, please just call arraysync after adjusting nowcoordinate.accessory.parts to desired size
@@ -15,14 +15,14 @@ namespace MoreAccessoriesKOI.Patches
         #region Greedy Code
 
 #if KK || EC
-        private static List<ChaControl> GetChaControls()
+        internal static List<ChaControl> GetChaControls()
         {
             if (Character.instance)
                 return Character.instance.dictEntryChara.Values.ToList();
             return null;
         }
 #elif KKS
-        private static List<ChaControl> GetChaControls()
+        internal static List<ChaControl> GetChaControls()
         {
             return Character.ChaControls;
         }

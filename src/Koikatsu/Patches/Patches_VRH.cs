@@ -2,20 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+#pragma warning disable IDE0051 // Remove unused private members
 
 namespace MoreAccessoriesKOI.Patches
 {
-    public class VR_Patches
+    internal class VR_Patches
     {
         [HarmonyPatch]
         private static class VRHScene_Start_Patches
         {
-            internal static bool Prepare()
+            private static bool Prepare()
             {
                 return Type.GetType("VRHScene,Assembly-CSharp.dll") != null;
             }
 
-            internal static MethodInfo TargetMethod()
+            private static MethodInfo TargetMethod()
             {
                 return Type.GetType("VRHScene,Assembly-CSharp.dll").GetMethod("Start", AccessTools.all);
             }

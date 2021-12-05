@@ -22,7 +22,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         [HarmonyPatch]
         private static class CustomAcsChangeSlot_Patch
         {
-            static MethodBase TargetMethod()
+            private static MethodBase TargetMethod()
             {
                 MethodBase methodbase;
 #if KKS
@@ -94,6 +94,10 @@ namespace MoreAccessoriesKOI.Patches.Maker
             }
         }
 
+        /// <summary>
+        /// Crashes in KKS if infoaccessory is not found and type is not 120
+        /// Fails to update slotname in KK if infoaccessory is not found and type is not 120
+        /// </summary>
         [HarmonyPatch(typeof(CvsAccessory), nameof(CvsAccessory.UpdateSlotName))]
         private static class UpdateSlotNamePatch
         {

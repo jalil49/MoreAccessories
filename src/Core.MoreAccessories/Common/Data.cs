@@ -32,6 +32,7 @@
                 _makermode = value;
             }
         }
+
         private static MakerMode _makermode;
 
 #if KK || KKS

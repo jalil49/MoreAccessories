@@ -8,6 +8,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 namespace MoreAccessoriesKOI
 {
     /// <summary>
@@ -19,6 +20,7 @@ namespace MoreAccessoriesKOI
         public CustomAcsChangeSlot AccessoryTab { get; private set; }
         internal static MoreAccessories Plugin => MoreAccessories._self;
         internal GameObject scrolltemplate;
+        internal static int ShowSlot = 20;
 
         #region Properties
         private bool Ready => MoreAccessories.MakerMode.ready;
@@ -297,31 +299,18 @@ namespace MoreAccessoriesKOI
             }
 
             var count = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length - 20;
-
             if (count > AdditionalCharaMakerSlots.Count)
             {
                 return;
             }
-            var cvscolor = CVSColor(count + 21);//do once rather than every time slots are made in case of 10 batch
+
+            var cvscolor = CVSColor(CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length + 1);
             var slotindex = 0;
 
             for (; slotindex < count; slotindex++)
             {
                 var info = AdditionalCharaMakerSlots[slotindex];
-                if (info.AccessorySlot != null && slotindex < AdditionalCharaMakerSlots.Count)
-                {
-                    info = AdditionalCharaMakerSlots[slotindex];
-                    info.AccessorySlot.SetActive(true);
-                    if (slotindex + 20 == CustomBase.Instance.selectSlot)
-                        Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
-                    CvsAccessoryArray[slotindex + 20].UpdateSlotName();
-
-                    if (info.transferSlotObject) info.transferSlotObject.SetActive(true);
-#if KK || KKS
-                    if (info.copySlotObject) info.copySlotObject.SetActive(true);
-#endif
-                }
-                else
+                if (info.AccessorySlot == null)
                 {
                     var index = slotindex + 20;
                     var custombase = CustomBase.instance;
@@ -399,6 +388,21 @@ namespace MoreAccessoriesKOI
                         MoreAccessories.Print(ex.ToString(), BepInEx.Logging.LogLevel.Error);
                     }
                 }
+
+                var show = slotindex < ShowSlot - 20;
+                info.AccessorySlot.SetActive(show);
+
+                if (show)
+                {
+                    if (slotindex + 20 == CustomBase.Instance.selectSlot)
+                        Plugin.ExecuteDelayed(() => info.AccessorySlot.GetComponentInChildren<CvsAccessory>().UpdateCustomUI());
+                    CvsAccessoryArray[slotindex + 20].UpdateSlotName();
+                }
+
+                if (info.transferSlotObject) info.transferSlotObject.SetActive(show);
+#if KK || KKS
+                if (info.copySlotObject) info.copySlotObject.SetActive(true);
+#endif
             }
 
             MoreAccessories.MakerMode.ValidatateToggles();
@@ -514,14 +518,18 @@ namespace MoreAccessoriesKOI
 #else
             var coordacc = controller.chaFile.coordinate.accessory;
 #endif
-            var newpart = new ChaFileAccessory.PartsInfo[num];
-            for (var i = 0; i < num; i++)
+            var delta = num + ShowSlot - nowparts.Length;
+            if (delta > 0)
             {
-                newpart[i] = new ChaFileAccessory.PartsInfo();
+                var newpart = new ChaFileAccessory.PartsInfo[delta];
+                for (var i = 0; i < delta; i++)
+                {
+                    newpart[i] = new ChaFileAccessory.PartsInfo();
+                }
+                coordacc.parts = controller.nowCoordinate.accessory.parts = nowparts.Concat(newpart).ToArray();
             }
-            coordacc.parts = controller.nowCoordinate.accessory.parts = nowparts.Concat(newpart).ToArray();
+            ShowSlot += num;
             MoreAccessories.ArraySync(controller);
-            MoreAccessories.MakerMode.UpdateMakerUI();
             AddInProgress = false;
         }
 

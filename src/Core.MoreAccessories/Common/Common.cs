@@ -3,14 +3,13 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 
-#if KK || KKS
-using System;
-#endif
-
 namespace MoreAccessoriesKOI
 {
     public partial class MoreAccessories
     {
+
+        public static void ManuallyUpdateUI() => _self.UpdateUI();
+
         /// <summary>
         /// Sync the Arrays of the ChaControl so that the nowcoordinate size is reflected in revelent arrays.
         /// In maker: syncs to the largest array size
@@ -34,7 +33,7 @@ namespace MoreAccessoriesKOI
             {
                 foreach (var item in controller.chaFile.coordinate)
                 {
-                    len = Math.Max(len, item.accessory.parts.Length);
+                    len = System.Math.Max(len, item.accessory.parts.Length);
                     //Print($"coordinate length is {item.accessory.parts.Length}");
                 }
             }
@@ -221,6 +220,16 @@ namespace MoreAccessoriesKOI
             }
 
             Patches.Common_Patches.Seal(true);
+        }
+
+        internal static void NowCoordinateTrimAndSync(ChaControl controller)
+        {
+            if (controller == null) return;
+
+            var index = System.Array.FindLastIndex(controller.nowCoordinate.accessory.parts, x => x.type != 120) + 1;
+            if (index < 20) index = 20;
+            controller.nowCoordinate.accessory.parts = controller.nowCoordinate.accessory.parts.Take(index).ToArray();
+            ArraySync(controller);
         }
 
         /// <summary>

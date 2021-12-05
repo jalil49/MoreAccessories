@@ -360,7 +360,7 @@ namespace MoreAccessoriesKOI
 
         /// <summary>
         /// previously unsupported by Joan
-        /// Save charstate data which determines which accessories should be shown/hidden per node.
+        /// Save charstate data which determines which accessories should be kept/shown/hidden per node.
         /// Unable to save directly to array due to how its being saved
         /// </summary>
         /// <param name="data"></param>
@@ -388,7 +388,7 @@ namespace MoreAccessoriesKOI
 
         /// <summary>
         /// previously unsupported by Joan
-        /// Load charstate data which determines which accessories should be shown/hidden per node.
+        /// Load charstate data which determines which accessories should be kept/shown/hidden per node.
         /// </summary>
         /// <param name="data"></param>
         private void ExtendedSave_HEditDataBeingLoaded(HEdit.HEditData data)
@@ -541,10 +541,10 @@ namespace MoreAccessoriesKOI
         #region Private Methods
         internal void UpdateUI()
         {
-            if (MakerMode != null)
+            if (CharaMaker)
                 MakerMode.UpdateMakerUI();
 #if KK || KKS
-            else if (StudioMode != null)
+            else if (InStudio)
                 StudioMode.UpdateStudioUI();
 #elif EC
             else if (PlayMode != null)
@@ -681,6 +681,7 @@ namespace MoreAccessoriesKOI
                     var maxCount = 0;
                     xmlWriter.WriteStartElement("additionalAccessories");
                     xmlWriter.WriteAttributeString("version", versionNum);
+                    var coord = 0;
                     foreach (var pair in data.rawAccessoriesInfos)
                     {
                         if (pair.Value.Count == 0)
@@ -729,6 +730,7 @@ namespace MoreAccessoriesKOI
                             xmlWriter.WriteEndElement();
                         }
                         xmlWriter.WriteEndElement();
+                        coord++;
                     }
 
 #if KK || KKS
@@ -754,7 +756,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             if (InStudio)
             {
-                pluginData.data.Add("ShowAccessories", MessagePack.MessagePackSerializer.Serialize(file.status.showAccessory.Skip(20).ToArray()));
+                pluginData.data.Add("ShowAccessories", MessagePackSerializer.Serialize(file.status.showAccessory.Skip(20).ToArray()));
             }
 #endif
             ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);

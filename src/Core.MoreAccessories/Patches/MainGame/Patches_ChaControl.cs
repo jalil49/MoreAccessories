@@ -14,45 +14,47 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         /// </summary>
         #region ArraySyncChecks
 #if KK || KKS
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
         internal class ChangeCoordinateTypePostFix
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
         }
 
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
         internal class SetNowCoordinatePostFix
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
         }
 #elif EC
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), new[] { typeof(ChaFileCoordinate), typeof(bool), typeof(bool) })]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), new[] { typeof(ChaFileCoordinate), typeof(bool), typeof(bool) })]
         internal class ChangeCoordinateTypePostFix
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
         }
 #endif
 
 
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Load))]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.Load))]
         internal class ChaControlLoadPatch
         {
-            static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
 #if KKS
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.LoadNoAsync))]
         internal class ChaControlLoadAsyncPatch
         {
-            static void Prefix() => Common_Patches.Seal(false);
+            [HarmonyPriority(Priority.Last)]
+            private static void Prefix() => Common_Patches.Seal(false);
 
-            static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            [HarmonyPriority(Priority.First)]
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #endif
 #if KK || KKS
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), typeof(ChaFileDefine.CoordinateType))]
 #elif EC
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), new Type[0])]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.AssignCoordinate), new Type[0])]
 #endif
         internal class AssignCoordinate_Patch
         {
@@ -60,25 +62,29 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 
 #if KKS
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
 #elif KK || EC
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool) })]
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool) })]
 #endif
         internal class ChacontrolChangeAccessory_Patch
         {
             private static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
-        [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
         internal class ChacontrolChangeAccessoryAsync_Patch
         {
             private static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
-        internal static void ArraySyncCheck(ChaControl chara)
+        internal static void ArraySyncCheck(ChaControl chara, bool setslot = false)
         {
             try
             {
+                if (setslot && MoreAccessories.CharaMaker)
+                {
+                    Accessories.ShowSlot = Math.Max(Array.FindLastIndex(chara.nowCoordinate.accessory.parts, x => x.type != 120) + 1, 20);
+                }
                 var len = chara.nowCoordinate.accessory.parts.Length;
                 if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
                     MoreAccessories.ArraySync(chara);
@@ -99,7 +105,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Patches
         {
-            static MethodBase TargetMethod()
+            private static MethodBase TargetMethod()
             {
                 MethodBase methodbase;
 #if KKS
@@ -175,7 +181,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch]
         internal class ChaControl_ChangeAccessoryAsync_Replace20_Patches
         {
-            static MethodBase TargetMethod()
+            private static MethodBase TargetMethod()
             {
                 MethodBase methodbase;
 #if KKS
@@ -227,8 +233,8 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches
         {
 #if DEBUG
-            static int count = 0;
-            static void Finalizer(Exception __exception)
+            private static int count = 0;
+            private static void Finalizer(Exception __exception)
             {
                 if (__exception != null)
                 {
@@ -236,7 +242,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
             }
 #endif
-            static IEnumerable<MethodBase> TargetMethods()
+            private static IEnumerable<MethodBase> TargetMethods()
             {
                 var ChaCon = typeof(ChaControl);
                 var list = new List<MethodBase>
@@ -331,8 +337,8 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         internal class ChaControl_CheckAdjuster_param_slot_1_Patches
         {
 #if DEBUG
-            static int count = 0;
-            static void Finalizer(Exception __exception)
+            private static int count = 0;
+            private static void Finalizer(Exception __exception)
             {
                 if (__exception != null)
                 {
@@ -340,7 +346,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
             }
 #endif
-            static IEnumerable<MethodBase> TargetMethods()
+            private static IEnumerable<MethodBase> TargetMethods()
             {
                 var ChaCon = typeof(ChaControl);
                 var list = new List<MethodBase>
@@ -421,8 +427,8 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         private static class ChaControl_Replace_20_Patch
         {
 #if DEBUG
-            static int count = 0;
-            static void Finalizer(Exception __exception)
+            private static int count = 0;
+            private static void Finalizer(Exception __exception)
             {
                 if (__exception != null)
                 {
@@ -430,7 +436,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
             }
 #endif
-            static IEnumerable<MethodBase> TargetMethods()
+            private static IEnumerable<MethodBase> TargetMethods()
             {
                 var list = new List<MethodBase>
                 {
@@ -570,7 +576,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryState))]
         internal class SetAccessory_Patch
         {
-            static bool Prefix(ChaControl __instance, int slotNo, bool show)
+            private static bool Prefix(ChaControl __instance, int slotNo, bool show)
             {
                 try
                 {
@@ -592,7 +598,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateAll))]
         internal class SetAccessoryStateAll_Patch
         {
-            static bool Prefix(ChaControl __instance, bool show)
+            private static bool Prefix(ChaControl __instance, bool show)
             {
                 try
                 {
@@ -615,7 +621,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryStateCategory))]
         internal class SetAccessoryStateCategoryPatch
         {
-            static bool Prefix(ChaControl __instance, int cateNo, bool show)
+            private static bool Prefix(ChaControl __instance, int cateNo, bool show)
             {
                 try
                 {
@@ -644,7 +650,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.GetAccessoryCategoryCount))]
         internal class GetAccessoryCategoryCountPatch
         {
-            static bool Prefix(ChaControl __instance, int cateNo, ref int __result)
+            private static bool Prefix(ChaControl __instance, int cateNo, ref int __result)
             {
                 try
                 {
