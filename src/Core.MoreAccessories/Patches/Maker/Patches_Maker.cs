@@ -91,7 +91,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
     internal static class CustomChangeMainMenuInitializePatch
     {
         //Fix Window Scroll when toggle is clicked. Added just to make sure the first time you open the window that it is fixed AccessoriesWindow probably handles most if not all other cases
-        internal static void Postfix(CustomChangeMainMenu __instance)
+        private static void Postfix(CustomChangeMainMenu __instance)
         {
             __instance.items[4].tglItem.onValueChanged.AddListener(x => { MoreAccessories.MakerMode.AccessoriesWindow.FixWindowScroll(); });
         }

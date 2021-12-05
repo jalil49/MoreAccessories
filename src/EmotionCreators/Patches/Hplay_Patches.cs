@@ -9,16 +9,16 @@ namespace MoreAccessoriesKOI.Patches
     internal class Hplay_Patches
     {
         [HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Start))]
-        internal static class HPlayHPartAccessoryCategoryUI_Start_Postfix
+        private static class HPlayHPartAccessoryCategoryUI_Start_Postfix
         {
-            internal static void Postfix(HPlayHPartAccessoryCategoryUI __instance)
+            private static void Postfix(HPlayHPartAccessoryCategoryUI __instance)
             {
                 MoreAccessories.PlayMode = new PlayMode(__instance);
             }
         }
 
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Init))]
-        internal static class HPlayHPartAccessoryCategoryUI_Init_Postfix
+        private static class HPlayHPartAccessoryCategoryUI_Init_Postfix
         {
             internal static bool Prefix(HPlayHPartAccessoryCategoryUI __instance)
             {
@@ -48,9 +48,9 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPatch(typeof(HPlayHPartClothMenuUI), nameof(HPlayHPartClothMenuUI.Start))]
-        internal static class HPlayHPartClothMenuUI_Start_Postfix
+        private static class HPlayHPartClothMenuUI_Start_Postfix
         {
-            internal static void Postfix(HPlayHPartClothMenuUI __instance)
+            private static void Postfix(HPlayHPartClothMenuUI __instance)
             {
                 for (var i = 0; i < __instance.btnClothMenus.Length; i++)
                 {

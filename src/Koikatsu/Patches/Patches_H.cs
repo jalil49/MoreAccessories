@@ -11,7 +11,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
     public static class H_Patches
     {
         [HarmonyPatch(typeof(HSprite), nameof(HSprite.Update))]
-        internal static class HSpriteUpdate_patch
+        private static class HSpriteUpdate_patch
         {
 #if DEBUG
             static int current = 0;
@@ -99,10 +99,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 
         [HarmonyPatch(typeof(HSprite), nameof(HSprite.AccessoryProc))]
-        internal static class HSpriteAccessoryProc_patch
+        private static class HSpriteAccessoryProc_patch
         {
-            internal static void Prefix(HSprite __instance, HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females) => AddAccessoryButtons(__instance, ___categoryAccessory, ___females, 0);
-            public static void Postfix(HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females)
+            private static void Prefix(HSprite __instance, HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females) => AddAccessoryButtons(__instance, ___categoryAccessory, ___females, 0);
+            private static void Postfix(HSceneSpriteCategory ___categoryAccessory, List<ChaControl> ___females)
             {
                 try { HideExcessButtons(___categoryAccessory, ___females[0]); }
                 catch (Exception ex)
@@ -113,9 +113,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 
         [HarmonyPatch(typeof(HSprite), nameof(HSprite.FemaleDressSubMenuAccessoryProc))]
-        internal static class HSpriteFemaleDressSubMenuAccessoryProc_patch
+        private static class HSpriteFemaleDressSubMenuAccessoryProc_patch
         {
-            internal static void Prefix(HSprite __instance, List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
+            private static void Prefix(HSprite __instance, List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
             {
                 try
                 {
@@ -127,7 +127,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 }
             }
 
-            public static void Postfix(List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
+            private static void Postfix(List<HSprite.FemaleDressButtonCategory> ___lstMultipleFemaleDressButton, List<ChaControl> ___females, int _female)
             {
                 try { HideExcessButtons(___lstMultipleFemaleDressButton[_female].accessory, ___females[_female]); }
                 catch (Exception ex)
@@ -138,7 +138,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         }
 
         [HarmonyPatch(typeof(HSceneProc), nameof(HSceneProc.Start))]
-        internal static class HSceneProc_Start_Patches
+        private static class HSceneProc_Start_Patches
         {
             private static void Postfix(List<ChaControl> ___lstFemale, HSprite ___sprite)
             {

@@ -17,7 +17,7 @@ namespace MoreAccessoriesKOI.Patches
         private static class SideloaderAutoresolverHooks_IterateCoordinatePrefixes_Patches
         {
             [HarmonyBefore("com.deathweasel.bepinex.guidmigration")]
-            internal static void Prefix(ICollection<ResolveInfo> extInfo) => Outfit_Error_Fix(extInfo);
+            private static void Prefix(ICollection<ResolveInfo> extInfo) => Outfit_Error_Fix(extInfo);
         }
 #endif
 
@@ -25,7 +25,7 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPatch(typeof(ExtendedSave), "CardImportEvent")]
         private static class SideloaderAutoresolverHooks_Import_Patches
         {
-            internal static void Prefix(Dictionary<string, PluginData> data)
+            private static void Prefix(Dictionary<string, PluginData> data)
             {
                 if (data.TryGetValue("com.bepis.sideloader.universalautoresolver", out var pluginData))
                 {

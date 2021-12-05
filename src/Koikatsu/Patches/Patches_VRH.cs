@@ -8,7 +8,7 @@ namespace MoreAccessoriesKOI.Patches
     public class VR_Patches
     {
         [HarmonyPatch]
-        internal static class VRHScene_Start_Patches
+        private static class VRHScene_Start_Patches
         {
             internal static bool Prepare()
             {
@@ -20,12 +20,12 @@ namespace MoreAccessoriesKOI.Patches
                 return Type.GetType("VRHScene,Assembly-CSharp.dll").GetMethod("Start", AccessTools.all);
             }
 #if KK
-            internal static void Postfix(List<ChaControl> ___lstFemale, HSprite[] ___sprites)
+            private static void Postfix(List<ChaControl> ___lstFemale, HSprite[] ___sprites)
             {
                 MoreAccessories.HMode = new HScene(___lstFemale, ___sprites);
             }
 #elif KKS
-            internal static void Postfix(List<ChaControl> ___lstFemale, HSprite ___sprite)
+            private static void Postfix(List<ChaControl> ___lstFemale, HSprite ___sprite)
             {
                 MoreAccessories.HMode = new HScene(___lstFemale, new[] { ___sprite });
             }

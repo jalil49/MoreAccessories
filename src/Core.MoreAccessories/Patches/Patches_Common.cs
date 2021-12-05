@@ -142,8 +142,8 @@ namespace MoreAccessoriesKOI.Patches
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ReleaseObject))]
         internal class ReleaseObjectPatch
         {
-            internal static void Prefix() => Seal(false);
-            internal static void Postfix() => Seal(true);
+            private static void Prefix() => Seal(false);
+            private static void Postfix() => Seal(true);
         }
     }
 }

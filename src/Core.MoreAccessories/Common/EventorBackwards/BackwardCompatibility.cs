@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace MoreAccessoriesKOI
 {
-    internal static class BackwardCompatibility
+    public static class BackwardCompatibility
     {
         private static object _customHistory_Instance = null;
         private static Action<ChaControl, Func<bool>> _customHistory_Add1 = null;

@@ -13,11 +13,11 @@ namespace MoreAccessoriesKOI.Patches
 {
     internal class ADVUI_Patches
     {
-        static float? defaultheight;
-        static float? defaulttext;
+        private static float? defaultheight;
+        private static float? defaulttext;
 
         [HarmonyPatch(typeof(AccessoryUICtrl), nameof(AccessoryUICtrl.UpdateUI))]
-        internal static class AccessoryUICtrl_UpdateUI_Patches
+        private static class AccessoryUICtrl_UpdateUI_Patches
         {
             private static bool Prefix(AccessoryUICtrl __instance)
             {

@@ -8,7 +8,7 @@ namespace MoreAccessoriesKOI.Patches.Maker
         #region CustomAcsChangeSlot
 
         [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Start))]
-        internal static class CustomAcsChangeSlot_KKS_Start_Patches
+        private static class CustomAcsChangeSlot_KKS_Start_Patches
         {
             private static void Postfix(CustomAcsChangeSlot __instance)
             {

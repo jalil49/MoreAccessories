@@ -12,7 +12,7 @@ namespace MoreAccessoriesKOI.Patches
     internal class CharaSavePatch
     {
         [HarmonyPriority(Priority.Last)]
-        internal static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[][] __state)
+        private static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[][] __state)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPriority(Priority.First)]
-        internal static void Postfix(ChaFile __instance, ChaFileAccessory.PartsInfo[][] __state)
+        private static void Postfix(ChaFile __instance, ChaFileAccessory.PartsInfo[][] __state)
         {
             if (__state == null) return;
 
@@ -52,7 +52,7 @@ namespace MoreAccessoriesKOI.Patches
     internal class SavePatch
     {
         [HarmonyPriority(Priority.Last)]
-        internal static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[] __state)
+        private static void Prefix(ChaFile __instance, out ChaFileAccessory.PartsInfo[] __state)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPriority(Priority.First)]
-        internal static void Postfix(ChaFile __instance, ChaFileAccessory.PartsInfo[] __state)
+        private static void Postfix(ChaFile __instance, ChaFileAccessory.PartsInfo[] __state)
         {
             if (__state == null) return;
 
@@ -91,7 +91,7 @@ namespace MoreAccessoriesKOI.Patches
     internal class CoordSavePatch
     {
         [HarmonyPriority(Priority.Last)]
-        internal static void Prefix(ChaFileCoordinate __instance, out ChaFileAccessory.PartsInfo[] __state)
+        private static void Prefix(ChaFileCoordinate __instance, out ChaFileAccessory.PartsInfo[] __state)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPriority(Priority.First)]
-        internal static void Postfix(ChaFileCoordinate __instance, ChaFileAccessory.PartsInfo[] __state)
+        private static void Postfix(ChaFileCoordinate __instance, ChaFileAccessory.PartsInfo[] __state)
         {
             if (__state == null) return;
 

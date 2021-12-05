@@ -17,19 +17,19 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
         internal class ChangeCoordinateTypePostFix
         {
-            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
         internal class SetNowCoordinatePostFix
         {
-            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #elif EC
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), new[] { typeof(ChaFileCoordinate), typeof(bool), typeof(bool) })]
         internal class ChangeCoordinateTypePostFix
         {
-            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #endif
 
@@ -56,7 +56,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
         internal class AssignCoordinate_Patch
         {
-            internal static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
 #if KKS
@@ -66,13 +66,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
         internal class ChacontrolChangeAccessory_Patch
         {
-            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
         internal class ChacontrolChangeAccessoryAsync_Patch
         {
-            internal static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
         internal static void ArraySyncCheck(ChaControl chara)
@@ -418,7 +418,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         /// Replace 20 values with current accessory parts length
         /// </summary>
         [HarmonyPatch]
-        internal static class ChaControl_Replace_20_Patch
+        private static class ChaControl_Replace_20_Patch
         {
 #if DEBUG
             static int count = 0;
