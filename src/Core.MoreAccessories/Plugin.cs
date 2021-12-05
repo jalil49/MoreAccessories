@@ -427,7 +427,6 @@ namespace MoreAccessoriesKOI
                 }
             }
         }
-
 #endif
         private void LevelLoaded(Scene scene, LoadSceneMode loadMode)
         {

@@ -23,13 +23,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
         internal class SetNowCoordinatePostFix
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #elif EC
         [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), new[] { typeof(ChaFileCoordinate), typeof(bool), typeof(bool) })]
         internal class ChangeCoordinateTypePostFix
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #endif
 
@@ -58,7 +58,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #endif
         internal class AssignCoordinate_Patch
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
+            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
         }
 
 #if KKS
@@ -84,9 +84,10 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 if (setslot && MoreAccessories.CharaMaker)
                 {
                     Accessories.ShowSlot = Math.Max(Array.FindLastIndex(chara.nowCoordinate.accessory.parts, x => x.type != 120) + 1, 20);
+                    MoreAccessories.NowCoordinateTrimAndSync(chara);
                 }
                 var len = chara.nowCoordinate.accessory.parts.Length;
-                if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length || MoreAccessories.CharaMaker)
+                if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length)
                     MoreAccessories.ArraySync(chara);
 
                 MoreAccessories._self.UpdateUI();
