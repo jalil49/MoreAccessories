@@ -2,9 +2,7 @@
 using BepInEx.Logging;
 using ExtensibleSaveFormat;
 using HarmonyLib;
-using MessagePack;
 using MoreAccessoriesKOI.Extensions;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,7 +14,9 @@ using Scene = UnityEngine.SceneManagement.Scene;
 using Manager;
 using Studio;
 #endif
-
+#if EC || KKS
+using System.Collections.Generic;
+#endif
 namespace MoreAccessoriesKOI
 {
     [BepInPlugin(GUID: GUID, Name: "MoreAccessories", Version: versionNum)]
@@ -381,7 +381,7 @@ namespace MoreAccessoriesKOI
                 }
             }
             var plugindata = new PluginData();
-            plugindata.data[_extSaveKey] = MessagePackSerializer.Serialize(dict);
+            plugindata.data[_extSaveKey] = MessagePack.MessagePackSerializer.Serialize(dict);
 
             ExtendedSave.SetExtendedDataById(data, GUID, plugindata);
         }
@@ -402,7 +402,7 @@ namespace MoreAccessoriesKOI
                 case 0:
                     if (plugindata.data.TryGetValue(_extSaveKey, out var bytearry) && bytearry != null)
                     {
-                        cutsdict = MessagePackSerializer.Deserialize<Dictionary<string, List<List<int[]>>>>((byte[])bytearry);
+                        cutsdict = MessagePack.MessagePackSerializer.Deserialize<Dictionary<string, List<List<int[]>>>>((byte[])bytearry);
                     }
                     break;
                 default:
@@ -756,7 +756,7 @@ namespace MoreAccessoriesKOI
 #if KK || KKS
             if (InStudio)
             {
-                pluginData.data.Add("ShowAccessories", MessagePackSerializer.Serialize(file.status.showAccessory.Skip(20).ToArray()));
+                pluginData.data.Add("ShowAccessories", MessagePack.MessagePackSerializer.Serialize(file.status.showAccessory.Skip(20).ToArray()));
             }
 #endif
             ExtendedSave.SetExtendedDataById(file, _extSaveKey, pluginData);
