@@ -681,7 +681,6 @@ namespace MoreAccessoriesKOI
                     var maxCount = 0;
                     xmlWriter.WriteStartElement("additionalAccessories");
                     xmlWriter.WriteAttributeString("version", versionNum);
-                    var coord = 0;
                     foreach (var pair in data.rawAccessoriesInfos)
                     {
                         if (pair.Value.Count == 0)
@@ -730,7 +729,6 @@ namespace MoreAccessoriesKOI
                             xmlWriter.WriteEndElement();
                         }
                         xmlWriter.WriteEndElement();
-                        coord++;
                     }
 
 #if KK || KKS
