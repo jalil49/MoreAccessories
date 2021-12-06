@@ -13,8 +13,8 @@ namespace MoreAccessoriesKOI.Patches
 {
     internal class ADVUI_Patches
     {
-        private static float? defaultheight;
-        private static float? defaulttext;
+        private static float? defaultheight;//base length of 20 slots to use as reference for rebuilding height
+        private static float? defaulttext;//default font size to return to after autoscaling text to fit
 
         [HarmonyPatch(typeof(AccessoryUICtrl), nameof(AccessoryUICtrl.UpdateUI))]
         private static class AccessoryUICtrl_UpdateUI_Patches
@@ -146,16 +146,12 @@ namespace MoreAccessoriesKOI.Patches
                 defaultheight = parent.offsetMax.y;
             }
             parent.offsetMin = new Vector2(0, defaultheight.Value - 66 - 34 * (_advUI.chaControl.nowCoordinate.accessory.parts.Length + 1));
-            MoreAccessories._self.ExecuteDelayed(() =>
-            {
-                //Fuck you I'm going to bed
-                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent);
-                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent.parent);
-
-                var scrollrect = _advToggleTemplate.GetComponentInParent<ScrollRect>();
-                scrollrect.Rebuild(CanvasUpdate.Layout);
-                scrollrect.CalculateLayoutInputVertical();
-            });
+            LayoutRebuilder.MarkLayoutForRebuild((RectTransform)_advToggleTemplate.parent.parent);
+            //MoreAccessories._self.ExecuteDelayed(() =>
+            //{
+            //    LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent);
+            //    LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_advToggleTemplate.parent.parent.parent);
+            //});
         }
     }
 }
