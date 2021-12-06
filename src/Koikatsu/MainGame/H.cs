@@ -8,7 +8,12 @@ namespace MoreAccessoriesKOI
     public class HScene
     {
         public List<ChaControl> HSceneFemales { get; private set; }
-        public HSprite[] HSprites { get; private set; }//only KK VR uses array 
+
+        /// <summary>
+        /// only KK VR uses array
+        /// usually an array of size one as a result.
+        /// </summary>
+        public HSprite[] HSprites { get; private set; }
 
         internal HScene(List<ChaControl> lstFemale, HSprite[] sprite)
         {
