@@ -23,7 +23,7 @@ namespace MoreAccessoriesKOI
         {
             foreach (var sprite in HSprites)
             {
-                Scrollingwork(sprite, sprite.categoryAccessory.transform);
+                Scrollingwork(sprite, sprite.categoryAccessory.transform, false);
             }
         }
 
@@ -33,7 +33,7 @@ namespace MoreAccessoriesKOI
             {
                 foreach (var FemaleDressButton in sprite.lstMultipleFemaleDressButton)
                 {
-                    Scrollingwork(sprite, FemaleDressButton.accessory.transform);
+                    Scrollingwork(sprite, FemaleDressButton.accessory.transform, true);
                 }
             }
         }
@@ -42,11 +42,11 @@ namespace MoreAccessoriesKOI
         {
             foreach (var sprite in HSprites)
             {
-                Scrollingwork(sprite, sprite.lstMultipleFemaleDressButton[female].accessory.transform);
+                Scrollingwork(sprite, sprite.lstMultipleFemaleDressButton[female].accessory.transform, true);
             }
         }
 
-        private void Scrollingwork(HSprite sprite, Transform container)//Its a miracle that this works
+        private void Scrollingwork(HSprite sprite, Transform container, bool multi)
         {
             var original_scroll = sprite.clothCusutomCtrl.transform.GetComponentInChildren<ScrollRect>();
 
@@ -69,6 +69,8 @@ namespace MoreAccessoriesKOI
 
             recttra.pivot = new Vector2(0, 1);//set pivot to Left,Top so that recttransform grows downwards on larger resolutions
             recttra.anchorMax = new Vector2(0, 0.50f);//0.5f Anchor so that the scroll bar aligns well enough
+            if (multi)//multi slots are smaller than single
+                recttra.offsetMax = new Vector2(175, 0);
             if (scrollrect.horizontalScrollbar != null)
                 Object.Destroy(scrollrect.horizontalScrollbar.gameObject);
             Object.Destroy(scrollrect.transform.GetComponent<Image>());
