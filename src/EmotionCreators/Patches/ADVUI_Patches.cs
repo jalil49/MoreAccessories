@@ -1,7 +1,6 @@
 ﻿using ADVPart.Manipulate.Chara;
 using HarmonyLib;
 using Illusion.Extensions;
-using MoreAccessoriesKOI.Extensions;
 using System;
 using System.Linq;
 using TMPro;
