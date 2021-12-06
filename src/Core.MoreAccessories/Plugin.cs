@@ -383,7 +383,7 @@ namespace MoreAccessoriesKOI
             var plugindata = new PluginData();
             plugindata.data[_extSaveKey] = MessagePack.MessagePackSerializer.Serialize(dict);
 
-            ExtendedSave.SetExtendedDataById(data, GUID, plugindata);
+            ExtendedSave.SetExtendedDataById(data, _extSaveKey, plugindata);
         }
 
         /// <summary>
@@ -393,8 +393,14 @@ namespace MoreAccessoriesKOI
         /// <param name="data"></param>
         private void ExtendedSave_HEditDataBeingLoaded(HEdit.HEditData data)
         {
-            var plugindata = ExtendedSave.GetExtendedDataById(data, GUID);
-            if (plugindata == null) return;
+            var plugindata = ExtendedSave.GetExtendedDataById(data, _extSaveKey);
+
+            if (plugindata == null)
+            {
+                //extremely unlikely to be used, but a build was provided for testing using this
+                plugindata = ExtendedSave.GetExtendedDataById(data, GUID);
+                if (plugindata == null) return;
+            }
 
             var cutsdict = new Dictionary<string, List<List<int[]>>>();
             switch (plugindata.version)
