@@ -65,7 +65,6 @@ namespace MoreAccessoriesKOI
 
             scrollrect.movementType = ScrollRect.MovementType.Clamped;
             scrollrect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
-
             if (scrollrect.horizontalScrollbar != null)
                 Object.DestroyImmediate(scrollrect.horizontalScrollbar.gameObject);
             Object.DestroyImmediate(scrollrect.GetComponent<Image>());
@@ -118,12 +117,14 @@ namespace MoreAccessoriesKOI
             ScrollView.movementType = ScrollRect.MovementType.Clamped;
             ScrollView.horizontal = false;
             ScrollView.scrollSensitivity = 18f;
+            ScrollView.verticalScrollbarSpacing = -17f;//offset to avoid clipping window scroll because mask decreases in width to fit the vertical scrollbar (that is moved)
+
             var _charaMakerSlotTemplate = container.GetChild(0).gameObject;
 
             var rootCanvas = (RectTransform)_charaMakerSlotTemplate.GetComponentInParent<Canvas>().transform;
             var element = ScrollView.gameObject.AddComponent<LayoutElement>();
-            height = element.minHeight = rootCanvas.rect.height / 1.298076f;
-            element.minWidth = rootCanvas.rect.width * 0.35f;
+            height = element.minHeight = 832f;
+            element.minWidth = 600f;
 
             var vlg = ScrollView.content.gameObject.AddComponent<VerticalLayoutGroup>();
             parentGroup = container.GetComponent<VerticalLayoutGroup>();
@@ -138,12 +139,6 @@ namespace MoreAccessoriesKOI
             ScrollView.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             ScrollView.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-            AccessoryTab.ExecuteDelayed(() =>
-            {
-                ScrollView.verticalScrollbar.transform.localPosition = new Vector3(-140, ScrollView.verticalScrollbar.transform.localPosition.y, ScrollView.verticalScrollbar.transform.localPosition.z);
-                _slotUIPositionY = container.position.y;
-
-            }, 15);
             for (var i = 0; i < CvsAccessoryArray.Length; i++)
             {
                 var child = container.GetChild(0);
@@ -218,19 +213,19 @@ namespace MoreAccessoriesKOI
                 });
             }
 
+            //moving this up results in not moving scrollbar
+            ScrollView.verticalScrollbar.transform.localPosition = new Vector3(-105f, ScrollView.verticalScrollbar.transform.localPosition.y, ScrollView.verticalScrollbar.transform.localPosition.z);
+
             AccessoryTab.ExecuteDelayed(() =>
             {
                 CvsAccessoryArray[0].UpdateCustomUI();
                 CvsAccessoryArray[0].tglTakeOverParent.Set(false);
                 CvsAccessoryArray[0].tglTakeOverColor.Set(false);
+                ScrollView.viewport.gameObject.SetActive(true);
+                _slotUIPositionY = container.position.y;
             }, 5);
 
             ScrollView.viewport.gameObject.SetActive(false);
-
-            AccessoryTab.ExecuteDelayed(() => //Fixes problems with UI masks overlapping and creating bugs
-            {
-                ScrollView.viewport.gameObject.SetActive(true);
-            }, 5);
         }
 
         private void MakeWindowScrollable(Transform slotTransform)
@@ -509,7 +504,7 @@ namespace MoreAccessoriesKOI
 
         public static void AddSlot(int num)
         {
-            if (AddInProgress || !CustomBase.instance) return;
+            if (AddInProgress || !CustomBase.instance) return;//stop multiclick or repeatedly triggering this while in progress just in case
             AddInProgress = true;
             var controller = CustomBase.instance.chaCtrl;
             var nowparts = controller.nowCoordinate.accessory.parts;
