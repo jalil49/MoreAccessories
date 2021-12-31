@@ -67,21 +67,27 @@ namespace MoreAccessoriesKOI
             scrollrect.movementType = ScrollRect.MovementType.Clamped;
             scrollrect.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.AutoHideAndExpandViewport;
             scrolltemplate.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            //grab size of offsetmax
+            var offsetMax = ((RectTransform)sprite.categoryAccessory.lstButton[0].transform).offsetMax;
+            if (multi)//multi slots are smaller than single
+                offsetMax = ((RectTransform)sprite.lstMultipleFemaleDressButton[0].accessory.lstButton[0].transform).offsetMax;
+            offsetMax.x += 10;//add to adjust scrollbar position
             var element = scrolltemplate.AddComponent<LayoutElement>();
-            element.preferredHeight = Screen.height / 4;
+            element.preferredHeight = Screen.height / 3;//set height to 1/3 of screen height to display more accessories since i fixed having to show full list
+            element.preferredWidth = offsetMax.x;//width of scroll
+
+            scrollrect.content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
             var recttra = (RectTransform)scrolltemplate.transform;
-
             recttra.pivot = new Vector2(0, 1);//set pivot to Left,Top so that recttransform grows downwards on larger resolutions
+            recttra.anchorMin = Vector2.zero;//starts at 0.5,0.5 for some reason
             recttra.anchorMax = new Vector2(0, 0.50f);//0.5f Anchor so that the scroll bar aligns well enough
-            if (multi)//multi slots are smaller than single
-                recttra.offsetMax = new Vector2(175, 0);
+            recttra.offsetMax = offsetMax;
             if (scrollrect.horizontalScrollbar != null)
                 Object.Destroy(scrollrect.horizontalScrollbar.gameObject);
-            Object.Destroy(scrollrect.transform.GetComponent<Image>());
             Object.Destroy(scrollrect.content.gameObject);
-            Object.Destroy(scrollrect.viewport.GetComponent<Image>());//removes blank being rendered on top
-            Object.Destroy(scrollrect.viewport.GetComponent<Mask>());//fixes not being able to select out of scroll,
+            Object.Destroy(scrollrect.transform.GetComponent<Image>());//destroy white slightly transparent background
             scrollrect.transform.SetParent(container.parent, false);
             scrollrect.content = (RectTransform)container;
             container.SetParent(scrollrect.viewport);
