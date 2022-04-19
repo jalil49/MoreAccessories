@@ -1,4 +1,5 @@
-﻿using ChaCustom;
+﻿using System;
+using ChaCustom;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
@@ -102,18 +103,29 @@ namespace MoreAccessoriesKOI.Patches.Maker
         private static class UpdateSlotNamePatch
         {
             [HarmonyPriority(Priority.Last)]
-            private static void Prefix(CvsAccessory __instance, out int __state)
+            private static bool Prefix(CvsAccessory __instance, out int __state)
             {
+                var invalid = __instance.accessory.parts.Length <= __instance.nSlotNo;
+                if (invalid)
+                {
+                    __state = 120;
+                    //Console.WriteLine("invalid slotno " + __instance.nSlotNo);
+                    return false;
+                }
+
                 __state = __instance.accessory.parts[__instance.nSlotNo].type;
                 if (__instance.chaCtrl.infoAccessory[__instance.nSlotNo] == null)
                 {
                     __instance.accessory.parts[__instance.nSlotNo].type = 120;
                 }
+
+                return true;
             }
 
             [HarmonyPriority(Priority.First)]
             private static void Postfix(CvsAccessory __instance, int __state)
             {
+                if (__state == 120) return;
                 __instance.accessory.parts[__instance.nSlotNo].type = __state;
             }
         }
