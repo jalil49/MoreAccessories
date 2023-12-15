@@ -1,15 +1,17 @@
-﻿using HarmonyLib;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using HarmonyLib;
 using HPlay;
 using Illusion.Extensions;
-using System;
 using UniRx;
 
 namespace MoreAccessoriesKOI.Patches
 {
-    internal class Hplay_Patches
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    internal class HPlay_Patches
     {
         [HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Start))]
-        private static class HPlayHPartAccessoryCategoryUI_Start_Postfix
+        private static class PlayModeStart_Patch
         {
             private static void Postfix(HPlayHPartAccessoryCategoryUI __instance)
             {
@@ -18,9 +20,9 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(HPlayHPartAccessoryCategoryUI), nameof(HPlayHPartAccessoryCategoryUI.Init))]
-        private static class HPlayHPartAccessoryCategoryUI_Init_Postfix
+        private static class HPlayHPartAccessoryCategoryUI_Patches
         {
-            internal static bool Prefix(HPlayHPartAccessoryCategoryUI __instance)
+            private static bool Prefix(HPlayHPartAccessoryCategoryUI __instance)
             {
                 if (__instance.selectChara == null)
                 {
@@ -31,9 +33,9 @@ namespace MoreAccessoriesKOI.Patches
                 var i = 0;
                 for (; i < limit; i++)
                 {
-                    var showbutton = __instance.selectChara.IsAccessory(i);
-                    __instance.accessoryCategoryUIs[i].btn.gameObject.SetActiveIfDifferent(showbutton);
-                    if (showbutton)
+                    var showButton = __instance.selectChara.IsAccessory(i);
+                    __instance.accessoryCategoryUIs[i].btn.gameObject.SetActiveIfDifferent(showButton);
+                    if (showButton)
                     {
                         var component = __instance.selectChara.objAccessory[i].GetComponent<ListInfoComponent>();
                         __instance.accessoryCategoryUIs[i].text.text = component.data.Name;
@@ -48,24 +50,14 @@ namespace MoreAccessoriesKOI.Patches
         }
 
         [HarmonyPatch(typeof(HPlayHPartClothMenuUI), nameof(HPlayHPartClothMenuUI.Start))]
-        private static class HPlayHPartClothMenuUI_Start_Postfix
+        private static class ClothMenuStart_Patch
         {
             private static void Postfix(HPlayHPartClothMenuUI __instance)
             {
                 for (var i = 0; i < __instance.btnClothMenus.Length; i++)
                 {
                     var num = i;
-                    __instance.btnClothMenus[i].OnClickAsObservable().Subscribe(delegate (Unit _)
-                    {
-                        if (num == 1)
-                        {
-                            MoreAccessories.PlayMode.SetScrollViewActive(__instance.accessoryCategoryUI.Active);
-                        }
-                        else
-                        {
-                            MoreAccessories.PlayMode.SetScrollViewActive(false);
-                        }
-                    });
+                    __instance.btnClothMenus[i].OnClickAsObservable().Subscribe(delegate { MoreAccessories.PlayMode.SetScrollViewActive(num == 1 && __instance.accessoryCategoryUI.Active); });
                 }
             }
         }

@@ -1,7 +1,7 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using HarmonyLib;
 using Sideloader.AutoResolver;
-using System.Collections.Generic;
-
 #if KKS || EC
 using ExtensibleSaveFormat;
 using MessagePack;
@@ -12,11 +12,13 @@ using System.Linq;
 
 namespace MoreAccessoriesKOI.Patches
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
     public static class SideLoader_Patches
     {
 #if !EC
         [HarmonyPatch(typeof(UniversalAutoResolver), "IterateCoordinatePrefixes")]
-        private static class SideloaderAutoresolverHooks_IterateCoordinatePrefixes_Patches
+        private static class SideLoaderBugFix
         {
             [HarmonyBefore("com.deathweasel.bepinex.guidmigration")]
             private static void Prefix(ICollection<ResolveInfo> extInfo) => Outfit_Error_Fix(extInfo);
@@ -25,7 +27,7 @@ namespace MoreAccessoriesKOI.Patches
 
 #if KKS || EC
         [HarmonyPatch(typeof(ExtendedSave), "CardImportEvent")]
-        private static class SideloaderAutoresolverHooks_Import_Patches
+        private static class SideloaderImport_Patch
         {
             private static void Prefix(Dictionary<string, PluginData> data)
             {
@@ -36,8 +38,7 @@ namespace MoreAccessoriesKOI.Patches
                         var tmpExtInfo = (object[])pluginData.data["info"];
                         var extInfo = tmpExtInfo.Select(x => MessagePackSerializer.Deserialize<ResolveInfo>((byte[])x)).ToList();
                         Outfit_Error_Fix(extInfo);
-                        var serial = extInfo.Select(x => MessagePackSerializer.Serialize(x)).ToArray();
-                        pluginData.data["info"] = serial;
+                        pluginData.data["info"] = extInfo.Select(MessagePackSerializer.Serialize).ToArray();
                     }
                 }
             }
@@ -47,7 +48,6 @@ namespace MoreAccessoriesKOI.Patches
         {
             if (extInfo != null)
             {
-                var i = 0;
                 foreach (var o in extInfo)
                 {
                     var property = o.Property;
@@ -58,7 +58,6 @@ namespace MoreAccessoriesKOI.Patches
                         array[7] = '.';
                         o.Property = new string(array);
                     }
-                    ++i;
                 }
             }
         }

@@ -1,140 +1,181 @@
-﻿using HarmonyLib;
-using Manager;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
+using BepInEx.Logging;
+using HarmonyLib;
+using Manager;
 using UnityEngine;
+#if KK || EC
+using System.Linq;
+#endif
 
 namespace MoreAccessoriesKOI.Patches
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
     internal class Common_Patches
     {
-        //
-        // Please do not adjust externally, please just call arraysync after adjusting nowcoordinate.accessory.parts to desired size
+        // Please do not adjust externally, please just call array sync after adjusting accessory.parts to desired size
         //
         // Greedy code stop others from adjusting array sizes unexpectedly and breaking sync
+
         #region Greedy Code
 
+        internal static List<ChaControl> GetChaControls()
+        {
 #if KK || EC
-        internal static List<ChaControl> GetChaControls()
-        {
-            if (Character.instance)
-                return Character.instance.dictEntryChara.Values.ToList();
-            return null;
-        }
+            return Character.instance ? Character.instance.dictEntryChara.Values.ToList() : null;
 #elif KKS
-        internal static List<ChaControl> GetChaControls()
-        {
             return Character.ChaControls;
-        }
 #endif
+        }
+
         /// <summary>
-        /// Please do not adjust externally, please just call arraysync after adjusting nowcoordinate.accessory.parts to desired size
+        /// Please do not adjust externally, please just call array sync after adjusting accessory.parts to desired size
         /// </summary>
-        /// <param name="value"></param>
+        /// <param name="value">stops modification if true</param>
         internal static void Seal(bool value)
         {
-            ShowAccessorySetterPatch.seal = value;
-            CusAcsCmpSetterPatch.seal = value;
-            ObjAccessorySetterPatch.seal = value;
-            ObjAcsMoveSetterPatch.seal = value;
-            InfoAccessorySetterPatch.seal = value;
-            HideHairAcsSetterPatch.seal = value;
+            ShowAccessorySetter_Patch.SealPatch = value;
+            CusAcsCmpSetter_Patch.SealPatch = value;
+            ObjAccessorySetter_Patch.SealPatch = value;
+            ObjAcsMoveSetter_Patch.SealPatch = value;
+            InfoAccessorySetter_Patch.SealPatch = value;
+            HideHairAcsSetter_Patch.SealPatch = value;
         }
 
         [HarmonyPatch(typeof(ChaFileStatus), nameof(ChaFileStatus.showAccessory), MethodType.Setter)]
-        internal class ShowAccessorySetterPatch
+        internal class ShowAccessorySetter_Patch
         {
-            internal static bool seal = true;
-            internal static bool Prefix(ChaFileStatus __instance, bool[] value)
+            internal static bool SealPatch = true;
+
+            private static bool Prefix(ChaFileStatus __instance, bool[] value)
             {
-                var control = GetChaControls()?.FirstOrDefault(x => x.fileStatus == __instance);
-                if (control != null && __instance.showAccessory != null && seal && value.Length != control.nowCoordinate.accessory.parts.Length)
+                if (!SealPatch) return true;
+
+                ChaControl control = null;
+                foreach (var x in GetChaControls())
                 {
-                    MoreAccessories.Print($"Do not change showAccessory array size {System.Environment.StackTrace}", BepInEx.Logging.LogLevel.Warning);
+                    if (x.fileStatus == __instance)
+                    {
+                        control = x;
+                        break;
+                    }
+                }
+
+                if (control != null && __instance.showAccessory != null && control.nowCoordinate != null && value.Length != control.nowCoordinate.accessory.parts.Length)
+                {
+                    MoreAccessories.Print($"Do not change showAccessory array size {Environment.StackTrace}", LogLevel.Warning);
                     return false;
                 }
+
                 return true;
             }
         }
 
         [HarmonyPatch(typeof(ChaInfo), nameof(ChaInfo.cusAcsCmp), MethodType.Setter)]
-        internal class CusAcsCmpSetterPatch
+        internal class CusAcsCmpSetter_Patch
         {
-            internal static bool seal = true;
-            internal static bool Prefix(ChaInfo __instance, ChaAccessoryComponent[] value)
+            internal static bool SealPatch = true;
+
+            private static bool Prefix(ChaInfo __instance, ChaAccessoryComponent[] value)
             {
-                var control = GetChaControls()?.FirstOrDefault(x => x == __instance);
-                if (control != null && __instance.cusClothesCmp != null && seal && value.Length != control.nowCoordinate.accessory.parts.Length)
+                if (!SealPatch) return true;
+
+                var control = __instance as ChaControl;
+
+                if (control != null && __instance.cusClothesCmp != null && control.nowCoordinate != null && value.Length != control.nowCoordinate.accessory.parts.Length)
                 {
-                    MoreAccessories.Print($"Do not change cusAcsCmp array size {System.Environment.StackTrace}", BepInEx.Logging.LogLevel.Warning);
+                    MoreAccessories.Print($"Do not change cusAcsCmp array size {Environment.StackTrace}", LogLevel.Warning);
                     return false;
                 }
+
                 return true;
             }
         }
 
         [HarmonyPatch(typeof(ChaInfo), nameof(ChaInfo.objAccessory), MethodType.Setter)]
-        internal class ObjAccessorySetterPatch
+        internal class ObjAccessorySetter_Patch
         {
-            internal static bool seal = true;
-            internal static bool Prefix(ChaInfo __instance, ChaAccessoryComponent[] value)
+            internal static bool SealPatch = true;
+
+            private static bool Prefix(ChaInfo __instance, ChaAccessoryComponent[] value)
             {
-                var control = GetChaControls()?.FirstOrDefault(x => x == __instance);
-                if (control != null && __instance.objAccessory != null && seal && value.Length != control.nowCoordinate.accessory.parts.Length)
+                if (!SealPatch) return true;
+
+                var control = __instance as ChaControl;
+
+                if (control != null && __instance.objAccessory != null && control.nowCoordinate != null && value.Length != control.nowCoordinate.accessory.parts.Length)
                 {
-                    MoreAccessories.Print($"Do not change objAccessory array size {System.Environment.StackTrace}", BepInEx.Logging.LogLevel.Warning);
+                    MoreAccessories.Print($"Do not change objAccessory array size {Environment.StackTrace}", LogLevel.Warning);
                     return false;
                 }
+
                 return true;
             }
         }
 
         [HarmonyPatch(typeof(ChaInfo), nameof(ChaInfo.objAcsMove), MethodType.Setter)]
-        internal class ObjAcsMoveSetterPatch
+        internal class ObjAcsMoveSetter_Patch
         {
-            internal static bool seal = true;
-            internal static bool Prefix(ChaInfo __instance, GameObject[,] value)
+            internal static bool SealPatch = true;
+
+            private static bool Prefix(ChaInfo __instance, GameObject[,] value)
             {
-                var control = GetChaControls()?.FirstOrDefault(x => x == __instance);
-                if (control != null && __instance.objAcsMove != null && seal && value.Length != control.nowCoordinate.accessory.parts.Length)
+                if (!SealPatch) return true;
+
+                var control = __instance as ChaControl;
+
+                if (control != null && __instance.objAcsMove != null && control.nowCoordinate != null && value.Length != control.nowCoordinate.accessory.parts.Length)
                 {
-                    MoreAccessories.Print($"Do not change objAcsMove array size {System.Environment.StackTrace}", BepInEx.Logging.LogLevel.Warning);
+                    MoreAccessories.Print($"Do not change objAcsMove array size {Environment.StackTrace}", LogLevel.Warning);
                     return false;
                 }
+
                 return true;
             }
         }
 
         [HarmonyPatch(typeof(ChaInfo), nameof(ChaInfo.infoAccessory), MethodType.Setter)]
-        internal class InfoAccessorySetterPatch
+        internal class InfoAccessorySetter_Patch
         {
-            internal static bool seal = true;
-            internal static bool Prefix(ChaInfo __instance, ListInfoBase[] value)
+            internal static bool SealPatch = true;
+
+            private static bool Prefix(ChaInfo __instance, ListInfoBase[] value)
             {
-                var control = GetChaControls()?.FirstOrDefault(x => x == __instance);
-                if (control != null && __instance.infoAccessory != null && seal && value.Length != control.nowCoordinate.accessory.parts.Length)
+                if (!SealPatch) return true;
+
+                var control = __instance as ChaControl;
+
+                if (control != null && __instance.infoAccessory != null && control.nowCoordinate != null && value.Length != control.nowCoordinate.accessory.parts.Length)
                 {
-                    MoreAccessories.Print($"Do not change infoAccessory array size {System.Environment.StackTrace}", BepInEx.Logging.LogLevel.Warning);
+                    MoreAccessories.Print($"Do not change infoAccessory array size {Environment.StackTrace}", LogLevel.Warning);
                     return false;
                 }
+
                 return true;
             }
         }
 
         [HarmonyPatch(typeof(ChaControl), nameof(ChaControl.hideHairAcs), MethodType.Setter)]
-        internal class HideHairAcsSetterPatch
+        internal class HideHairAcsSetter_Patch
         {
-            internal static bool seal = true;
-            internal static bool Prefix(ChaControl __instance, bool[] value)
+            internal static bool SealPatch = true;
+
+            private static bool Prefix(ChaControl __instance, bool[] value)
             {
-                if (__instance.hideHairAcs != null && seal && value.Length != __instance.nowCoordinate.accessory.parts.Length)
+                if (!SealPatch) return true;
+
+                if (__instance.hideHairAcs != null && __instance.nowCoordinate != null && value.Length != __instance.nowCoordinate.accessory.parts.Length)
                 {
-                    MoreAccessories.Print($"Please do not try to change hideHairAcs array size outside of MoreAccessories.ArraySync {System.Environment.StackTrace}", BepInEx.Logging.LogLevel.Warning);
+                    MoreAccessories.Print($"Please do not try to change hideHairAcs array size outside of MoreAccessories.ArraySync {Environment.StackTrace}", LogLevel.Warning);
                     return false;
                 }
+
                 return true;
             }
         }
+
         #endregion
 
         //native code that triggers greed allow it to bypass

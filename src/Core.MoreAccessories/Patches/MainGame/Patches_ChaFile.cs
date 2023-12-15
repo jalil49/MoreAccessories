@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Diagnostics.CodeAnalysis;
+using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches
 {
@@ -8,11 +9,13 @@ namespace MoreAccessoriesKOI.Patches
         /// make sure arrays are equal size, copy uses Array.Copy method
         /// </summary>
         [HarmonyPatch(typeof(ChaFileStatus), nameof(ChaFileStatus.Copy))]
-        private static class ChaFileControl_Copy_Patches
+        [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
+        private static class ChaFileControlCopy_Patch
         {
             private static void Prefix(ChaFileStatus __instance, ChaFileStatus src)
             {
-                Common_Patches.Seal(false);//will probably get sealed soon
+                Common_Patches.Seal(false); //will probably get sealed soon
                 __instance.showAccessory = new bool[src.showAccessory.Length];
             }
         }
@@ -21,6 +24,8 @@ namespace MoreAccessoriesKOI.Patches
         /// sync copied status to current coordinate array length
         /// </summary>
         [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.CopyAll))]
+        [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
         private static class ChaFileCopyAllPatch
         {
             private static void Prefix() => Common_Patches.Seal(false);
@@ -28,10 +33,12 @@ namespace MoreAccessoriesKOI.Patches
         }
 #if KK || KKS
         /// <summary>
-        /// Array sync when replacing charas
+        /// Array sync when replacing Characters
         /// </summary>
         [HarmonyPatch(typeof(ActionGame.Chara.Base), nameof(ActionGame.Chara.Base.Replace))]
-        private static class Replace_Patches
+        [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
+        private static class Replace_Patch
         {
             private static void Postfix(ActionGame.Chara.Base __instance)
             {

@@ -1,72 +1,73 @@
-﻿using ChaCustom;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using ChaCustom;
 using HarmonyLib;
 using MoreAccessoriesKOI.Extensions;
-using System;
-using System.Reflection;
 using UnityEngine;
 
 namespace MoreAccessoriesKOI
 {
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class BackwardCompatibility
     {
-        private static object _customHistory_Instance = null;
-        private static Action<ChaControl, Func<bool>> _customHistory_Add1 = null;
-        private static Action<ChaControl, Func<bool, bool>, bool> _customHistory_Add2 = null;
-        private static Action<ChaControl, Func<bool, bool, bool>, bool, bool> _customHistory_Add3 = null;
-        private static Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool> _customHistory_Add5 = null;
+        private static object _customHistoryInstance;
+        private static Action<ChaControl, Func<bool>> _customHistoryAdd1;
+        private static Action<ChaControl, Func<bool, bool>, bool> _customHistoryAdd2;
+        private static Action<ChaControl, Func<bool, bool, bool>, bool, bool> _customHistoryAdd3;
+        private static Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool> _customHistoryAdd5;
 
         private static void CheckInstance()
         {
-            if (_customHistory_Instance == null)
+            if (_customHistoryInstance == null)
             {
                 var t = Type.GetType("ChaCustom.CustomHistory,Assembly-CSharp.dll");
-                _customHistory_Instance = t.GetPrivateProperty("Instance");
-                _customHistory_Add1 = (Action<ChaControl, Func<bool>>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool>>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add1", AccessTools.all));
-                _customHistory_Add2 = (Action<ChaControl, Func<bool, bool>, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool>, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add2", AccessTools.all));
-                _customHistory_Add3 = (Action<ChaControl, Func<bool, bool, bool>, bool, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool, bool>, bool, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add3", AccessTools.all));
-                _customHistory_Add5 = (Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>)Delegate.CreateDelegate(typeof(Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>), _customHistory_Instance, _customHistory_Instance.GetType().GetMethod("Add5", AccessTools.all));
+                _customHistoryInstance = t.GetPrivateProperty("Instance");
+                _customHistoryAdd1 = (Action<ChaControl, Func<bool>>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool>>), _customHistoryInstance, _customHistoryInstance.GetType().GetMethod("Add1", AccessTools.all));
+                _customHistoryAdd2 = (Action<ChaControl, Func<bool, bool>, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool>, bool>), _customHistoryInstance,
+                    _customHistoryInstance.GetType().GetMethod("Add2", AccessTools.all));
+                _customHistoryAdd3 = (Action<ChaControl, Func<bool, bool, bool>, bool, bool>)Delegate.CreateDelegate(typeof(Action<ChaControl, Func<bool, bool, bool>, bool, bool>), _customHistoryInstance,
+                    _customHistoryInstance.GetType().GetMethod("Add3", AccessTools.all));
+                _customHistoryAdd5 = (Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>)Delegate.CreateDelegate(
+                    typeof(Extensions.Action<ChaControl, Func<bool, bool, bool, bool, bool>, bool, bool, bool, bool>), _customHistoryInstance, _customHistoryInstance.GetType().GetMethod("Add5", AccessTools.all));
             }
         }
 
         public static void CustomHistory_Instance_Add1(ChaControl instanceChaCtrl, Func<bool> updateAccessoryMoveAllFromInfo)
         {
             CheckInstance();
-            _customHistory_Add1(instanceChaCtrl, updateAccessoryMoveAllFromInfo);
+            _customHistoryAdd1(instanceChaCtrl, updateAccessoryMoveAllFromInfo);
         }
 
         public static void CustomHistory_Instance_Add2(ChaControl instanceChaCtrl, Func<bool, bool> funcUpdateAcsColor, bool b)
         {
             CheckInstance();
-            _customHistory_Add2(instanceChaCtrl, funcUpdateAcsColor, b);
+            _customHistoryAdd2(instanceChaCtrl, funcUpdateAcsColor, b);
         }
 
         internal static void CustomHistory_Instance_Add3(ChaControl instanceChaCtrl, Func<bool, bool, bool> funcUpdateAccessory, bool b, bool b1)
         {
             CheckInstance();
-            _customHistory_Add3(instanceChaCtrl, funcUpdateAccessory, b, b1);
+            _customHistoryAdd3(instanceChaCtrl, funcUpdateAccessory, b, b1);
         }
 
         internal static void CustomHistory_Instance_Add5(ChaControl chaCtrl, Func<bool, bool, bool, bool, bool> reload, bool v1, bool v2, bool v3, bool v4)
         {
             CheckInstance();
-            _customHistory_Add5(chaCtrl, reload, v1, v2, v3, v4);
+            _customHistoryAdd5(chaCtrl, reload, v1, v2, v3, v4);
         }
 
-        private static MethodInfo _cvsColor_Setup;
 
-        internal static void Setup(this CvsColor self, string winTitle, CvsColor.ConnectColorKind kind, Color color, Action<Color> _actUpdateColor, Action _actUpdateHistory, bool _useAlpha)
+        internal static void Setup(this CvsColor self, string winTitle, CvsColor.ConnectColorKind kind, Color color, Action<Color> actUpdateColor, Action actUpdateHistory, bool useAlpha)
         {
-            if (_cvsColor_Setup == null)
-                _cvsColor_Setup = self.GetType().GetMethod("Setup", AccessTools.all);
-            if (MoreAccessories._hasDarkness)
-                _cvsColor_Setup.Invoke(self, new object[] { winTitle, kind, color, _actUpdateColor, _useAlpha });
-            else
-                _cvsColor_Setup.Invoke(self, new object[] { winTitle, kind, color, _actUpdateColor, _actUpdateHistory, _useAlpha });
+            var cvsColorSetup = self.GetType().GetMethod("Setup", AccessTools.all);
+            cvsColorSetup.Invoke(self, MoreAccessories.HasDarkness ? new object[] { winTitle, kind, color, actUpdateColor, useAlpha } : new object[] { winTitle, kind, color, actUpdateColor, actUpdateHistory, useAlpha });
         }
 
         internal static Action UpdateAcsColorHistory(this CvsAccessory __instance)
         {
-            if (MoreAccessories._hasDarkness)
+            if (MoreAccessories.HasDarkness)
                 return null;
             var methodInfo = __instance.GetType().GetMethod("UpdateAcsColorHistory", AccessTools.all);
             if (methodInfo != null)
@@ -74,12 +75,10 @@ namespace MoreAccessoriesKOI
             return null;
         }
 
-        private static MethodInfo _cvsAccessory_UpdateAcsMoveHistory;
         internal static void UpdateAcsMoveHistory(this CvsAccessory self)
         {
-            if (_cvsAccessory_UpdateAcsMoveHistory == null)
-                _cvsAccessory_UpdateAcsMoveHistory = self.GetType().GetMethod("UpdateAcsMoveHistory", AccessTools.all);
-            _cvsAccessory_UpdateAcsMoveHistory.Invoke(self, null);
+            var cvsAccessoryUpdateAcsMoveHistory = self.GetType().GetMethod("UpdateAcsMoveHistory", AccessTools.all);
+            cvsAccessoryUpdateAcsMoveHistory.Invoke(self, null);
         }
     }
 }

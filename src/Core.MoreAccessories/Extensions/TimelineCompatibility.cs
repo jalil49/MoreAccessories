@@ -1,11 +1,15 @@
 ﻿#if !EC
-using Studio;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Xml;
+using Studio;
 
 namespace MoreAccessoriesKOI
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
     internal class TimelineCompatibility
     {
         private static Func<float> _getPlaybackTime;
@@ -39,6 +43,7 @@ namespace MoreAccessoriesKOI
             {
                 UnityEngine.Debug.LogError("Exception caught when trying to find Timeline: " + e);
             }
+
             return false;
         }
 
@@ -66,21 +71,19 @@ namespace MoreAccessoriesKOI
         /// Adds an InterpolableModel to the list with a constant parameter
         /// </summary>
         public static void AddInterpolableModelStatic(string owner,
-                                                      string id,
-                                                      object parameter,
-                                                      string name,
-                                                      MoreAccessoriesKOI.Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateBefore,
-                                                      MoreAccessoriesKOI.Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateAfter,
-                                                      Func<ObjectCtrlInfo, bool> isCompatibleWithTarget,
-                                                      Func<ObjectCtrlInfo, object, object> getValue,
-                                                      Func<object, XmlNode, object> readValueFromXml,
-                                                      Action<object, XmlTextWriter, object> writeValueToXml,
-                                                      Func<ObjectCtrlInfo, XmlNode, object> readParameterFromXml = null,
-                                                      Action<ObjectCtrlInfo, XmlTextWriter, object> writeParameterToXml = null,
-                                                      Func<ObjectCtrlInfo, object, object, object, bool> checkIntegrity = null,
-                                                      bool useOciInHash = true,
-                                                      Func<string, ObjectCtrlInfo, object, string> getFinalName = null,
-                                                      Func<ObjectCtrlInfo, object, bool> shouldShow = null)
+            string id,
+            object parameter,
+            string name, Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateBefore, Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateAfter,
+            Func<ObjectCtrlInfo, bool> isCompatibleWithTarget,
+            Func<ObjectCtrlInfo, object, object> getValue,
+            Func<object, XmlNode, object> readValueFromXml,
+            Action<object, XmlTextWriter, object> writeValueToXml,
+            Func<ObjectCtrlInfo, XmlNode, object> readParameterFromXml = null,
+            Action<ObjectCtrlInfo, XmlTextWriter, object> writeParameterToXml = null,
+            Func<ObjectCtrlInfo, object, object, object, bool> checkIntegrity = null,
+            bool useOciInHash = true,
+            Func<string, ObjectCtrlInfo, object, string> getFinalName = null,
+            Func<ObjectCtrlInfo, object, bool> shouldShow = null)
         {
             Delegate ib = null;
             if (interpolateBefore != null)
@@ -88,7 +91,7 @@ namespace MoreAccessoriesKOI
             Delegate ia = null;
             if (interpolateAfter != null)
                 ia = Delegate.CreateDelegate(_interpolableDelegate, interpolateAfter.Target, interpolateAfter.Method);
-            _addInterpolableModelStatic.Invoke(null, new object[]
+            _addInterpolableModelStatic.Invoke(null, new[]
             {
                 owner,
                 id,
@@ -113,21 +116,19 @@ namespace MoreAccessoriesKOI
         /// Adds an interpolableModel to the list with a dynamic parameter
         /// </summary>
         public static void AddInterpolableModelDynamic(string owner,
-                                                       string id,
-                                                       string name,
-                                                       MoreAccessoriesKOI.Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateBefore,
-                                                       MoreAccessoriesKOI.Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateAfter,
-                                                       Func<ObjectCtrlInfo, bool> isCompatibleWithTarget,
-                                                       Func<ObjectCtrlInfo, object, object> getValue,
-                                                       Func<object, XmlNode, object> readValueFromXml,
-                                                       Action<object, XmlTextWriter, object> writeValueToXml,
-                                                       Func<ObjectCtrlInfo, object> getParameter,
-                                                       Func<ObjectCtrlInfo, XmlNode, object> readParameterFromXml = null,
-                                                       Action<ObjectCtrlInfo, XmlTextWriter, object> writeParameterToXml = null,
-                                                       Func<ObjectCtrlInfo, object, object, object, bool> checkIntegrity = null,
-                                                       bool useOciInHash = true,
-                                                       Func<string, ObjectCtrlInfo, object, string> getFinalName = null,
-                                                       Func<ObjectCtrlInfo, object, bool> shouldShow = null)
+            string id,
+            string name, Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateBefore, Extensions.Action<ObjectCtrlInfo, object, object, object, float> interpolateAfter,
+            Func<ObjectCtrlInfo, bool> isCompatibleWithTarget,
+            Func<ObjectCtrlInfo, object, object> getValue,
+            Func<object, XmlNode, object> readValueFromXml,
+            Action<object, XmlTextWriter, object> writeValueToXml,
+            Func<ObjectCtrlInfo, object> getParameter,
+            Func<ObjectCtrlInfo, XmlNode, object> readParameterFromXml = null,
+            Action<ObjectCtrlInfo, XmlTextWriter, object> writeParameterToXml = null,
+            Func<ObjectCtrlInfo, object, object, object, bool> checkIntegrity = null,
+            bool useOciInHash = true,
+            Func<string, ObjectCtrlInfo, object, string> getFinalName = null,
+            Func<ObjectCtrlInfo, object, bool> shouldShow = null)
         {
             Delegate ib = null;
             if (interpolateBefore != null)

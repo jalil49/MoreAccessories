@@ -1,9 +1,10 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using BepInEx.Logging;
+using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches.MainGame
 {
@@ -12,12 +13,23 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         /// <summary>
         /// Check array sizes at multiple points when coordinate/character changes
         /// </summary>
+
         #region ArraySyncChecks
+
 #if KK || KKS
         [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeCoordinateType), new[] { typeof(ChaFileDefine.CoordinateType), typeof(bool) })]
-        internal class ChangeCoordinateTypePostFix
+        internal class ChangeCoordinateType_Patch
         {
-            private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance, true);
+            private static void Prefix(ChaControl __instance)
+            {
+                //Fixes at least one issue with copying a accessories from a larger coordinate to default having at least slot 21 (index 20) having the wrong slot.
+                MoreAccessories.ArraySync(__instance);
+            }
+
+            private static void Postfix(ChaControl __instance)
+            {
+                ArraySyncCheck(__instance, true);
+            }
         }
 
         [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetNowCoordinate), new[] { typeof(ChaFileCoordinate) })]
@@ -26,7 +38,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 #elif EC
-        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), new[] { typeof(ChaFileCoordinate), typeof(bool), typeof(bool) })]
+        [HarmonyPriority(Priority.First), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeNowCoordinate), typeof(ChaFileCoordinate), typeof(bool), typeof(bool))]
         internal class ChangeCoordinateTypePostFix
         {
             private static void Postfix(ChaControl __instance) => ArraySyncCheck(__instance);
@@ -64,14 +76,14 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 #if KKS
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool), typeof(bool) })]
 #elif KK || EC
-        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), new[] { typeof(bool) })]
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessory), typeof(bool))]
 #endif
         internal class ChacontrolChangeAccessory_Patch
         {
             private static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
         }
 
-        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), new[] { typeof(bool) })]
+        [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.ChangeAccessoryAsync), typeof(bool))]
         internal class ChacontrolChangeAccessoryAsync_Patch
         {
             private static void Prefix(ChaControl __instance) => ArraySyncCheck(__instance);
@@ -86,20 +98,21 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     Accessories.ShowSlot = Math.Max(Array.FindLastIndex(chara.nowCoordinate.accessory.parts, x => x.type != 120) + 1, 20);
                     MoreAccessories.NowCoordinateTrimAndSync(chara);
                 }
-                var len = chara.nowCoordinate.accessory.parts.Length;
-                if (len != chara.objAccessory.Length || len != chara.fileStatus.showAccessory.Length)
-                    MoreAccessories.ArraySync(chara);
+
+                MoreAccessories.ArraySync(chara);
 
                 MoreAccessories._self.UpdateUI();
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", LogLevel.Error);
             }
         }
+
         #endregion
 
         #region Transpiler Patches
+
         /// <summary>
         /// Async/coroutines need to be patched like this KKAPI can patch movenext, but cant use kkapi due to loop
         /// </summary>
@@ -119,22 +132,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             internal static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-#if DEBUG
-                MoreAccessories.Print($"ChaControl_ChangeAccessoryAsync_Patches");
-#endif
                 var instructionsList = instructions.ToList();
                 var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue || x.opcode == OpCodes.Brtrue_S); //work backwards from end
 
-#if DEBUG
-                if (end == -1)
-                {
-                    MoreAccessories.Print($"Opcode not found Brtrue || Brtrue_s", BepInEx.Logging.LogLevel.Error);
-                    for (var i = 0; i < instructionsList.Count; i++)
-                    {
-                        MoreAccessories.Print($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
-                    }
-                }
-#endif
 
                 var start = end - 4; //code is at least 4 lines
 
@@ -146,13 +146,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     }
                 }
 
-                for (int i = 0, j = 0; i < instructionsList.Count; i++, j++)
+                for (int i = 0; i < instructionsList.Count; i++)
                 {
                     var inst = instructionsList[i];
 
-                    if (i == start)//instead pushing 0,slot,19 and popping RangeEqual => push Chacontrol, slotno and pop with call
+                    if (i == start) //instead pushing 0,slot,19 and popping RangeEqual => push Chacontrol, slotno and pop with call
                     {
-                        i++;//skip pushing 0 to stack
+                        i++; //skip pushing 0 to stack
 #if KKS
                         yield return new CodeInstruction(OpCodes.Ldloc_1); //ldarg_0  contains chacontrol don't use this.chacontrol parts array is null for a mysterious reason
 #elif KK || EC
@@ -163,19 +163,12 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         yield return instructionsList[i++]; //ldfld  this.Chacontrol
                         yield return instructionsList[i++]; //ldfld  this.Chacontrol.slotno
 
-                        //var test = new CodeInstruction(OpCodes.Call, typeof(ChaControl_ChangeAccessoryAsync_Patches).GetMethod(nameof(AccessoryCheck), AccessTools.all));
-                        //MoreAccessories._self.Logger.LogWarning($"{j++:00} {test.opcode} {test.operand}");
                         yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessorySlotBoolCheck), AccessTools.all));
-                        i += 2;//skip 19 insert and call range
+                        i += 2; //skip 19 insert and call range
                     }
-                    //if (i < 35)
-                    //    MoreAccessories._self.Logger.LogWarning($"{j:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
+
                     yield return instructionsList[i];
                 }
-
-#if DEBUG
-                MoreAccessories.Print($"Transpiler worked");
-#endif
             }
         }
 
@@ -195,22 +188,15 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-#if DEBUG
-                MoreAccessories.Print($"{nameof(ChaControl_ChangeAccessoryAsync_Replace20_Patches)} Method");
-                var worked = false;
-
-#endif
                 var instructionsList = instructions.ToList();
+
                 for (var i = 0; i < instructionsList.Count; i++)
                 {
                     var inst = instructionsList[i];
                     if (inst.opcode == OpCodes.Ldc_I4_S && inst.operand.ToString() == "20")
                     {
-#if DEBUG
-                        worked = true;
-#endif
 #if KKS
-                        yield return new CodeInstruction(OpCodes.Ldloc_1);//feed chacontrol to method
+                        yield return new CodeInstruction(OpCodes.Ldloc_1); //feed chacontrol to method
 #elif KK || EC
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldfld, AccessTools.TypeByName("ChaControl+<ChangeAccessoryAsync>c__Iterator11, Assembly-CSharp").GetField("$this", AccessTools.all));
@@ -218,12 +204,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
                         continue;
                     }
+
                     yield return inst;
                 }
-
-#if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
-#endif
             }
         }
 
@@ -233,30 +216,20 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_0_Patches
         {
-#if DEBUG
-            private static int count = 0;
-            private static void Finalizer(Exception __exception)
-            {
-                if (__exception != null)
-                {
-                    MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
-                }
-            }
-#endif
             private static IEnumerable<MethodBase> TargetMethods()
             {
                 var ChaCon = typeof(ChaControl);
                 var list = new List<MethodBase>
-                    {
-                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryParent)),        //0
-                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryPos)),              //1
-                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryRot)),              //2
-                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryScl)),              //3
-                        AccessTools.Method(ChaCon, nameof(ChaControl.UpdateAccessoryMoveFromInfo)),  //4
-                        AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryColor)),         //5
-                        AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryDefaultColor)),     //6
-                        AccessTools.Method(ChaCon, nameof(ChaControl.IsAccessory)),     //6
-                    };
+                {
+                    AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryParent)), //0
+                    AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryPos)), //1
+                    AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryRot)), //2
+                    AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryScl)), //3
+                    AccessTools.Method(ChaCon, nameof(ChaControl.UpdateAccessoryMoveFromInfo)), //4
+                    AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryColor)), //5
+                    AccessTools.Method(ChaCon, nameof(ChaControl.SetAccessoryDefaultColor)), //6
+                    AccessTools.Method(ChaCon, nameof(ChaControl.IsAccessory)) //6
+                };
 
 #if KKS
                 list.Add(AccessTools.Method(ChaCon, nameof(ChaControl.ChangeAccessoryNoAsync)));
@@ -267,23 +240,9 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-#if DEBUG
-                MoreAccessories.Print($"ChaControl_CheckAdjuster_param_slot_0_Patches Method {count}");
-                var worked = false;
-
-#endif
                 var instructionsList = instructions.ToList();
                 var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue || x.opcode == OpCodes.Brtrue_S); //work backwards from end
-#if DEBUG
-                if (end == -1)
-                {
-                    MoreAccessories.Print($"Opcode not found Brtrue || Brtrue_s", BepInEx.Logging.LogLevel.Error);
-                    for (var i = 0; i < instructionsList.Count; i++)
-                    {
-                        MoreAccessories.Print($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
-                    }
-                }
-#endif
+
 
                 var start = end - 4; //code is at least 4 lines
 
@@ -309,25 +268,16 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
                     if (i == start)
                     {
-#if DEBUG
-                        worked = true;
-#endif
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldarg_1);
 
-                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(ChaControl_Patches.AccessorySlotBoolCheck), AccessTools.all));
+                        yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessorySlotBoolCheck), AccessTools.all));
                         i = end;
                         inst = instructionsList[i];
                     }
 
                     yield return inst;
                 }
-
-#if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Debug : BepInEx.Logging.LogLevel.Error);
-                count++;
-#endif
-
             }
         }
 
@@ -337,45 +287,21 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch]
         internal class ChaControl_CheckAdjuster_param_slot_1_Patches
         {
-#if DEBUG
-            private static int count = 0;
-            private static void Finalizer(Exception __exception)
-            {
-                if (__exception != null)
-                {
-                    MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
-                }
-            }
-#endif
             private static IEnumerable<MethodBase> TargetMethods()
             {
                 var ChaCon = typeof(ChaControl);
                 var list = new List<MethodBase>
-                    {
-                        AccessTools.Method(ChaCon, nameof(ChaControl.GetAccessoryDefaultColor)),
-                    };
+                {
+                    AccessTools.Method(ChaCon, nameof(ChaControl.GetAccessoryDefaultColor))
+                };
                 return list;
             }
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-#if DEBUG
-                MoreAccessories.Print($"ChaControl_CheckAdjuster_param_slot_1_Patches Method {count}");
-#endif
                 var instructionsList = instructions.ToList();
                 var end = instructionsList.FindIndex(4, x => x.opcode == OpCodes.Brtrue); //work backwards from end
 
-#if DEBUG
-                var worked = false;
-                if (end == -1)
-                {
-                    MoreAccessories.Print($"Opcode not found OpCodes.Brtrue_S", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
-                    for (var i = 0; i < instructionsList.Count; i++)
-                    {
-                        MoreAccessories.Print($"{i:00} {instructionsList[i].opcode} {instructionsList[i].operand}");
-                    }
-                }
-#endif
 
                 var start = end - 4; //code is at least 4 lines
 
@@ -401,9 +327,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
                     if (i == start)
                     {
-#if DEBUG
-                        worked = true;
-#endif
                         yield return new CodeInstruction(OpCodes.Ldarg_0);
                         yield return new CodeInstruction(OpCodes.Ldarg_2);
                         yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessorySlotBoolCheck), AccessTools.all));
@@ -413,11 +336,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
                     yield return inst;
                 }
-#if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
-                count++;
-#endif
-
             }
         }
 
@@ -427,16 +345,6 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         [HarmonyPatch]
         private static class ChaControl_Replace_20_Patch
         {
-#if DEBUG
-            private static int count = 0;
-            private static void Finalizer(Exception __exception)
-            {
-                if (__exception != null)
-                {
-                    MoreAccessories.Print(__exception.ToString(), BepInEx.Logging.LogLevel.Error);
-                }
-            }
-#endif
             private static IEnumerable<MethodBase> TargetMethods()
             {
                 var list = new List<MethodBase>
@@ -453,30 +361,19 @@ namespace MoreAccessoriesKOI.Patches.MainGame
 
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-#if DEBUG
-                MoreAccessories.Print($"{nameof(ChaControl_Replace_20_Patch)} Method {count++}");
-                var worked = false;
-#endif
                 var instructionsList = instructions.ToList();
                 for (var i = 0; i < instructionsList.Count; i++)
                 {
                     var inst = instructionsList[i];
                     if (inst.opcode == OpCodes.Ldc_I4_S && inst.operand.ToString() == "20")
                     {
-#if DEBUG
-                        worked = true;
-#endif
-                        yield return new CodeInstruction(OpCodes.Ldarg_0);//feed chacontrol to method
+                        yield return new CodeInstruction(OpCodes.Ldarg_0); //feed chacontrol to method
                         yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
                         continue;
                     }
+
                     yield return inst;
                 }
-
-#if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
-#endif
-
             }
         }
 
@@ -485,17 +382,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
         {
             public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
             {
-#if DEBUG
-                MoreAccessories.Print($"{nameof(UpdateVisible_Patch)} Method");
-                var worked = false;
-#endif
                 var instructionsList = instructions.ToList();
                 //var end = instructionsList.FindLastIndex(x => x.opcode == OpCodes.Conv_I4);
                 var end = instructionsList.Count - 1;
-
-                var endcount = 0;
-#if EC
-                endcount = 1;
+#if KK || KKS
+                const int endcount = 0;
+#elif EC
+               const int endcount = 1;
 #endif
 
                 var findcount = 0;
@@ -515,33 +408,21 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                 {
                     start--;
                 }
+
                 for (var i = 0; i < instructionsList.Count; i++)
                 {
                     var inst = instructionsList[i];
                     if (i == start)
                     {
-#if DEBUG
-                        worked = true;
-#endif
                         //yield return instructionsList[start - 2];
                         yield return new CodeInstruction(OpCodes.Call, typeof(ChaControl_Patches).GetMethod(nameof(AccessoryCount), AccessTools.all));
                         i = end;
                         continue;
                     }
+
                     yield return inst;
                 }
-
-#if DEBUG
-                MoreAccessories.Print("Transpiler finished", worked ? BepInEx.Logging.LogLevel.Warning : BepInEx.Logging.LogLevel.Error);
-#endif
             }
-#if DEBUG
-            private static void Prefix(ChaControl __instance)
-            {
-                if (__instance.objAccessory.Length != __instance.fileStatus.showAccessory.Length)
-                    MoreAccessories.Print($"{__instance.fileParam.fullname } {__instance.objAccessory.Length}  {__instance.nowCoordinate.accessory.parts.Length} {__instance.fileStatus.showAccessory.Length}");
-            }
-#endif
         }
 
         private static bool AccessorySlotBoolCheck(ChaControl chara, int slot)
@@ -552,10 +433,11 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", LogLevel.Error);
                 return MathfEx.RangeEqualOn(0, slot, 19);
             }
         }
+
         private static int AccessoryCount(ChaControl chara)
         {
             try
@@ -564,16 +446,19 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                MoreAccessories.Print($"{chara.fileParam.fullname} {ex}", LogLevel.Error);
                 return 20;
             }
         }
+
         #endregion
 
         /// <summary>
         /// Probably got lazy and just replicated the original since its small function that'll work 
         /// </summary>
+
         #region Prefix override
+
         [HarmonyPriority(Priority.Last), HarmonyPatch(typeof(ChaControl), nameof(ChaControl.SetAccessoryState))]
         internal class SetAccessory_Patch
         {
@@ -585,12 +470,13 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     {
                         return false;
                     }
+
                     __instance.fileStatus.showAccessory[slotNo] = show;
                     return false;
                 }
                 catch (Exception ex)
                 {
-                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", LogLevel.Error);
                     return true;
                 }
             }
@@ -608,11 +494,12 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     {
                         __instance.fileStatus.showAccessory[i] = show;
                     }
+
                     return false;
                 }
                 catch (Exception ex)
                 {
-                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", BepInEx.Logging.LogLevel.Error);
+                    MoreAccessories.Print($"{__instance.fileParam.fullname} {ex}", LogLevel.Error);
                     return true;
                 }
             }
@@ -630,6 +517,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                     {
                         return false;
                     }
+
                     var length = __instance.nowCoordinate.accessory.parts.Length;
                     for (var i = 0; i < length; i++)
                     {
@@ -638,6 +526,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                             __instance.fileStatus.showAccessory[i] = show;
                         }
                     }
+
                     return false;
                 }
                 catch (Exception ex)
@@ -660,6 +549,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                         __result = -1;
                         return false;
                     }
+
                     __result = 0;
                     var length = __instance.nowCoordinate.accessory.parts.Length;
 
@@ -670,6 +560,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
                             __result++;
                         }
                     }
+
                     return false;
                 }
                 catch (Exception ex)
@@ -680,6 +571,7 @@ namespace MoreAccessoriesKOI.Patches.MainGame
             }
         }
 #endif
+
         #endregion
     }
 }

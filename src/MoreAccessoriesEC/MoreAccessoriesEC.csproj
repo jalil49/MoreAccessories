@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MoreAccessoriesKOI</RootNamespace>
     <AssemblyName>MoreAccessories</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
@@ -148,8 +148,8 @@
   <Import Project="..\packages\IllusionLibs.EmotionCreators.UnityEngine.IMGUIModule.2017.4.24.4\build\IllusionLibs.EmotionCreators.UnityEngine.IMGUIModule.targets" Condition="Exists('..\packages\IllusionLibs.EmotionCreators.UnityEngine.IMGUIModule.2017.4.24.4\build\IllusionLibs.EmotionCreators.UnityEngine.IMGUIModule.targets')" />
   <Import Project="..\packages\IllusionLibs.EmotionCreators.UnityEngine.TextRenderingModule.2017.4.24.4\build\IllusionLibs.EmotionCreators.UnityEngine.TextRenderingModule.targets" Condition="Exists('..\packages\IllusionLibs.EmotionCreators.UnityEngine.TextRenderingModule.2017.4.24.4\build\IllusionLibs.EmotionCreators.UnityEngine.TextRenderingModule.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>IF EXIST "F:\[ScrewThisNoise] Emotion Creators BetterRepack R5.0.1" (
-xcopy "$(TargetFileName)" "F:\[ScrewThisNoise] Emotion Creators BetterRepack R5.0.1\BepInEx\plugins" /S /Y /D
+    <PostBuildEvent>IF EXIST "D:\[ScrewThisNoise] Emotion Creators BetterRepack R5.0.1" (
+xcopy "$(TargetPath)" "D:\[ScrewThisNoise] Emotion Creators BetterRepack R5.0.1\BepInEx\plugins" /S /Y /D
 )</PostBuildEvent>
   </PropertyGroup>
 </Project>

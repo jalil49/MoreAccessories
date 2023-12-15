@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using UnityEngine;
 
 namespace MoreAccessoriesKOI.Extensions
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal static class TransformExtensions
     {
         public static string GetPathFrom(this Transform self, Transform root, bool includeRoot = false)
@@ -75,8 +77,9 @@ namespace MoreAccessoriesKOI.Extensions
         public static Transform Find(this Transform self, List<int> path)
         {
             var self2 = self;
-            for (var i = 0; i < path.Count; i++)
-                self2 = self2.GetChild(path[i]);
+            foreach (var t in path)
+                self2 = self2.GetChild(t);
+
             return self2;
         }
 

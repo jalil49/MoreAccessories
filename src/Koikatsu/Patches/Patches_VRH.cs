@@ -1,15 +1,18 @@
-﻿using HarmonyLib;
+﻿#if KK || KKS
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-#pragma warning disable IDE0051 // Remove unused private members
+using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+    [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
     internal class VR_Patches
     {
         [HarmonyPatch]
-        private static class VRHScene_Start_Patches
+        private static class VrHSceneStart_Patches
         {
             private static bool Prepare()
             {
@@ -18,7 +21,7 @@ namespace MoreAccessoriesKOI.Patches
 
             private static MethodInfo TargetMethod()
             {
-                return Type.GetType("VRHScene,Assembly-CSharp.dll").GetMethod("Start", AccessTools.all);
+                return Type.GetType("VRHScene,Assembly-CSharp.dll")?.GetMethod("Start", AccessTools.all);
             }
 #if KK
             private static void Postfix(List<ChaControl> ___lstFemale, HSprite[] ___sprites)
@@ -34,3 +37,4 @@ namespace MoreAccessoriesKOI.Patches
         }
     }
 }
+#endif

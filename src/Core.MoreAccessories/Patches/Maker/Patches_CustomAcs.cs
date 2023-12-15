@@ -1,4 +1,5 @@
-﻿using ChaCustom;
+﻿using System.Diagnostics.CodeAnalysis;
+using ChaCustom;
 using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches.Maker
@@ -8,7 +9,9 @@ namespace MoreAccessoriesKOI.Patches.Maker
         #region CustomAcsChangeSlot
 
         [HarmonyPatch(typeof(CustomAcsChangeSlot), nameof(CustomAcsChangeSlot.Start))]
-        private static class CustomAcsChangeSlot_KKS_Start_Patches
+        [SuppressMessage("ReSharper", "UnusedMember.Local", Justification = "Harmony Patches - Used Externally")]
+        [SuppressMessage("ReSharper", "UnusedParameter.Local", Justification = "Harmony Patches - Used Externally")]
+        private static class CustomAcsChangeSlotStart_Patches
         {
             private static void Postfix(CustomAcsChangeSlot __instance)
             {

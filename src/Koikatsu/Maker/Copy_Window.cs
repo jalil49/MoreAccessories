@@ -1,10 +1,8 @@
-﻿using ChaCustom;
-using Illusion.Extensions;
-using MoreAccessoriesKOI.Extensions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ChaCustom;
+using MoreAccessoriesKOI.Extensions;
 using TMPro;
-using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,26 +14,29 @@ namespace MoreAccessoriesKOI
     /// </summary>
     public class Copy_Window
     {
-        public CvsAccessoryCopy CopyWindow { get; private set; }
-        internal MoreAccessories Plugin => MoreAccessories._self;
-        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
+        public CvsAccessoryCopy CopyWindow { get; }
+        private ScrollRect _scrollView;
 
-        internal Copy_Window(CvsAccessoryCopy _instance)
+        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots
         {
-            CopyWindow = _instance;
+            get => MoreAccessories.MakerMode.AdditionalCharaMakerSlots;
+            set => MoreAccessories.MakerMode.AdditionalCharaMakerSlots = value;
+        }
+
+        internal Copy_Window(CvsAccessoryCopy instance)
+        {
+            CopyWindow = instance;
             MakeScrollable();
             CopyWindow.btnAllOn.onClick = new Button.ButtonClickedEvent();
             CopyWindow.btnAllOn.onClick.AddListener(SelectAllToggles);
         }
 
-        private ScrollRect ScrollView;
 
         internal void RefreshToggles(int length)
         {
-            Plugin.ExecuteDelayed(WindowRefresh);
+            MoreAccessories._self.ExecuteDelayed(WindowRefresh);
 
-            var windowlength = CopyWindow.tglKind.Length;
-            var delta = length - windowlength;
+            var delta = length - CopyWindow.tglKind.Length;
             if (delta < 1) return;
 
             var index = 1;
@@ -45,33 +46,32 @@ namespace MoreAccessoriesKOI
                 index++;
             }
 
-            var gameobject = ScrollView.content.GetChild(0).gameObject;
-            var tglarray = new Toggle[delta];
-            var srcarray = new TextMeshProUGUI[delta];
-            var dstarray = new TextMeshProUGUI[delta];
+            var gameObject = _scrollView.content.GetChild(0).gameObject;
+            var tglArray = new Toggle[delta];
+            var srcArray = new TextMeshProUGUI[delta];
+            var dstArray = new TextMeshProUGUI[delta];
 
             for (var i = 0; i < delta; i++, index++)
             {
-                var copyToggle = Object.Instantiate(gameobject, ScrollView.content);
-                tglarray[i] = copyToggle.GetComponentInChildren<Toggle>();
-                tglarray[i].Set(false);
-                tglarray[i].graphic.raycastTarget = true;
-                tglarray[i].transform.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
+                var copyToggle = Object.Instantiate(gameObject, _scrollView.content);
+                tglArray[i] = copyToggle.GetComponentInChildren<Toggle>();
+                tglArray[i].Set(false);
+                tglArray[i].graphic.raycastTarget = true;
+                tglArray[i].transform.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
                 copyToggle.name = "kind" + (index - 1).ToString("00");
-                srcarray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
-                srcarray[i].name = $"srcText{i:00}";
-                dstarray[i] = copyToggle.transform.Find("dstText00").GetComponent<TextMeshProUGUI>();
-                dstarray[i].name = $"dstText{i:00}";
-                var info = AdditionalCharaMakerSlots[index - 21];//21 since index starts at 1
-                info.copySlotObject = copyToggle;
+                srcArray[i] = copyToggle.transform.Find("srcText00").GetComponent<TextMeshProUGUI>();
+                srcArray[i].name = $"srcText{i:00}";
+                dstArray[i] = copyToggle.transform.Find("dstText00").GetComponent<TextMeshProUGUI>();
+                dstArray[i].name = $"dstText{i:00}";
+                AdditionalCharaMakerSlots[index - 21].copySlotObject = copyToggle;
             }
 
-            CopyWindow.tglKind = CopyWindow.tglKind.Concat(tglarray).ToArray();
-            CopyWindow.textSrc = CopyWindow.textSrc.Concat(srcarray).ToArray();
-            CopyWindow.textDst = CopyWindow.textDst.Concat(dstarray).ToArray();
+            CopyWindow.tglKind = CopyWindow.tglKind.Concat(tglArray).ToArray();
+            CopyWindow.textSrc = CopyWindow.textSrc.Concat(srcArray).ToArray();
+            CopyWindow.textDst = CopyWindow.textDst.Concat(dstArray).ToArray();
         }
 
-        internal void ValidatateToggles()
+        internal void ValidateToggles()
         {
             for (var i = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length; i < CopyWindow.tglKind.Length; i++)
             {
@@ -82,8 +82,8 @@ namespace MoreAccessoriesKOI
         private void SelectAllToggles()
         {
             var array = CopyWindow.tglKind;
-            var partscount = CopyWindow.accessory.parts.Length;
-            for (var i = 0; i < partscount; i++)
+            var partsCount = CopyWindow.accessory.parts.Length;
+            for (var i = 0; i < partsCount; i++)
             {
                 array[i].Set(true);
             }
@@ -92,34 +92,31 @@ namespace MoreAccessoriesKOI
         private void MakeScrollable()
         {
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglCopy/CopyTop/rect").transform;
-            ScrollView = UIUtility.CreateScrollView("CopySlots", container);
-            ScrollView.movementType = ScrollRect.MovementType.Clamped;
-            ScrollView.horizontal = false;
-            ScrollView.scrollSensitivity = 18f;
-            if (ScrollView.horizontalScrollbar != null)
-                Object.Destroy(ScrollView.horizontalScrollbar.gameObject);
-            if (ScrollView.verticalScrollbar != null)
-                Object.Destroy(ScrollView.verticalScrollbar.gameObject);
-            Object.Destroy(ScrollView.GetComponent<Image>());
+            _scrollView = UIUtility.CreateScrollView("CopySlots", container);
+            _scrollView.movementType = ScrollRect.MovementType.Clamped;
+            _scrollView.horizontal = false;
+            _scrollView.scrollSensitivity = 18f;
+            if (_scrollView.horizontalScrollbar != null)
+                Object.Destroy(_scrollView.horizontalScrollbar.gameObject);
+            if (_scrollView.verticalScrollbar != null)
+                Object.Destroy(_scrollView.verticalScrollbar.gameObject);
+            Object.Destroy(_scrollView.GetComponent<Image>());
 
             var content = (RectTransform)container.Find("grpClothes");
-            ScrollView.transform.SetRect(content);
-            content.SetParent(ScrollView.viewport);
-            Object.Destroy(ScrollView.content.gameObject);
-            ScrollView.content = content;
-            ScrollView.transform.SetAsFirstSibling();
-            ScrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -570f), new Vector2(-16f, -80f));
+            _scrollView.transform.SetRect(content);
+            content.SetParent(_scrollView.viewport);
+            Object.Destroy(_scrollView.content.gameObject);
+            _scrollView.content = content;
+            _scrollView.transform.SetAsFirstSibling();
+            _scrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -570f), new Vector2(-16f, -80f));
 
-            Plugin.ExecuteDelayed(delegate ()
-            {
-                CopyWindow.transform.localPosition -= new Vector3(50, 0, 0);
-            });
+            MoreAccessories._self.ExecuteDelayed(delegate { CopyWindow.transform.localPosition -= new Vector3(50, 0, 0); });
         }
 
         internal void WindowRefresh()
         {
             CopyWindow.UpdateCustomUI();
-            ValidatateToggles();
+            ValidateToggles();
         }
     }
 }

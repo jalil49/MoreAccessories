@@ -1,15 +1,18 @@
-﻿using ExtensibleSaveFormat;
-using MoreAccessoriesKOI.Extensions;
+﻿#pragma warning disable CS0618 // Type or member is obsolete
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Xml;
+using ExtensibleSaveFormat;
+using JetBrains.Annotations;
+using MoreAccessoriesKOI.Extensions;
 using UnityEngine;
 using UnityEngine.UI;
-
 #if EC
 using TMPro;
+#pragma warning disable CS0618 // Type or member is obsolete
 #endif
-
 
 namespace MoreAccessoriesKOI
 {
@@ -17,6 +20,7 @@ namespace MoreAccessoriesKOI
     {
         public CharAdditionalData() { }
 
+        [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
         public CharAdditionalData(PluginData pluginData)
         {
             XmlNode node = null;
@@ -26,6 +30,7 @@ namespace MoreAccessoriesKOI
                 doc.LoadXml((string)xmlData);
                 node = doc.FirstChild;
             }
+
             if (node != null)
             {
                 foreach (XmlNode childNode in node.ChildNodes)
@@ -34,9 +39,8 @@ namespace MoreAccessoriesKOI
                     {
                         case "accessorySet":
                             var coordinateType = XmlConvert.ToInt32(childNode.Attributes["type"].Value);
-                            List<ChaFileAccessory.PartsInfo> parts;
 
-                            if (rawAccessoriesInfos.TryGetValue(coordinateType, out parts) == false)
+                            if (rawAccessoriesInfos.TryGetValue(coordinateType, out var parts) == false)
                             {
                                 parts = new List<ChaFileAccessory.PartsInfo>();
                                 rawAccessoriesInfos.Add(coordinateType, parts);
@@ -62,6 +66,7 @@ namespace MoreAccessoriesKOI
                                             };
                                         }
                                     }
+
                                     for (var i = 0; i < 4; i++)
                                     {
                                         part.color[i] = new Color
@@ -72,16 +77,19 @@ namespace MoreAccessoriesKOI
                                             a = XmlConvert.ToSingle(accessoryNode.Attributes[$"color{i}a"].Value)
                                         };
                                     }
+
                                     part.hideCategory = XmlConvert.ToInt32(accessoryNode.Attributes["hideCategory"].Value);
 #if EC
                                     if (accessoryNode.Attributes["hideTiming"] != null)
                                         part.hideTiming = XmlConvert.ToInt32(accessoryNode.Attributes["hideTiming"].Value);
 #endif
-                                    if (MoreAccessories._hasDarkness)
+                                    if (MoreAccessories.HasDarkness)
                                         part.SetPrivateProperty("noShake", accessoryNode.Attributes["noShake"] != null && XmlConvert.ToBoolean(accessoryNode.Attributes["noShake"].Value));
                                 }
+
                                 parts.Add(part);
                             }
+
                             break;
 #if KK || KKS
                         case "visibility":
@@ -91,6 +99,7 @@ namespace MoreAccessoriesKOI
                                 foreach (XmlNode grandChildNode in childNode.ChildNodes)
                                     showAccessories.Add(grandChildNode.Attributes?["value"] == null || XmlConvert.ToBoolean(grandChildNode.Attributes["value"].Value));
                             }
+
                             break;
 #endif
                         default: break;
@@ -101,48 +110,65 @@ namespace MoreAccessoriesKOI
 
 
 #if KK || KKS
-        public CharAdditionalData(ChaControl chactrl)
+        public CharAdditionalData(ChaControl chaControl)
         {
-            nowAccessories = chactrl.nowCoordinate.accessory.parts.Skip(20).ToList();
-            for (var i = 0; i < chactrl.chaFile.coordinate.Length; i++)
+            nowAccessories = chaControl.nowCoordinate.accessory.parts.Skip(20).ToList();
+            for (var i = 0; i < chaControl.chaFile.coordinate.Length; i++)
             {
-                rawAccessoriesInfos[i] = chactrl.chaFile.coordinate[i].accessory.parts.Skip(20).ToList();
+                rawAccessoriesInfos[i] = chaControl.chaFile.coordinate[i].accessory.parts.Skip(20).ToList();
             }
         }
+
         public CharAdditionalData(ChaFile file)
         {
             for (var i = 0; i < file.coordinate.Length; i++)
             {
                 rawAccessoriesInfos[i] = file.coordinate[i].accessory.parts.Skip(20).ToList();
             }
+
             if (MoreAccessories.InStudio)
                 showAccessories = file.status.showAccessory.Skip(20).ToList();
         }
 #elif EC
-        public CharAdditionalData(ChaControl chactrl)
+        [Obsolete("Directly on character")]
+        public CharAdditionalData(ChaControl chaControl)
         {
-            nowAccessories = chactrl.nowCoordinate.accessory.parts.Skip(20).ToList();
-            rawAccessoriesInfos[0] = chactrl.chaFile.coordinate.accessory.parts.Skip(20).ToList();
+            nowAccessories = chaControl.nowCoordinate.accessory.parts.Skip(20).ToList();
+            rawAccessoriesInfos[0] = chaControl.chaFile.coordinate.accessory.parts.Skip(20).ToList();
         }
+
+        [Obsolete("Directly on character")]
         public CharAdditionalData(ChaFile file)
         {
             rawAccessoriesInfos[0] = file.coordinate.accessory.parts.Skip(20).ToList();
         }
 #endif
+        [Obsolete("Directly on character", true)]
         public CharAdditionalData(ChaFileAccessory.PartsInfo[] parts)
         {
             nowAccessories = parts.Skip(20).ToList();
         }
 
+        [Obsolete("Directly on character")] [PublicAPI]
+        // ReSharper disable once InconsistentNaming
         public List<ChaFileAccessory.PartsInfo> nowAccessories = new List<ChaFileAccessory.PartsInfo>();
+
+        [PublicAPI] [Obsolete("Directly on character")]
+        // ReSharper disable once InconsistentNaming
         internal List<bool> showAccessories = new List<bool>();
 
 #if EC
+        [PublicAPI]
+        // ReSharper disable once InconsistentNaming
         public List<int> advState = new List<int>();
 #endif
+        // ReSharper disable once InconsistentNaming
+        [Obsolete("Unused directly stored on Accessory.parts")] [PublicAPI]
         public Dictionary<int, List<ChaFileAccessory.PartsInfo>> rawAccessoriesInfos = new Dictionary<int, List<ChaFileAccessory.PartsInfo>>();
     }
 
+    [PublicAPI]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class CharaMakerSlotData
     {
         public GameObject AccessorySlot;
@@ -153,6 +179,8 @@ namespace MoreAccessoriesKOI
     }
 
 #if KK || KKS
+    [PublicAPI]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class StudioSlotData
     {
         public RectTransform slot;
@@ -161,6 +189,8 @@ namespace MoreAccessoriesKOI
         public Button offButton;
     }
 #elif EC
+    [PublicAPI]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class PlaySceneSlotData
     {
         public RectTransform slot;
@@ -168,6 +198,8 @@ namespace MoreAccessoriesKOI
         public Button button;
     }
 
+    [PublicAPI]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     public class ADVSceneSlotData
     {
         public RectTransform slot;

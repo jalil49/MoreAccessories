@@ -1,6 +1,8 @@
-﻿using HarmonyLib;
-using System;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using BepInEx.Logging;
+using HarmonyLib;
 
 namespace MoreAccessoriesKOI.Patches
 {
@@ -17,24 +19,36 @@ namespace MoreAccessoriesKOI.Patches
             try
             {
                 var coord = __instance.coordinate;
-                for (int outfitnum = 0, n = coord.Length; outfitnum < n; outfitnum++)
+                for (int outfitNum = 0, n = coord.Length; outfitNum < n; outfitNum++)
                 {
-                    if (coord[outfitnum].accessory.parts.Length == 20) continue; //array is natural size don't do extra work
+                    if (coord[outfitNum].accessory.parts.Length == 20) continue; //array is natural size don't do extra work
 
-                    var lastvalidslot = Array.FindLastIndex(coord[outfitnum].accessory.parts, x => x.type != 120) + 1;
-                    if (lastvalidslot < 20) lastvalidslot = 20; //Make sure to trim if list is completely empty thanks IDontHaveIdea for catching this
+                    var lastValidSlot = Math.Max(20, Array.FindLastIndex(coord[outfitNum].accessory.parts, x => x.type != 120) + 1);
 
-                    coord[outfitnum].accessory.parts = coord[outfitnum].accessory.parts.Take(lastvalidslot).ToArray();
+                    coord[outfitNum].accessory.parts = coord[outfitNum].accessory.parts.Take(lastValidSlot).ToArray();
                 }
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", LogLevel.Fatal);
             }
         }
 
         [HarmonyPriority(Priority.First)]
-        private static void Postfix(ChaFile __instance) => MoreAccessories.NowCoordinateTrimAndSync(Common_Patches.GetChaControls().FirstOrDefault(x => __instance == x.chaFile));
+        private static void Postfix(ChaFile __instance)
+        {
+            ChaControl first = null;
+            foreach (var x in Common_Patches.GetChaControls())
+            {
+                if (__instance == x.chaFile)
+                {
+                    first = x;
+                    break;
+                }
+            }
+
+            MoreAccessories.NowCoordinateTrimAndSync(first);
+        }
     }
 #else
     [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetCoordinateBytes), new Type[0])]
@@ -46,24 +60,37 @@ namespace MoreAccessoriesKOI.Patches
             try
             {
                 var accessory = __instance.coordinate.accessory;
-                if (accessory.parts.Length == 20)//Don't do extra work
+                if (accessory.parts.Length == 20) //Don't do extra work
                 {
                     return;
                 }
 
-                var lastvalidslot = Array.FindLastIndex(accessory.parts, x => x.type != 120) + 1;
-                if (lastvalidslot < 20) lastvalidslot = 20;
-                if (lastvalidslot == accessory.parts.Length) return;//don't do below since nothing changed
-                accessory.parts = accessory.parts.Take(lastvalidslot).ToArray();
+                var lastValidSlot = Array.FindLastIndex(accessory.parts, x => x.type != 120) + 1;
+                if (lastValidSlot < 20) lastValidSlot = 20;
+                if (lastValidSlot == accessory.parts.Length) return; //don't do below since nothing changed
+                accessory.parts = accessory.parts.Take(lastValidSlot).ToArray();
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", LogLevel.Fatal);
             }
         }
 
         [HarmonyPriority(Priority.First)]
-        private static void Postfix(ChaFile __instance) => MoreAccessories.NowCoordinateTrimAndSync(Common_Patches.GetChaControls().FirstOrDefault(x => __instance == x.chaFile));
+        private static void Postfix(ChaFile __instance)
+        {
+            ChaControl first = null;
+            foreach (var x in Common_Patches.GetChaControls())
+            {
+                if (__instance == x.chaFile)
+                {
+                    first = x;
+                    break;
+                }
+            }
+
+            MoreAccessories.NowCoordinateTrimAndSync(first);
+        }
     }
 
 #endif
@@ -75,29 +102,43 @@ namespace MoreAccessoriesKOI.Patches
         {
             try
             {
-                if (__instance.accessory.parts.Length == 20)//Don't do extra work
+                if (__instance.accessory.parts.Length == 20) //Don't do extra work
                 {
                     return;
                 }
 
 
-                var lastvalidslot = Array.FindLastIndex(__instance.accessory.parts, x => x.type != 120) + 1;
-                if (lastvalidslot < 20) lastvalidslot = 20;
-                if (lastvalidslot == __instance.accessory.parts.Length) return;//don't do below since nothing changed
-                __instance.accessory.parts = __instance.accessory.parts.Take(lastvalidslot).ToArray();
+                var lastValidSlot = Array.FindLastIndex(__instance.accessory.parts, x => x.type != 120) + 1;
+                if (lastValidSlot < 20) lastValidSlot = 20;
+                if (lastValidSlot == __instance.accessory.parts.Length) return; //don't do below since nothing changed
+                __instance.accessory.parts = __instance.accessory.parts.Take(lastValidSlot).ToArray();
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Error occurred while saving coordinate {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving coordinate {ex}", LogLevel.Fatal);
             }
         }
 
         [HarmonyPriority(Priority.First)]
-        private static void Postfix(ChaFileCoordinate __instance) => MoreAccessories.NowCoordinateTrimAndSync(Common_Patches.GetChaControls().FirstOrDefault(x => __instance == x.nowCoordinate));
+        private static void Postfix(ChaFileCoordinate __instance)
+        {
+            ChaControl first = null;
+            foreach (var x in Common_Patches.GetChaControls())
+            {
+                if (__instance == x.nowCoordinate)
+                {
+                    first = x;
+                    break;
+                }
+            }
+
+            MoreAccessories.NowCoordinateTrimAndSync(first);
+        }
     }
 
     //Don't save with manipulated showAccessory array. Will cause issues when plugin is not installed or when used with moreaccessories by joan
     [HarmonyPatch(typeof(ChaFile), nameof(ChaFile.GetStatusBytes), typeof(ChaFileStatus))]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class ChaFileStatusPatch
     {
         [HarmonyPriority(Priority.Last)]
@@ -111,7 +152,7 @@ namespace MoreAccessoriesKOI.Patches
             }
             catch (Exception ex)
             {
-                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", BepInEx.Logging.LogLevel.Fatal);
+                MoreAccessories.Print($"Error occurred while saving chafile coordinates {ex}", LogLevel.Fatal);
                 __state = null;
             }
         }
@@ -123,7 +164,18 @@ namespace MoreAccessoriesKOI.Patches
             {
                 _status.showAccessory = __state;
             }
-            MoreAccessories.NowCoordinateTrimAndSync(Common_Patches.GetChaControls().FirstOrDefault(x => __instance == x.chaFile));
+
+            ChaControl first = null;
+            foreach (var x in Common_Patches.GetChaControls())
+            {
+                if (__instance == x.chaFile)
+                {
+                    first = x;
+                    break;
+                }
+            }
+
+            MoreAccessories.NowCoordinateTrimAndSync(first);
             Common_Patches.Seal(true);
         }
     }

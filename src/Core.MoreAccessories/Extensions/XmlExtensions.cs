@@ -1,8 +1,12 @@
-﻿using System.Xml;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml;
 using UnityEngine;
 
 namespace MoreAccessoriesKOI.Extensions
 {
+    
+    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     internal static class XmlExtensions
     {
         public static XmlNode FindChildNode(this XmlNode self, string name)

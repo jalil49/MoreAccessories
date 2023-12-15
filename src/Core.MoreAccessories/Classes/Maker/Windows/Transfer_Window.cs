@@ -1,8 +1,8 @@
-﻿using ChaCustom;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChaCustom;
 using Illusion.Extensions;
 using MoreAccessoriesKOI.Extensions;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UniRx;
 using UnityEngine;
@@ -16,130 +16,123 @@ namespace MoreAccessoriesKOI
     /// </summary>
     public class Transfer_Window
     {
-        public CvsAccessoryChange ChangeWindow { get; private set; }
+        public  CvsAccessoryChange ChangeWindow { get; }
 
-        private MoreAccessories Plugin => MoreAccessories._self;
+        private ScrollRect _scrollView;
 
-        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots { get { return MoreAccessories.MakerMode._additionalCharaMakerSlots; } set { MoreAccessories.MakerMode._additionalCharaMakerSlots = value; } }
-
-        internal Transfer_Window(CvsAccessoryChange _instance)
+        internal List<CharaMakerSlotData> AdditionalCharaMakerSlots
         {
-            ChangeWindow = _instance;
+            get => MoreAccessories.MakerMode.AdditionalCharaMakerSlots;
+            set => MoreAccessories.MakerMode.AdditionalCharaMakerSlots = value;
+        }
+
+        internal Transfer_Window(CvsAccessoryChange instance)
+        {
+            ChangeWindow = instance;
             MakeScrollable();
         }
 
-        private ScrollRect ScrollView;
 
         private void MakeScrollable()
         {
             var container = (RectTransform)GameObject.Find("CustomScene/CustomRoot/FrontUIGroup/CustomUIGroup/CvsMenuTree/04_AccessoryTop/tglChange/ChangeTop/rect").transform;
-            ScrollView = UIUtility.CreateScrollView("kind", container);
-            ScrollView.movementType = ScrollRect.MovementType.Clamped;
-            ScrollView.horizontal = false;
-            ScrollView.scrollSensitivity = 18f;
+            _scrollView = UIUtility.CreateScrollView("kind", container);
+            _scrollView.movementType = ScrollRect.MovementType.Clamped;
+            _scrollView.horizontal = false;
+            _scrollView.scrollSensitivity = 18f;
 
-            Plugin.ExecuteDelayed(delegate ()
-            {
-                ChangeWindow.transform.localPosition -= new Vector3(50, 0, 0);
-            });
+            MoreAccessories._self.ExecuteDelayed(delegate { ChangeWindow.transform.localPosition -= new Vector3(50, 0, 0); });
 
-            if (ScrollView.horizontalScrollbar != null)
-                Object.Destroy(ScrollView.horizontalScrollbar.gameObject);
-            if (ScrollView.verticalScrollbar != null)
-                Object.Destroy(ScrollView.verticalScrollbar.gameObject);
-            Object.Destroy(ScrollView.GetComponent<Image>());
+            if (_scrollView.horizontalScrollbar != null)
+                Object.Destroy(_scrollView.horizontalScrollbar.gameObject);
+            if (_scrollView.verticalScrollbar != null)
+                Object.Destroy(_scrollView.verticalScrollbar.gameObject);
+            Object.Destroy(_scrollView.GetComponent<Image>());
 
             var content = (RectTransform)container.Find("grpClothes");
-            ScrollView.transform.SetRect(content);
-            content.SetParent(ScrollView.viewport);
-            Object.Destroy(ScrollView.content.gameObject);
-            ScrollView.content = content;
-            ScrollView.transform.SetAsFirstSibling();
-            ScrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -530f), new Vector2(-16f, -48f));
+            _scrollView.transform.SetRect(content);
+            content.SetParent(_scrollView.viewport);
+            Object.Destroy(_scrollView.content.gameObject);
+            _scrollView.content = content;
+            _scrollView.transform.SetAsFirstSibling();
+            _scrollView.transform.SetRect(new Vector2(0f, 1f), Vector2.one, new Vector2(16f, -530f), new Vector2(-16f, -48f));
         }
 
-        internal void RefreshToggles(int length)
+        internal void RefreshToggles(int maxLength)
         {
-            Plugin.ExecuteDelayed(WindowRefresh);
+            MoreAccessories._self.ExecuteDelayed(WindowRefresh);
 
-            var windowlength = ChangeWindow.tglSrcKind.Length;
-            var delta = length - windowlength;
+            var delta = maxLength - ChangeWindow.tglSrcKind.Length;
             if (delta < 1) return;
 
             var index = 1;
-            foreach (var item in ScrollView.content.Children())
+            foreach (var item in _scrollView.content.Children())
             {
                 item.GetComponentInChildren<TextMeshProUGUI>(true).text = index.ToString("00");
                 index++;
             }
 
-            var gameobject = ScrollView.content.GetChild(0);
-            var tglSrcKindarray = new Toggle[delta];
-            var tglDstKindarray = new Toggle[delta];
-            var srcarray = new TextMeshProUGUI[delta];
-            var dstarray = new TextMeshProUGUI[delta];
+            var gameObject = _scrollView.content.GetChild(0);
+            var tglSrcKindArray = new Toggle[delta];
+            var tglDstKindArray = new Toggle[delta];
+            var srcArray = new TextMeshProUGUI[delta];
+            var dstArray = new TextMeshProUGUI[delta];
 
             //OnValueChangedAsObservable overwrites the selected slot save original value
-            var originalseldst = ChangeWindow.selDst;
-            var originalselsrc = ChangeWindow.selSrc;
+            var originalSelDst = ChangeWindow.selDst;
+            var originalSelSrc = ChangeWindow.selSrc;
 
             for (var i = 0; i < delta; i++, index++)
             {
-                var Transfer = Object.Instantiate(gameobject, ScrollView.content);
-                Transfer.GetComponentInChildren<TextMeshProUGUI>().text = index.ToString("00");
-                var srctoggle = tglSrcKindarray[i] = Transfer.GetChild(1).GetComponentInChildren<Toggle>();
-                var tempindex = index - 1;
-                srctoggle.Set(false);
-                srctoggle.onValueChanged = new Toggle.ToggleEvent();
-                srctoggle.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
-                {
-                    ChangeWindow.selSrc = tempindex;
-                });
-                srcarray[i] = srctoggle.GetComponentInChildren<TextMeshProUGUI>();
+                var transfer = Object.Instantiate(gameObject, _scrollView.content);
+                transfer.GetComponentInChildren<TextMeshProUGUI>().text = index.ToString("00");
+                var srcToggle = tglSrcKindArray[i] = transfer.GetChild(1).GetComponentInChildren<Toggle>();
+                var tempIndex = index - 1;
+                srcToggle.Set(false);
+                srcToggle.onValueChanged = new Toggle.ToggleEvent();
+                srcToggle.OnValueChangedAsObservable().Subscribe(delegate { ChangeWindow.selSrc = tempIndex; });
+                srcArray[i] = srcToggle.GetComponentInChildren<TextMeshProUGUI>();
 
-                var dsttoggle = tglDstKindarray[i] = Transfer.GetChild(2).GetComponentInChildren<Toggle>();
-                dsttoggle.Set(false);
-                dsttoggle.onValueChanged = new Toggle.ToggleEvent();
-                dsttoggle.OnValueChangedAsObservable().Subscribe(delegate (bool isOn)
-                {
-                    ChangeWindow.selDst = tempindex;
-                });
-                dstarray[i] = dsttoggle.GetComponentInChildren<TextMeshProUGUI>();
+                var dstToggle = tglDstKindArray[i] = transfer.GetChild(2).GetComponentInChildren<Toggle>();
+                dstToggle.Set(false);
+                dstToggle.onValueChanged = new Toggle.ToggleEvent();
+                dstToggle.OnValueChangedAsObservable().Subscribe(delegate { ChangeWindow.selDst = tempIndex; });
+                dstArray[i] = dstToggle.GetComponentInChildren<TextMeshProUGUI>();
 
-                Transfer.name = $"kind{tempindex}";
+                transfer.name = $"kind{tempIndex}";
 
-                srctoggle.graphic.raycastTarget = true;
-                dsttoggle.graphic.raycastTarget = true;
+                srcToggle.graphic.raycastTarget = true;
+                dstToggle.graphic.raycastTarget = true;
 
-                var info = new CharaMakerSlotData { transferSlotObject = Transfer.gameObject };
-                AdditionalCharaMakerSlots.Add(info);
+                AdditionalCharaMakerSlots.Add(new CharaMakerSlotData { transferSlotObject = transfer.gameObject });
             }
 
-            ChangeWindow.selDst = originalseldst;
-            ChangeWindow.selSrc = originalselsrc;
+            ChangeWindow.selDst = originalSelDst;
+            ChangeWindow.selSrc = originalSelSrc;
 
-            ChangeWindow.tglSrcKind = ChangeWindow.tglSrcKind.Concat(tglSrcKindarray).ToArray();
-            ChangeWindow.tglDstKind = ChangeWindow.tglDstKind.Concat(tglDstKindarray).ToArray();
-            ChangeWindow.textSrc = ChangeWindow.textSrc.Concat(srcarray).ToArray();
-            ChangeWindow.textDst = ChangeWindow.textDst.Concat(dstarray).ToArray();
+            ChangeWindow.tglSrcKind = ChangeWindow.tglSrcKind.Concat(tglSrcKindArray).ToArray();
+            ChangeWindow.tglDstKind = ChangeWindow.tglDstKind.Concat(tglDstKindArray).ToArray();
+            ChangeWindow.textSrc = ChangeWindow.textSrc.Concat(srcArray).ToArray();
+            ChangeWindow.textDst = ChangeWindow.textDst.Concat(dstArray).ToArray();
         }
 
         internal void WindowRefresh()
         {
             ChangeWindow.UpdateCustomUI();
-            ValidatateToggles();
+            ValidateToggles();
         }
 
-        internal void ValidatateToggles()
+        internal void ValidateToggles()
         {
-            var partscount = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length;
-            if (ChangeWindow.selSrc >= partscount)
+            var partsCount = CustomBase.instance.chaCtrl.nowCoordinate.accessory.parts.Length;
+            if (ChangeWindow.selSrc >= partsCount)
             {
                 ChangeWindow.tglSrcKind[ChangeWindow.selSrc].Set(false);
                 ChangeWindow.tglSrcKind[0].Set(true);
                 ChangeWindow.selSrc = 0;
             }
-            if (ChangeWindow.selDst >= partscount)
+
+            if (ChangeWindow.selDst >= partsCount)
             {
                 ChangeWindow.tglDstKind[ChangeWindow.selDst].Set(false);
                 ChangeWindow.tglDstKind[0].Set(true);
